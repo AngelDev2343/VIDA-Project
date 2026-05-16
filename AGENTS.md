@@ -29,6 +29,7 @@ flutter run              # launch on device/emulator
 - **Theme**: `lib/theme/app_theme.dart` — single light theme, emerald palette (`AppColors`, shades 50–900). Uses `GoogleFonts.dmSans` + `GoogleFonts.cormorantGaramond`. No dark theme.
 - **State**: `setState` only (no state management). User name in `_VidaAppState`.
 - **Navigation**: `NavigationBar` (M3) wrapped in `NavigationBarTheme` for icon colors + `IndexedStack` for 4 tabs (Inicio / Biblia / VIDA / Perfil). No router package.
+- **Biblia WebView**: `BibliaScreen` receives `isActive` prop — creates `WebViewController` **only** when tab is selected and disposes it when switching away (lazy init + memory cleanup).
 - **Dependencies**: `google_fonts`, `flutter_svg`, `cupertino_icons`, `shared_preferences`, `home_widget`. Dev: `flutter_test`, `flutter_lints`.
 - **Color contrast**: All text on white uses emerald600 or darker. AppBar icons use `emerald700`. NavBar indicator is `emerald100` with selected icons in `emerald700`, unselected in `emerald400`.
 
@@ -37,7 +38,7 @@ flutter run              # launch on device/emulator
 - **Toggle**: `ContraPecadoScreen` (`lib/screens/contra_pecado_screen.dart`) — switch on/off, saved to `SharedPreferences` key `contra_pecado`.
 - **Daily phrase**: 7 phrases in `lib/data/phrases.dart`, one per weekday (`DateTime.now().weekday`). Each has a background image in `contra_img/` (also copied to `res/drawable-nodpi/contra_1.png` … `contra_7.png`).
 - **Native provider**: `ContraPecadoWidgetProvider` (`android/.../com/vida/project/`). Uses `setImageViewResource` + `android:clipToOutline="true"` for rounded corners (NOT `setImageViewBitmap`, which causes `TransactionTooLargeException` on Binder).
-- **First‑launch pin**: `main.dart` calls `requestPinWidget(androidName: 'ContraPecadoWidgetProvider')` once on first install (flag `first_launch_pin` in SharedPreferences). No data is saved — the widget appears empty until the user activates it.
+- **First‑launch pin**: `_loadUser()` in `_VidaAppState` (`main.dart`) eagerly fires `requestPinWidget` without blocking `_ready`. No `addPostFrameCallback` delay. Guard flag `first_launch_pin` in SharedPreferences.
 
 ## "Widget favorito" — home‑screen widget (Android only)
 

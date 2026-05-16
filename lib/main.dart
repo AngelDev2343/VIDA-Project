@@ -34,25 +34,20 @@ class _VidaAppState extends State<VidaApp> {
   void initState() {
     super.initState();
     _loadUser();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _requestPinOnFirstLaunch());
   }
 
   Future<void> _loadUser() async {
     final prefs = await SharedPreferences.getInstance();
     _userName = prefs.getString('user_name') ?? '';
     await StreakService.checkAndUpdate();
-    setState(() => _ready = true);
-  }
-
-  Future<void> _requestPinOnFirstLaunch() async {
-    final prefs = await SharedPreferences.getInstance();
-    final done = prefs.getBool('first_launch_pin') ?? false;
-    if (done) return;
-    await prefs.setBool('first_launch_pin', true);
-    final supported = await HomeWidget.isRequestPinWidgetSupported() ?? false;
-    if (supported) {
-      await HomeWidget.requestPinWidget(androidName: 'ContraPecadoWidgetProvider');
+    final firstPin = prefs.getBool('first_launch_pin') ?? false;
+    if (!firstPin) {
+      await prefs.setBool('first_launch_pin', true);
+      HomeWidget.isRequestPinWidgetSupported().then((s) {
+        if (s == true) HomeWidget.requestPinWidget(androidName: 'ContraPecadoWidgetProvider');
+      });
     }
+    setState(() => _ready = true);
   }
 
   void setUserName(String name) {
@@ -91,25 +86,23 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _selectedIndex = 0;
-  late final List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      const HomeScreen(),
-      BibliaScreen(onGoHome: () => setState(() => _selectedIndex = 0)),
-      const _PlaceholderScreen(label: 'VIDA'),
-      const _PlaceholderScreen(label: 'Perfil'),
-    ];
-  }
 
   @override
   Widget build(BuildContext context) {
+    final pages = <Widget>[
+      const HomeScreen(),
+      BibliaScreen(
+        isActive: _selectedIndex == 1,
+        onGoHome: () => setState(() => _selectedIndex = 0),
+      ),
+      const _PlaceholderScreen(label: 'VIDA'),
+      const _PlaceholderScreen(label: 'Perfil'),
+    ];
+
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
-        children: _pages,
+        children: pages,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,

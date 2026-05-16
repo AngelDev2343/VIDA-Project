@@ -5,8 +5,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../theme/app_theme.dart';
 
 class BibliaScreen extends StatefulWidget {
+  final bool isActive;
   final VoidCallback? onGoHome;
-  const BibliaScreen({super.key, this.onGoHome});
+  const BibliaScreen({super.key, required this.isActive, this.onGoHome});
 
   @override
   State<BibliaScreen> createState() => _BibliaScreenState();
@@ -16,6 +17,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
   bool _checking = true;
   bool _hasInternet = false;
   StreamSubscription? _subscription;
+  WebViewController? _controller;
 
   @override
   void initState() {
@@ -24,20 +26,70 @@ class _BibliaScreenState extends State<BibliaScreen> {
   }
 
   @override
+  void didUpdateWidget(BibliaScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _initController();
+    } else if (!widget.isActive && oldWidget.isActive) {
+      _disposeController();
+    }
+  }
+
+  @override
   void dispose() {
     _subscription?.cancel();
+    _controller = null;
     super.dispose();
   }
 
   Future<void> _checkConnectivity() async {
     final result = await Connectivity().checkConnectivity();
     _hasInternet = result.isNotEmpty && !result.contains(ConnectivityResult.none);
-    if (mounted) setState(() => _checking = false);
+    if (mounted) {
+      setState(() => _checking = false);
+      if (widget.isActive && _hasInternet) _initController();
+    }
 
     _subscription = Connectivity().onConnectivityChanged.listen((r) {
       if (!mounted) return;
-      setState(() => _hasInternet = r.isNotEmpty && !r.contains(ConnectivityResult.none));
+      setState(() {
+        _hasInternet = r.isNotEmpty && !r.contains(ConnectivityResult.none);
+      });
+      if (widget.isActive && _hasInternet) _initController();
     });
+  }
+
+  void _initController() {
+    if (_controller != null || !_hasInternet) return;
+    final c = WebViewController();
+    c.setJavaScriptMode(JavaScriptMode.unrestricted);
+    c.setNavigationDelegate(
+      NavigationDelegate(
+        onPageFinished: (_) {
+          c.runJavaScript('''
+            (function(){
+              document.documentElement.style.zoom = '100%';
+              var s = document.createElement('style');
+              s.textContent = 'body{overflow-x:hidden!important;max-width:100vw!important}html{overflow-x:hidden!important}';
+              document.head.appendChild(s);
+            })();
+          ''');
+        },
+      ),
+    );
+    c.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+      '(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    );
+    c.loadRequest(
+      Uri.parse('https://www.bible.com/bible/149/JHN.1.RVR1960'),
+    );
+    setState(() => _controller = c);
+  }
+
+  void _disposeController() {
+    _controller = null;
+    if (mounted) setState(() {});
   }
 
   @override
@@ -109,32 +161,14 @@ class _BibliaScreenState extends State<BibliaScreen> {
       );
     }
 
-    final controller = WebViewController();
-    controller.setJavaScriptMode(JavaScriptMode.unrestricted);
-    controller.setNavigationDelegate(
-      NavigationDelegate(
-        onPageFinished: (_) {
-          controller.runJavaScript('''
-            (function(){
-              document.documentElement.style.zoom = '100%';
-              var s = document.createElement('style');
-              s.textContent = 'body{overflow-x:hidden!important;max-width:100vw!important}html{overflow-x:hidden!important}';
-              document.head.appendChild(s);
-            })();
-          ''');
-        },
-      ),
-    );
-    controller.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-      '(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    );
-    controller.loadRequest(
-      Uri.parse('https://www.bible.com/bible/149/JHN.1.RVR1960'),
-    );
+    if (_controller == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
-      body: SafeArea(child: WebViewWidget(controller: controller)),
+      body: SafeArea(child: WebViewWidget(controller: _controller!)),
     );
   }
 }

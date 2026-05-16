@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class FadeIn extends StatefulWidget {
@@ -15,6 +16,7 @@ class _FadeInState extends State<FadeIn>
   late AnimationController _ctrl;
   late Animation<double> _opacity;
   late Animation<Offset> _slide;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -35,11 +37,12 @@ class _FadeInState extends State<FadeIn>
       parent: _ctrl,
       curve: const Interval(0, 0.7, curve: Curves.easeOutCubic),
     ));
-    Future.delayed(Duration(milliseconds: stagger), _ctrl.forward);
+    _timer = Timer(Duration(milliseconds: stagger), _ctrl.forward);
   }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _ctrl.dispose();
     super.dispose();
   }

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'data/streak.dart';
 import 'theme/app_theme.dart';
+import 'screens/biblia_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  HomeWidget.setAppGroupId('group.com.vida.project');
   runApp(const VidaApp());
 }
 
@@ -30,12 +34,25 @@ class _VidaAppState extends State<VidaApp> {
   void initState() {
     super.initState();
     _loadUser();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _requestPinOnFirstLaunch());
   }
 
   Future<void> _loadUser() async {
     final prefs = await SharedPreferences.getInstance();
     _userName = prefs.getString('user_name') ?? '';
+    await StreakService.checkAndUpdate();
     setState(() => _ready = true);
+  }
+
+  Future<void> _requestPinOnFirstLaunch() async {
+    final prefs = await SharedPreferences.getInstance();
+    final done = prefs.getBool('first_launch_pin') ?? false;
+    if (done) return;
+    await prefs.setBool('first_launch_pin', true);
+    final supported = await HomeWidget.isRequestPinWidgetSupported() ?? false;
+    if (supported) {
+      await HomeWidget.requestPinWidget(androidName: 'ContraPecadoWidgetProvider');
+    }
   }
 
   void setUserName(String name) {
@@ -74,13 +91,18 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _selectedIndex = 0;
+  late final List<Widget> _pages;
 
-  final List<Widget> _pages = const [
-    HomeScreen(),
-    _PlaceholderScreen(label: 'Biblia'),
-    _PlaceholderScreen(label: 'VIDA'),
-    _PlaceholderScreen(label: 'Perfil'),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      const HomeScreen(),
+      BibliaScreen(onGoHome: () => setState(() => _selectedIndex = 0)),
+      const _PlaceholderScreen(label: 'VIDA'),
+      const _PlaceholderScreen(label: 'Perfil'),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,20 +111,9 @@ class _AppShellState extends State<AppShell> {
         index: _selectedIndex,
         children: _pages,
       ),
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          iconTheme: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return const IconThemeData(color: AppColors.emerald700);
-            }
-            return const IconThemeData(color: AppColors.emerald400);
-          }),
-        ),
-        child: NavigationBar(
+      bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-        backgroundColor: Colors.white,
-        indicatorColor: AppColors.emerald100,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -125,7 +136,6 @@ class _AppShellState extends State<AppShell> {
             label: 'Perfil',
           ),
         ],
-      ),
       ),
     );
   }

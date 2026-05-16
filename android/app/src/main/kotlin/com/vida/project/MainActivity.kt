@@ -1,4 +1,4 @@
-package com.example.vida_project
+package com.vida.project
 
 import io.flutter.embedding.android.FlutterActivity
 

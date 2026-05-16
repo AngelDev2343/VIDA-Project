@@ -23,10 +23,33 @@ class AppTheme {
       fontWeight: FontWeight.w600,
       color: AppColors.emerald600,
     ),
+    displayMedium: GoogleFonts.cormorantGaramond(
+      fontSize: 28,
+      fontWeight: FontWeight.w600,
+      color: AppColors.emerald900,
+    ),
     headlineMedium: GoogleFonts.cormorantGaramond(
       fontSize: 20,
       fontWeight: FontWeight.w500,
-      color: const Color(0xFF0A1F12),
+      color: AppColors.emerald800,
+    ),
+    titleLarge: GoogleFonts.dmSans(
+      fontSize: 17,
+      fontWeight: FontWeight.w600,
+      color: AppColors.emerald900,
+    ),
+    titleMedium: GoogleFonts.dmSans(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: AppColors.emerald900,
+    ),
+    bodyMedium: GoogleFonts.dmSans(
+      fontSize: 14,
+      color: AppColors.emerald700,
+    ),
+    bodySmall: GoogleFonts.dmSans(
+      fontSize: 12,
+      color: AppColors.emerald600,
     ),
   );
 
@@ -40,7 +63,7 @@ class AppTheme {
         secondary: AppColors.emerald400,
         onSecondary: Colors.white,
         surface: Colors.white,
-        onSurface: Color(0xFF0A1F12),
+        onSurface: AppColors.emerald900,
         surfaceContainerLowest: Colors.white,
         surfaceContainerLow: Colors.white,
         surfaceContainer: Colors.white,
@@ -55,18 +78,95 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
         ),
+        clipBehavior: Clip.hardEdge,
       ),
       textTheme: _textTheme,
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
+        centerTitle: false,
         iconTheme: const IconThemeData(color: AppColors.emerald700),
         titleTextStyle: GoogleFonts.cormorantGaramond(
-          fontSize: 30,
+          fontSize: 28,
           fontWeight: FontWeight.w600,
           color: AppColors.emerald600,
         ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.emerald50,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.emerald200, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.emerald500, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFFFCA5A5), width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFFF87171), width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        labelStyle: GoogleFonts.dmSans(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: AppColors.emerald700,
+        ),
+        hintStyle: GoogleFonts.dmSans(
+          fontSize: 13,
+          color: AppColors.emerald400,
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        backgroundColor: AppColors.emerald800,
+        contentTextStyle: GoogleFonts.dmSans(
+          fontSize: 13,
+          color: Colors.white,
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        indicatorColor: AppColors.emerald100,
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: AppColors.emerald700);
+          }
+          return const IconThemeData(color: AppColors.emerald400);
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.emerald700,
+            );
+          }
+          return GoogleFonts.dmSans(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: AppColors.emerald400,
+          );
+        }),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.emerald100,
+        thickness: 1,
+        space: 0,
       ),
     );
   }

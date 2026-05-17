@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 
 class VidaVerseCard extends StatelessWidget {
   final String verseText;
@@ -61,7 +60,7 @@ class VidaVerseCard extends StatelessWidget {
               children: [
                 Text(
                   'TU VERSÍCULO · VIDA',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 10,
                     letterSpacing: 2,
                     fontWeight: FontWeight.w500,
@@ -71,7 +70,7 @@ class VidaVerseCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   '"$verseText"',
-                  style: GoogleFonts.cormorantGaramond(
+                  style: TextStyle(fontFamily: 'Cormorant Garamond', 
                     fontSize: 17,
                     color: Colors.white,
                     height: 1.55,
@@ -81,7 +80,7 @@ class VidaVerseCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   '— $reference',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.6),
                   ),
@@ -139,7 +138,7 @@ class _ActionChip extends StatelessWidget {
             const SizedBox(width: 5),
             Text(
               label,
-              style: GoogleFonts.dmSans(fontSize: 12, color: Colors.white),
+              style: TextStyle(fontFamily: 'DM Sans', fontSize: 12, color: Colors.white),
             ),
           ],
         ),

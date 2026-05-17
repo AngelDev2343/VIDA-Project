@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/streak.dart';
@@ -141,7 +140,7 @@ class _AppShellState extends State<AppShell> {
                     color: AppColors.emerald600, size: 24),
                 const SizedBox(width: 8),
                 Text('VIDA',
-                    style: GoogleFonts.cormorantGaramond(
+                    style: TextStyle(fontFamily: 'Cormorant Garamond', 
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                         color: AppColors.emerald800)),
@@ -152,7 +151,7 @@ class _AppShellState extends State<AppShell> {
               'Con cada interacción —lecturas, estudios, oraciones— detecta '
               'tu momento espiritual y te asigna un versículo '
               'personalizado, justo para lo que necesitas.',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DM Sans', 
                   fontSize: 14,
                   height: 1.5,
                   color: AppColors.emerald700),
@@ -161,7 +160,7 @@ class _AppShellState extends State<AppShell> {
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: Text('Entendido',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                         fontWeight: FontWeight.w600,
                         color: AppColors.emerald600)),
               ),

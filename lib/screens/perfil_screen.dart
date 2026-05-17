@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import '../theme/app_theme.dart';
@@ -37,7 +36,7 @@ class PerfilScreen extends StatelessWidget {
                     backgroundColor: cs.primary,
                     child: Text(
                       initial,
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -47,7 +46,7 @@ class PerfilScreen extends StatelessWidget {
                   const SizedBox(width: 14),
                   Text(
                     userName,
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: AppColors.emerald900,
@@ -81,7 +80,7 @@ class PerfilScreen extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         'TU VERSÍCULO VIDA',
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: 'DM Sans', 
                           fontSize: 10,
                           letterSpacing: 2,
                           fontWeight: FontWeight.w500,
@@ -94,7 +93,7 @@ class PerfilScreen extends StatelessWidget {
                   Text(
                     'Próximamente',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.cormorantGaramond(
+                    style: TextStyle(fontFamily: 'Cormorant Garamond', 
                       fontSize: 22,
                       fontStyle: FontStyle.italic,
                       color: Colors.white,
@@ -104,7 +103,7 @@ class PerfilScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Un versículo único para ti',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 12,
                       color: Colors.white.withValues(alpha: 0.6),
                     ),
@@ -130,7 +129,7 @@ class PerfilScreen extends StatelessWidget {
                     ),
                     title: Text(
                       'Donar',
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontWeight: FontWeight.w600,
                         color: AppColors.emerald800,
                       ),
@@ -140,7 +139,7 @@ class PerfilScreen extends StatelessWidget {
                       'Actualmente no contamos con métodos de donación '
                       'disponibles, pero pronto los habilitaremos. '
                       '¡Vuelve más tarde!',
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 14,
                         height: 1.5,
                         color: AppColors.emerald700,
@@ -151,7 +150,7 @@ class PerfilScreen extends StatelessWidget {
                         onPressed: () => Navigator.pop(ctx),
                         child: Text(
                           'Entendido',
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(fontFamily: 'DM Sans', 
                             fontWeight: FontWeight.w600,
                             color: AppColors.emerald600,
                           ),
@@ -184,7 +183,7 @@ class PerfilScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Donar',
-                              style: GoogleFonts.dmSans(
+                              style: TextStyle(fontFamily: 'DM Sans', 
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.emerald900,
@@ -193,7 +192,7 @@ class PerfilScreen extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               'Apoya este proyecto',
-                              style: GoogleFonts.dmSans(
+                              style: TextStyle(fontFamily: 'DM Sans', 
                                 fontSize: 12,
                                 color: AppColors.emerald600,
                               ),
@@ -215,7 +214,7 @@ class PerfilScreen extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 'CRÉDITOS',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: 'DM Sans', 
                   fontSize: 10,
                   letterSpacing: 2,
                   fontWeight: FontWeight.w600,
@@ -287,7 +286,7 @@ class PerfilScreen extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 11,
                       color: AppColors.emerald500,
                     ),
@@ -296,7 +295,7 @@ class PerfilScreen extends StatelessWidget {
                     children: [
                       Text(
                         value,
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: 'DM Sans', 
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppColors.emerald900,

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import '../data/phrases.dart';
 
 class ContraPecadoCard extends StatelessWidget {
@@ -28,7 +27,7 @@ class ContraPecadoCard extends StatelessWidget {
           children: [
             Text(
               '"${phrase.text}"',
-              style: GoogleFonts.cormorantGaramond(
+              style: TextStyle(fontFamily: 'Cormorant Garamond', 
                 fontSize: 18,
                 color: Colors.white,
                 height: 1.5,
@@ -39,7 +38,7 @@ class ContraPecadoCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               'Contra pecado',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DM Sans', 
                 fontSize: 10,
                 letterSpacing: 2,
                 fontWeight: FontWeight.w500,

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import '../data/bible_study.dart';
 import '../theme/app_theme.dart';
 import '../widgets/fade_in.dart';
@@ -54,7 +53,7 @@ class _EstudioBiblicoScreenState extends State<EstudioBiblicoScreen> {
                     const SizedBox(height: 16),
                     Text(
                       'Sin estudios aún',
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: AppColors.emerald600,
@@ -63,7 +62,7 @@ class _EstudioBiblicoScreenState extends State<EstudioBiblicoScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'Toca + para comenzar',
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 13,
                         color: AppColors.emerald400,
                       ),
@@ -123,7 +122,7 @@ class _EstudioBiblicoScreenState extends State<EstudioBiblicoScreen> {
                                 Expanded(
                                   child: Text(
                                     s.name,
-                                    style: GoogleFonts.dmSans(
+                                    style: TextStyle(fontFamily: 'DM Sans', 
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.emerald900,
@@ -132,7 +131,7 @@ class _EstudioBiblicoScreenState extends State<EstudioBiblicoScreen> {
                                 ),
                                 Text(
                                   '$day $month',
-                                  style: GoogleFonts.dmSans(
+                                  style: TextStyle(fontFamily: 'DM Sans', 
                                     fontSize: 12,
                                     color: AppColors.emerald500,
                                   ),
@@ -142,7 +141,7 @@ class _EstudioBiblicoScreenState extends State<EstudioBiblicoScreen> {
                             const SizedBox(height: 6),
                             Text(
                               s.book + (s.verses.isNotEmpty ? ' ${s.verses}' : ''),
-                              style: GoogleFonts.dmSans(
+                              style: TextStyle(fontFamily: 'DM Sans', 
                                 fontSize: 13,
                                 color: AppColors.emerald700,
                               ),
@@ -151,7 +150,7 @@ class _EstudioBiblicoScreenState extends State<EstudioBiblicoScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 s.reflection,
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: 'DM Sans', 
                                   fontSize: 12,
                                   color: AppColors.emerald600,
                                   fontStyle: FontStyle.italic,

@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
-  google_fonts: ^6.1.0
   flutter_svg: ^2.0.9
   shared_preferences: ^2.5.5
   home_widget: ^0.7.0
@@ -28,6 +27,22 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: DM Sans
+      fonts:
+        - asset: assets/fonts/DMSans-400.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-500.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans-600.ttf
+          weight: 600
+    - family: Cormorant Garamond
+      fonts:
+        - asset: assets/fonts/CormorantGaramond-500.ttf
+          weight: 500
+        - asset: assets/fonts/CormorantGaramond-600.ttf
+          weight: 600
 
   assets:
     - contra_img/

@@ -1,7 +1,6 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../theme/app_theme.dart';
 
@@ -96,7 +95,10 @@ class _BibliaScreenState extends State<BibliaScreen> {
       '(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     );
     c.loadRequest(
-      Uri.parse('https://www.bible.com/bible/149/JHN.1.RVR1960'),
+      Uri.parse(
+        'https://www.bible.com/bible/149/JHN.1.RVR1960'
+        '?t=${DateTime.now().millisecondsSinceEpoch}',
+      ),
     );
     setState(() => _controller = c);
   }
@@ -128,7 +130,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
                   const SizedBox(height: 20),
                   Text(
                     'Sin conexión',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
                       color: AppColors.emerald800,
@@ -138,12 +140,12 @@ class _BibliaScreenState extends State<BibliaScreen> {
                   Text(
                     'No tienes internet en este momento',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.dmSans(fontSize: 15, color: AppColors.emerald600),
+                    style: TextStyle(fontFamily: 'DM Sans', fontSize: 15, color: AppColors.emerald600),
                   ),
                   const SizedBox(height: 24),
                   Text(
                     'Pero recuerda:',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.emerald600,
@@ -164,7 +166,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Mateo 28:20',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 11,
                       letterSpacing: 1.5,
                       fontWeight: FontWeight.w500,
@@ -183,7 +185,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      textStyle: GoogleFonts.dmSans(
+                      textStyle: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -216,7 +218,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
                   const SizedBox(height: 20),
                   Text(
                     'Error al cargar',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
                       color: AppColors.emerald800,
@@ -226,7 +228,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
                   Text(
                     'No se pudo cargar la Biblia',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.dmSans(fontSize: 15, color: AppColors.emerald600),
+                    style: TextStyle(fontFamily: 'DM Sans', fontSize: 15, color: AppColors.emerald600),
                   ),
                   const SizedBox(height: 32),
                   FilledButton.icon(
@@ -241,7 +243,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      textStyle: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w600),
+                      textStyle: TextStyle(fontFamily: 'DM Sans', fontSize: 15, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -270,7 +272,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
                 const SizedBox(height: 16),
                 Text(
                   'Cargando',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 14,
                     color: AppColors.emerald600,
                   ),

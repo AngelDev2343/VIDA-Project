@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   static const emerald50  = Color(0xFFECFDF5);
@@ -17,37 +16,44 @@ class AppColors {
 }
 
 class AppTheme {
-  static final _textTheme = GoogleFonts.dmSansTextTheme().copyWith(
-    displayLarge: GoogleFonts.cormorantGaramond(
+  static final _textTheme = TextTheme(
+    displayLarge: TextStyle(
+      fontFamily: 'Cormorant Garamond',
       fontSize: 36,
       fontWeight: FontWeight.w600,
       color: AppColors.emerald600,
     ),
-    displayMedium: GoogleFonts.cormorantGaramond(
+    displayMedium: TextStyle(
+      fontFamily: 'Cormorant Garamond',
       fontSize: 28,
       fontWeight: FontWeight.w600,
       color: AppColors.emerald900,
     ),
-    headlineMedium: GoogleFonts.cormorantGaramond(
+    headlineMedium: TextStyle(
+      fontFamily: 'Cormorant Garamond',
       fontSize: 20,
       fontWeight: FontWeight.w500,
       color: AppColors.emerald800,
     ),
-    titleLarge: GoogleFonts.dmSans(
+    titleLarge: TextStyle(
+      fontFamily: 'DM Sans',
       fontSize: 17,
       fontWeight: FontWeight.w600,
       color: AppColors.emerald900,
     ),
-    titleMedium: GoogleFonts.dmSans(
+    titleMedium: TextStyle(
+      fontFamily: 'DM Sans',
       fontSize: 14,
       fontWeight: FontWeight.w600,
       color: AppColors.emerald900,
     ),
-    bodyMedium: GoogleFonts.dmSans(
+    bodyMedium: TextStyle(
+      fontFamily: 'DM Sans',
       fontSize: 14,
       color: AppColors.emerald700,
     ),
-    bodySmall: GoogleFonts.dmSans(
+    bodySmall: TextStyle(
+      fontFamily: 'DM Sans',
       fontSize: 12,
       color: AppColors.emerald600,
     ),
@@ -87,7 +93,7 @@ class AppTheme {
         scrolledUnderElevation: 0,
         centerTitle: false,
         iconTheme: const IconThemeData(color: AppColors.emerald700),
-        titleTextStyle: GoogleFonts.cormorantGaramond(
+        titleTextStyle: TextStyle(fontFamily: 'Cormorant Garamond', 
           fontSize: 28,
           fontWeight: FontWeight.w600,
           color: AppColors.emerald600,
@@ -117,12 +123,12 @@ class AppTheme {
           borderSide: const BorderSide(color: Color(0xFFF87171), width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        labelStyle: GoogleFonts.dmSans(
+        labelStyle: TextStyle(fontFamily: 'DM Sans', 
           fontSize: 13,
           fontWeight: FontWeight.w500,
           color: AppColors.emerald700,
         ),
-        hintStyle: GoogleFonts.dmSans(
+        hintStyle: TextStyle(fontFamily: 'DM Sans', 
           fontSize: 13,
           color: AppColors.emerald400,
         ),
@@ -133,7 +139,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(14),
         ),
         backgroundColor: AppColors.emerald800,
-        contentTextStyle: GoogleFonts.dmSans(
+        contentTextStyle: TextStyle(fontFamily: 'DM Sans', 
           fontSize: 13,
           color: Colors.white,
         ),
@@ -150,13 +156,13 @@ class AppTheme {
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.dmSans(
+            return TextStyle(fontFamily: 'DM Sans', 
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: AppColors.emerald700,
             );
           }
-          return GoogleFonts.dmSans(
+          return TextStyle(fontFamily: 'DM Sans', 
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: AppColors.emerald400,

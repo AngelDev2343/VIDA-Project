@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import '../data/streak.dart';
 import '../theme/app_theme.dart';
 
@@ -65,7 +64,7 @@ class _StreakScreenState extends State<StreakScreen> {
                     children: [
                       Text(
                         '$_streak días',
-                        style: GoogleFonts.cormorantGaramond(
+                        style: TextStyle(fontFamily: 'Cormorant Garamond', 
                           fontSize: 36,
                           fontWeight: FontWeight.w600,
                           color: AppColors.emerald600,
@@ -73,7 +72,7 @@ class _StreakScreenState extends State<StreakScreen> {
                       ),
                       Text(
                         'Tu mejor racha: $_best días',
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: 'DM Sans', 
                           fontSize: 13,
                           color: AppColors.emerald700,
                         ),
@@ -96,7 +95,7 @@ class _StreakScreenState extends State<StreakScreen> {
                 ),
                 Text(
                   _monthName(_viewMonth.month).toUpperCase(),
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.emerald900,
@@ -123,7 +122,7 @@ class _StreakScreenState extends State<StreakScreen> {
                   Center(
                     child: Text(
                       label,
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: AppColors.emerald500,
@@ -149,7 +148,7 @@ class _StreakScreenState extends State<StreakScreen> {
                       child: Center(
                         child: Text(
                           '$d',
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(fontFamily: 'DM Sans', 
                             fontSize: 13,
                             fontWeight:
                                 isToday ? FontWeight.w700 : FontWeight.w400,

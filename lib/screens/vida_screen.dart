@@ -1,6 +1,5 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 
 class VidaScreen extends StatefulWidget {
@@ -69,7 +68,7 @@ class _VidaScreenState extends State<VidaScreen>
                   const SizedBox(height: 20),
                   Text(
                     'Descubre tu versículo',
-                    style: GoogleFonts.cormorantGaramond(
+                    style: TextStyle(fontFamily: 'Cormorant Garamond', 
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
                       color: AppColors.emerald700,

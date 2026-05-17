@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/fav.dart';
@@ -182,7 +181,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                             children: [
                               Text(
                                 'Widget activo',
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: 'DM Sans', 
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.emerald900,
@@ -191,7 +190,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 'Muestra un versículo en la pantalla de inicio',
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: 'DM Sans', 
                                   fontSize: 13,
                                   color: AppColors.emerald600,
                                 ),
@@ -220,7 +219,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                 const SizedBox(height: 24),
                 Text(
                   'ELIGE UN VERSÍCULO',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 10,
                     letterSpacing: 2,
                     fontWeight: FontWeight.w600,
@@ -253,7 +252,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                                   children: [
                                     Text(
                                       verse.referencia,
-                                      style: GoogleFonts.dmSans(
+                                      style: TextStyle(fontFamily: 'DM Sans', 
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.emerald900,
@@ -262,7 +261,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                                     const SizedBox(height: 3),
                                     Text(
                                       verse.versiculo,
-                                      style: GoogleFonts.dmSans(
+                                      style: TextStyle(fontFamily: 'DM Sans', 
                                         fontSize: 12,
                                         color: AppColors.emerald700,
                                         height: 1.3,
@@ -300,7 +299,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                       Expanded(
                         child: Text(
                           'Selecciona un versículo de la lista y aparecerá en el widget. Puedes cambiarlo cuando quieras.',
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(fontFamily: 'DM Sans', 
                             fontSize: 12,
                             height: 1.4,
                             color: AppColors.emerald700,
@@ -338,7 +337,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
               children: [
                 Text(
                   'Widget eliminado',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.emerald900,
@@ -347,7 +346,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                 const SizedBox(height: 2),
                 Text(
                   'El widget ya no está en tu pantalla de inicio.',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 12,
                     color: AppColors.emerald700,
                   ),
@@ -400,7 +399,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                   children: [
                     Text(
                       '"${v.versiculo}"',
-                      style: GoogleFonts.cormorantGaramond(
+                      style: TextStyle(fontFamily: 'Cormorant Garamond', 
                         fontSize: 18,
                         color: Colors.black87,
                         height: 1.4,
@@ -413,7 +412,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                     const SizedBox(height: 10),
                     Text(
                       v.referencia,
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 10,
                         letterSpacing: 2,
                         fontWeight: FontWeight.w500,

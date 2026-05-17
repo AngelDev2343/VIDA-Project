@@ -1,8 +1,7 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
@@ -92,7 +91,7 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
       appBar: AppBar(
         title: Text(
           'Editar imagen',
-          style: GoogleFonts.cormorantGaramond(
+          style: TextStyle(fontFamily: 'Cormorant Garamond', 
             fontSize: 24,
             fontWeight: FontWeight.w600,
             color: AppColors.emerald600,
@@ -148,7 +147,7 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
                             child: Text(
                               _text,
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.cormorantGaramond(
+                              style: TextStyle(fontFamily: 'Cormorant Garamond', 
                                 fontSize: _fontSize,
                                 color: _textColor,
                                 fontWeight: FontWeight.w600,

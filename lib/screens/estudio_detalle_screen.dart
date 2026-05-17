@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import '../data/bible_study.dart';
 import '../theme/app_theme.dart';
 import '../widgets/fade_in.dart';
@@ -90,7 +89,7 @@ class _EstudioDetalleScreenState extends State<EstudioDetalleScreen> {
         children: [
           Text(
             s.name,
-            style: GoogleFonts.cormorantGaramond(
+            style: TextStyle(fontFamily: 'Cormorant Garamond', 
               fontSize: 28,
               fontWeight: FontWeight.w600,
               color: AppColors.emerald900,
@@ -104,7 +103,7 @@ class _EstudioDetalleScreenState extends State<EstudioDetalleScreen> {
               const SizedBox(width: 6),
               Text(
                 '${s.date.day} de ${months[s.date.month - 1]} de ${s.date.year}',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: 'DM Sans', 
                   fontSize: 14,
                   color: AppColors.emerald600,
                 ),
@@ -126,7 +125,7 @@ class _EstudioDetalleScreenState extends State<EstudioDetalleScreen> {
                 Expanded(
                   child: Text(
                     s.book + (s.verses.isNotEmpty ? ' ${s.verses}' : ''),
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                       color: AppColors.emerald800,
@@ -140,7 +139,7 @@ class _EstudioDetalleScreenState extends State<EstudioDetalleScreen> {
             const SizedBox(height: 24),
             Text(
               '¿Qué te llevas?',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DM Sans', 
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.emerald500,
@@ -149,7 +148,7 @@ class _EstudioDetalleScreenState extends State<EstudioDetalleScreen> {
             const SizedBox(height: 8),
             Text(
               s.reflection,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DM Sans', 
                 fontSize: 15,
                 color: AppColors.emerald800,
                 height: 1.5,

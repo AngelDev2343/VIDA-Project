@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../main.dart';
@@ -43,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
               children: [
                 Text(
                   'VIDA',
-                  style: GoogleFonts.cormorantGaramond(
+                  style: TextStyle(fontFamily: 'Cormorant Garamond', 
                     fontSize: 56,
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.primary,
@@ -53,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'Bienvenido',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 18,
                     color: AppColors.emerald700,
                     fontWeight: FontWeight.w500,
@@ -62,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 const SizedBox(height: 32),
                 Text(
                   '¿Cómo te llamas?',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -72,14 +71,14 @@ class _SplashScreenState extends State<SplashScreen> {
                   controller: _controller,
                   textCapitalization: TextCapitalization.words,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
                     hintText: 'Tu nombre',
-                    hintStyle: GoogleFonts.dmSans(
+                    hintStyle: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 20,
                       color: AppColors.emerald600,
                     ),
@@ -110,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   child: Text(
                     'Comenzar',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DM Sans', 
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),

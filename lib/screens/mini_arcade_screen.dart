@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class MiniArcadeScreen extends StatelessWidget {
@@ -84,7 +83,7 @@ class _GameCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               data.title,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DM Sans', 
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: AppColors.emerald900,
@@ -93,7 +92,7 @@ class _GameCard extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               data.subtitle,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DM Sans', 
                 fontSize: 11,
                 color: AppColors.emerald600,
               ),

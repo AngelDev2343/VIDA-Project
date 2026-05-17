@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/streak.dart';
 import '../main.dart';
@@ -67,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
       child: Text(
         text,
-        style: GoogleFonts.dmSans(
+        style: TextStyle(fontFamily: 'DM Sans', 
           fontSize: 10,
           letterSpacing: 2,
           fontWeight: FontWeight.w600,
@@ -97,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         'VIDA',
-                        style: GoogleFonts.cormorantGaramond(
+                        style: TextStyle(fontFamily: 'Cormorant Garamond', 
                           fontSize: 32,
                           fontWeight: FontWeight.w600,
                           color: cs.primary,
@@ -106,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       Text(
                         'Buenos días, $userName',
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: 'DM Sans', 
                           fontSize: 12,
                           color: AppColors.emerald700,
                         ),
@@ -124,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       backgroundColor: cs.primary,
                       child: Text(
                         userName.isNotEmpty ? userName[0].toUpperCase() : '?',
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: 'DM Sans', 
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
@@ -180,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               duration: const Duration(milliseconds: 400),
                               builder: (_, v, __) => Text(
                                 '$v',
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: 'DM Sans', 
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.emerald900,
@@ -197,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(
                                 '$_streak días de racha',
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: 'DM Sans', 
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.emerald900,
@@ -206,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 2),
                               Text(
                                 'Tu mejor racha: $_bestStreak días',
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: 'DM Sans', 
                                   fontSize: 12,
                                   color: AppColors.emerald600,
                                 ),
@@ -361,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(
                                 'Mini Arcade',
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: 'DM Sans', 
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: cs.onSurface,
@@ -370,7 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 3),
                               Text(
                                 '2 juegos disponibles',
-                                style: GoogleFonts.dmSans(
+                                style: TextStyle(fontFamily: 'DM Sans', 
                                   fontSize: 12,
                                   color: AppColors.emerald600,
                                 ),

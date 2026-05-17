@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/phrases.dart';
@@ -165,7 +164,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
                         children: [
                           Text(
                             'Widget activo',
-                            style: GoogleFonts.dmSans(
+                            style: TextStyle(fontFamily: 'DM Sans', 
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: AppColors.emerald900,
@@ -174,7 +173,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
                           const SizedBox(height: 4),
                           Text(
                             'Muestra una frase diaria en la pantalla de inicio',
-                            style: GoogleFonts.dmSans(
+                            style: TextStyle(fontFamily: 'DM Sans', 
                               fontSize: 13,
                               color: AppColors.emerald600,
                             ),
@@ -213,7 +212,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
                         children: [
                           Text(
                             'Widget eliminado',
-                            style: GoogleFonts.dmSans(
+                            style: TextStyle(fontFamily: 'DM Sans', 
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: AppColors.emerald900,
@@ -222,7 +221,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
                           const SizedBox(height: 2),
                           Text(
                             'El widget ya no está en tu pantalla de inicio.',
-                            style: GoogleFonts.dmSans(
+                            style: TextStyle(fontFamily: 'DM Sans', 
                               fontSize: 12,
                               color: AppColors.emerald700,
                             ),
@@ -254,7 +253,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
               const SizedBox(height: 24),
               Text(
                 'FRASE DE HOY',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: 'DM Sans', 
                   fontSize: 10,
                   letterSpacing: 2,
                   fontWeight: FontWeight.w600,
@@ -278,7 +277,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
                   alignment: Alignment.center,
                   child: Text(
                     getTodaysPhrase().text,
-                    style: GoogleFonts.cormorantGaramond(
+                    style: TextStyle(fontFamily: 'Cormorant Garamond', 
                       fontSize: 22,
                       color: Colors.white,
                       height: 1.4,
@@ -306,7 +305,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
                   Expanded(
                     child: Text(
                       'Al desactivar el widget, la frase se oculta pero el espacio en la pantalla de inicio sigue ocupado. Para quitarlo permanentemente, mantén presionado el widget y selecciona "Eliminar".',
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 12,
                         height: 1.4,
                         color: AppColors.emerald700,

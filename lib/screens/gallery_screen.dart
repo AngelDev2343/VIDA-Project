@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import '../data/gallery_images.dart';
 import '../theme/app_theme.dart';
 import 'image_editor_screen.dart';
@@ -13,7 +12,7 @@ class GalleryScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Galería',
-          style: GoogleFonts.cormorantGaramond(
+          style: TextStyle(fontFamily: 'Cormorant Garamond', 
             fontSize: 28,
             fontWeight: FontWeight.w600,
             color: AppColors.emerald600,

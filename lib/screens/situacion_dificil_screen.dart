@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import '../data/consejo.dart';
 import '../data/consejos_data.dart';
 import '../theme/app_theme.dart';
@@ -106,7 +105,7 @@ class _SituacionDificilScreenState extends State<SituacionDificilScreen> {
                       ),
                       child: Text(
                         cat,
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: 'DM Sans', 
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color:
@@ -128,7 +127,7 @@ class _SituacionDificilScreenState extends State<SituacionDificilScreen> {
                       child: Text(
                         'No se encontraron consejos para tu búsqueda.',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: 'DM Sans', 
                           fontSize: 14,
                           color: AppColors.emerald500,
                         ),
@@ -199,7 +198,7 @@ class _ConsejoCard extends StatelessWidget {
                     ),
                     child: Text(
                       consejo.category,
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: AppColors.emerald700,
@@ -214,7 +213,7 @@ class _ConsejoCard extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 consejo.title,
-                style: GoogleFonts.cormorantGaramond(
+                style: TextStyle(fontFamily: 'Cormorant Garamond', 
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: AppColors.emerald900,
@@ -226,7 +225,7 @@ class _ConsejoCard extends StatelessWidget {
                 consejo.description,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: 'DM Sans', 
                   fontSize: 13,
                   color: AppColors.emerald700,
                   height: 1.4,

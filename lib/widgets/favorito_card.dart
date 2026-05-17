@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 
 class FavoritoCard extends StatelessWidget {
   final String referencia;
@@ -36,7 +35,7 @@ class FavoritoCard extends StatelessWidget {
                   children: [
                     Text(
                       '"$versiculo"',
-                      style: GoogleFonts.cormorantGaramond(
+                      style: TextStyle(fontFamily: 'Cormorant Garamond', 
                         fontSize: 16,
                         color: Colors.black87,
                         height: 1.4,
@@ -49,7 +48,7 @@ class FavoritoCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     Text(
                       referencia,
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DM Sans', 
                         fontSize: 10,
                         letterSpacing: 2,
                         fontWeight: FontWeight.w500,

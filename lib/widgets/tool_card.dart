@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+﻿import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class ToolCard extends StatefulWidget {
@@ -63,7 +62,7 @@ class _ToolCardState extends State<ToolCard> {
                 const SizedBox(height: 10),
                 Text(
                   widget.title,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: cs.onSurface,
@@ -72,7 +71,7 @@ class _ToolCardState extends State<ToolCard> {
                 const SizedBox(height: 2),
                 Text(
                   widget.subtitle,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 11,
                     color: cs.onSurface.withValues(alpha: 0.55),
                   ),

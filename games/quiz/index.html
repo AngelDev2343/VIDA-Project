@@ -299,7 +299,9 @@
 
   .options-grid {
     display: grid;
+    grid-template-columns: 1fr;
     gap: .55rem;
+    width: 100%;
   }
   .opt-btn {
     width: 100%;
@@ -323,6 +325,12 @@
     border-color: var(--em);
     background: var(--em-xlight);
     transform: scale(.99);
+  }
+  .opt-btn span:last-child {
+    flex: 1;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
   }
   .opt-btn .opt-letter {
     width: 28px; height: 28px; border-radius: 7px;

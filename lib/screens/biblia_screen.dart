@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../theme/app_theme.dart';
 
@@ -14,8 +15,12 @@ class BibliaScreen extends StatefulWidget {
 }
 
 class _BibliaScreenState extends State<BibliaScreen> {
+  final _connectivity = Connectivity();
+
   bool _checking = true;
   bool _hasInternet = false;
+  int _loadingProgress = 0;
+  bool _loadError = false;
   StreamSubscription? _subscription;
   WebViewController? _controller;
 
@@ -29,6 +34,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
   void didUpdateWidget(BibliaScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isActive && !oldWidget.isActive) {
+      _loadError = false;
       _initController();
     } else if (!widget.isActive && oldWidget.isActive) {
       _disposeController();
@@ -43,19 +49,21 @@ class _BibliaScreenState extends State<BibliaScreen> {
   }
 
   Future<void> _checkConnectivity() async {
-    final result = await Connectivity().checkConnectivity();
+    final result = await _connectivity.checkConnectivity();
     _hasInternet = result.isNotEmpty && !result.contains(ConnectivityResult.none);
     if (mounted) {
       setState(() => _checking = false);
       if (widget.isActive && _hasInternet) _initController();
     }
 
-    _subscription = Connectivity().onConnectivityChanged.listen((r) {
+    _subscription = _connectivity.onConnectivityChanged.listen((r) {
       if (!mounted) return;
-      setState(() {
-        _hasInternet = r.isNotEmpty && !r.contains(ConnectivityResult.none);
-      });
-      if (widget.isActive && _hasInternet) _initController();
+      final online = r.isNotEmpty && !r.contains(ConnectivityResult.none);
+      if (online && !_hasInternet) {
+        _loadError = false;
+        _initController();
+      }
+      setState(() => _hasInternet = online);
     });
   }
 
@@ -65,15 +73,21 @@ class _BibliaScreenState extends State<BibliaScreen> {
     c.setJavaScriptMode(JavaScriptMode.unrestricted);
     c.setNavigationDelegate(
       NavigationDelegate(
+        onProgress: (progress) {
+          if (mounted) setState(() => _loadingProgress = progress);
+        },
         onPageFinished: (_) {
+          if (mounted) setState(() => _loadingProgress = 100);
           c.runJavaScript('''
             (function(){
-              document.documentElement.style.zoom = '100%';
               var s = document.createElement('style');
               s.textContent = 'body{overflow-x:hidden!important;max-width:100vw!important}html{overflow-x:hidden!important}';
               document.head.appendChild(s);
             })();
           ''');
+        },
+        onWebResourceError: (e) {
+          if ((e.isForMainFrame ?? true) && mounted) setState(() => _loadError = true);
         },
       ),
     );
@@ -89,6 +103,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
 
   void _disposeController() {
     _controller = null;
+    _loadingProgress = 0;
     if (mounted) setState(() {});
   }
 
@@ -111,28 +126,49 @@ class _BibliaScreenState extends State<BibliaScreen> {
                 children: [
                   const Icon(Icons.wifi_off_rounded, size: 64, color: AppColors.emerald300),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     'Sin conexión',
-                    style: TextStyle(
+                    style: GoogleFonts.dmSans(
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
                       color: AppColors.emerald800,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'No tienes internet en este momento',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 15, color: AppColors.emerald600),
+                    style: GoogleFonts.dmSans(fontSize: 15, color: AppColors.emerald600),
                   ),
                   const SizedBox(height: 24),
+                  Text(
+                    'Pero recuerda:',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.emerald600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   const Text(
-                    'Pero recuerda:\n"Dios está con nosotros siempre"\n(Mateo 28:20)',
+                    '«Dios está con nosotros siempre»',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontFamily: 'serif',
+                      fontSize: 19,
+                      height: 1.4,
+                      fontStyle: FontStyle.italic,
+                      color: AppColors.emerald800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Mateo 28:20',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 11,
+                      letterSpacing: 1.5,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.emerald700,
+                      color: AppColors.emerald500,
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -147,7 +183,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      textStyle: const TextStyle(
+                      textStyle: GoogleFonts.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -164,6 +200,85 @@ class _BibliaScreenState extends State<BibliaScreen> {
     if (_controller == null) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_loadError) {
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline_rounded, size: 64, color: AppColors.emerald300),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Error al cargar',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.emerald800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'No se pudo cargar la Biblia',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.dmSans(fontSize: 15, color: AppColors.emerald600),
+                  ),
+                  const SizedBox(height: 32),
+                  FilledButton.icon(
+                    onPressed: () {
+                      setState(() => _loadError = false);
+                      _initController();
+                    },
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('Reintentar'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.emerald600,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      textStyle: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (_loadingProgress < 100) {
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: AppColors.emerald600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Cargando',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 14,
+                    color: AppColors.emerald600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
 

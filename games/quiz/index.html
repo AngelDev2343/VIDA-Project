@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#fdf6ec"/>
+<title>Quiz Bíblico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --parch: #fdf6ec;
+    --parch2: #f5ead6;
+    --parch3: #eddfc0;
+    --gold: #b8902a;
+    --gold2: #d4aa45;
+    --ink: #2c1f0e;
+    --ink2: #5a3e22;
+    --ink3: #8a6540;
+    --red: #8b2020;
+    --green: #1a5c2a;
+    --blue: #1a3a6b;
+    --shadow: 0 2px 12px rgba(44,31,14,.12);
+    --radius: 12px;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background: var(--parch);
+    color: var(--ink);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1rem 3rem;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(184,144,42,.08) 0%, transparent 70%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b8902a' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  .header {
+    width: 100%; max-width: 680px;
+    text-align: center;
+    padding: 2.8rem 1rem 1.6rem;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    display: block;
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 1.2rem auto 0;
+  }
+  .header-cross {
+    font-size: 2rem;
+    color: var(--gold);
+    letter-spacing: .2em;
+    margin-bottom: .4rem;
+    display: block;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    font-weight: 900;
+    color: var(--ink);
+    letter-spacing: .02em;
+    line-height: 1.1;
+  }
+  .header h1 span { color: var(--gold); }
+  .header p {
+    color: var(--ink3);
+    font-style: italic;
+    font-size: 1.05rem;
+    margin-top: .5rem;
+  }
+
+  /* ── SCREENS ─────────────────────────────────── */
+  .screen { width: 100%; max-width: 680px; display: none; }
+  .screen.active { display: block; }
+
+  /* ── HOME ─────────────────────────────────── */
+  .home-intro {
+    background: white;
+    border: 1px solid var(--parch3);
+    border-radius: var(--radius);
+    padding: 1.6rem 1.8rem;
+    margin-bottom: 1.6rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    color: var(--ink2);
+  }
+  .home-intro strong { color: var(--ink); font-weight: 600; }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: .8rem;
+    margin-bottom: 1.6rem;
+  }
+  .cat-card {
+    background: white;
+    border: 1.5px solid var(--parch3);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s, transform .15s;
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    box-shadow: var(--shadow);
+  }
+  .cat-card:hover { border-color: var(--gold); box-shadow: 0 4px 18px rgba(184,144,42,.15); transform: translateY(-2px); }
+  .cat-card.selected { border-color: var(--gold); background: #fffbf0; box-shadow: 0 4px 18px rgba(184,144,42,.2); }
+  .cat-card.selected .cat-icon { background: var(--gold); color: white; }
+  .cat-icon {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: var(--parch2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    transition: background .2s, color .2s;
+  }
+  .cat-info { flex: 1; }
+  .cat-name { font-family: 'Playfair Display', serif; font-size: .95rem; font-weight: 600; color: var(--ink); }
+  .cat-count { font-size: .82rem; color: var(--ink3); font-style: italic; }
+
+  .difficulty-row {
+    display: flex; gap: .6rem; margin-bottom: 1.6rem;
+  }
+  .diff-btn {
+    flex: 1;
+    padding: .7rem .5rem;
+    border: 1.5px solid var(--parch3);
+    border-radius: 8px;
+    background: white;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all .2s;
+    color: var(--ink2);
+    text-align: center;
+  }
+  .diff-btn:hover { border-color: var(--gold); }
+  .diff-btn.selected { background: var(--ink); color: white; border-color: var(--ink); }
+  .diff-label { font-size: .72rem; display: block; opacity: .7; }
+
+  .btn-start {
+    width: 100%;
+    padding: 1rem;
+    background: var(--gold);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .03em;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 3px 14px rgba(184,144,42,.35);
+  }
+  .btn-start:hover { background: #a07820; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(184,144,42,.4); }
+  .btn-start:active { transform: translateY(0); }
+  .btn-start:disabled { background: var(--ink3); box-shadow: none; cursor: default; }
+
+  /* ── QUIZ ─────────────────────────────────── */
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .quiz-cat-label {
+    font-size: .82rem;
+    font-style: italic;
+    color: var(--ink3);
+    background: var(--parch2);
+    padding: .3rem .8rem;
+    border-radius: 20px;
+    border: 1px solid var(--parch3);
+  }
+  .quiz-counter {
+    font-family: 'Playfair Display', serif;
+    font-size: .95rem;
+    color: var(--ink2);
+  }
+  .quiz-counter span { color: var(--gold); font-weight: 700; }
+
+  .progress-bar {
+    height: 5px;
+    background: var(--parch3);
+    border-radius: 3px;
+    margin-bottom: 1.4rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold2), var(--gold));
+    border-radius: 3px;
+    transition: width .4s ease;
+  }
+
+  .score-live {
+    display: flex; gap: 1rem; margin-bottom: 1.4rem;
+  }
+  .score-chip {
+    flex: 1;
+    display: flex; align-items: center; gap: .5rem;
+    background: white;
+    border: 1px solid var(--parch3);
+    border-radius: 8px;
+    padding: .5rem .9rem;
+    font-size: .9rem;
+    color: var(--ink2);
+    box-shadow: var(--shadow);
+  }
+  .score-chip .chip-n { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; }
+  .score-chip.correct .chip-n { color: var(--green); }
+  .score-chip.wrong .chip-n { color: var(--red); }
+
+  .question-card {
+    background: white;
+    border: 1px solid var(--parch3);
+    border-radius: var(--radius);
+    padding: 1.8rem 1.8rem 1.4rem;
+    margin-bottom: 1.2rem;
+    box-shadow: var(--shadow);
+  }
+  .question-ref {
+    font-size: .78rem;
+    color: var(--gold);
+    font-style: italic;
+    margin-bottom: .7rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .question-text {
+    font-size: clamp(1.1rem, 3vw, 1.28rem);
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .options-grid {
+    display: grid;
+    gap: .65rem;
+  }
+  .opt-btn {
+    width: 100%;
+    text-align: left;
+    padding: .9rem 1.2rem;
+    background: white;
+    border: 1.5px solid var(--parch3);
+    border-radius: 10px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.05rem;
+    color: var(--ink2);
+    cursor: pointer;
+    transition: border-color .18s, background .18s, transform .12s, box-shadow .18s;
+    display: flex; align-items: center; gap: .9rem;
+    box-shadow: 0 1px 4px rgba(44,31,14,.05);
+  }
+  .opt-btn:hover:not(:disabled) { border-color: var(--gold2); background: #fffbf2; transform: translateX(3px); box-shadow: 0 2px 10px rgba(184,144,42,.1); }
+  .opt-btn .opt-letter {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: var(--parch2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .82rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--ink3);
+    flex-shrink: 0;
+    transition: background .18s, color .18s;
+  }
+  .opt-btn:hover:not(:disabled) .opt-letter { background: var(--gold2); color: white; }
+  .opt-btn.correct { border-color: var(--green); background: #f0fff4; color: var(--green); }
+  .opt-btn.correct .opt-letter { background: var(--green); color: white; }
+  .opt-btn.wrong { border-color: var(--red); background: #fff5f5; color: var(--red); }
+  .opt-btn.wrong .opt-letter { background: var(--red); color: white; }
+  .opt-btn.reveal { border-color: var(--green); background: #f0fff4; color: var(--green); }
+  .opt-btn.reveal .opt-letter { background: var(--green); color: white; }
+  .opt-btn:disabled { cursor: default; }
+
+  .explanation-box {
+    background: #fffbf0;
+    border: 1px solid var(--parch3);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: .9rem 1.1rem;
+    margin-top: 1rem;
+    font-size: .95rem;
+    line-height: 1.6;
+    color: var(--ink2);
+    font-style: italic;
+    display: none;
+  }
+  .explanation-box.show { display: block; }
+
+  .quiz-actions {
+    display: flex; gap: .8rem; margin-top: 1.4rem;
+  }
+  .btn-next, .btn-skip {
+    padding: .75rem 1.4rem;
+    border-radius: 8px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all .2s;
+    border: none;
+  }
+  .btn-next {
+    flex: 1;
+    background: var(--ink);
+    color: white;
+    font-size: 1.05rem;
+  }
+  .btn-next:hover { background: #1a1005; }
+  .btn-skip {
+    background: var(--parch2);
+    border: 1px solid var(--parch3);
+    color: var(--ink3);
+  }
+  .btn-skip:hover { border-color: var(--ink3); }
+
+  /* ── TIMER ─────────────────────────────────── */
+  .timer-ring {
+    position: relative;
+    width: 46px; height: 46px;
+    flex-shrink: 0;
+  }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring circle { fill: none; }
+  .timer-ring .bg { stroke: var(--parch2); stroke-width: 4; }
+  .timer-ring .fg { stroke: var(--gold); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .9s linear, stroke .5s; }
+  .timer-ring .num {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ── RESULTS ─────────────────────────────────── */
+  .results-card {
+    background: white;
+    border: 1px solid var(--parch3);
+    border-radius: var(--radius);
+    padding: 2.2rem 2rem;
+    margin-bottom: 1.4rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .results-trophy { font-size: 3.5rem; margin-bottom: .8rem; }
+  .results-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: .4rem;
+  }
+  .results-verse {
+    font-style: italic;
+    color: var(--ink3);
+    font-size: .95rem;
+    line-height: 1.6;
+    margin-bottom: 1.6rem;
+  }
+  .results-verse strong { color: var(--gold); }
+
+  .results-stats {
+    display: flex; gap: 1rem; justify-content: center; margin-bottom: 1.6rem;
+  }
+  .stat-box {
+    flex: 1; max-width: 150px;
+    background: var(--parch2);
+    border-radius: 10px;
+    padding: 1rem .8rem;
+    border: 1px solid var(--parch3);
+  }
+  .stat-n {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: .25rem;
+  }
+  .stat-n.good { color: var(--green); }
+  .stat-n.bad { color: var(--red); }
+  .stat-n.pct { color: var(--gold); }
+  .stat-label { font-size: .78rem; color: var(--ink3); }
+
+  .score-bar-wrap { margin: 1.2rem 0; }
+  .score-bar-bg {
+    height: 12px;
+    background: var(--parch3);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: .4rem;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--gold2), var(--gold));
+    transition: width 1s ease .3s;
+  }
+  .score-bar-label { font-size: .85rem; color: var(--ink3); font-style: italic; }
+
+  .results-actions { display: flex; flex-direction: column; gap: .8rem; }
+  .btn-restart {
+    width: 100%;
+    padding: .95rem;
+    background: var(--gold);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: 0 3px 14px rgba(184,144,42,.3);
+  }
+  .btn-restart:hover { background: #a07820; }
+  .btn-home {
+    width: 100%;
+    padding: .85rem;
+    background: white;
+    color: var(--ink2);
+    border: 1.5px solid var(--parch3);
+    border-radius: var(--radius);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-home:hover { border-color: var(--ink3); }
+
+  .review-section { margin-top: 1.4rem; }
+  .review-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--ink);
+    margin-bottom: .8rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid var(--parch3);
+  }
+  .review-item {
+    background: white;
+    border: 1px solid var(--parch3);
+    border-radius: 10px;
+    padding: .9rem 1.1rem;
+    margin-bottom: .6rem;
+    box-shadow: 0 1px 4px rgba(44,31,14,.05);
+  }
+  .review-item.ok { border-left: 3px solid var(--green); }
+  .review-item.fail { border-left: 3px solid var(--red); }
+  .review-q { font-size: .92rem; color: var(--ink); margin-bottom: .3rem; font-weight: 500; }
+  .review-a { font-size: .85rem; font-style: italic; color: var(--ink3); }
+  .review-a span { font-style: normal; font-weight: 600; }
+  .review-a.correct span { color: var(--green); }
+  .review-a.wrong span { color: var(--red); }
+
+  /* ── OFFLINE BADGE ─────────────────────────────────── */
+  .offline-badge {
+    position: fixed; bottom: 1rem; right: 1rem;
+    background: var(--green);
+    color: white;
+    font-size: .75rem;
+    padding: .35rem .7rem;
+    border-radius: 20px;
+    display: none;
+    align-items: center; gap: .4rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    font-family: 'Crimson Pro', serif;
+    z-index: 100;
+  }
+  .offline-badge.show { display: flex; }
+
+  /* ── ANIMATIONS ─────────────────────────────────── */
+  @keyframes fadeIn { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform:none; } }
+  @keyframes pop { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+  .question-card { animation: fadeIn .3s ease; }
+  .opt-btn { animation: fadeIn .2s ease both; }
+  .opt-btn:nth-child(1) { animation-delay: .03s; }
+  .opt-btn:nth-child(2) { animation-delay: .08s; }
+  .opt-btn:nth-child(3) { animation-delay: .13s; }
+  .opt-btn:nth-child(4) { animation-delay: .18s; }
+
+  @media(max-width:480px) {
+    .question-card { padding: 1.3rem 1.1rem; }
+    .results-stats { gap: .6rem; }
+    .stat-n { font-size: 1.8rem; }
+    .quiz-meta { flex-wrap: wrap; gap: .4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-cross">✝</span>
+  <h1>Quiz <span>Bíblico</span></h1>
+  <p>Pon a prueba tu conocimiento de las Sagradas Escrituras</p>
+</div>
+
+<!-- HOME SCREEN -->
+<div id="homeScreen" class="screen active">
+  <div class="home-intro">
+    Selecciona una <strong>categoría</strong> y nivel de <strong>dificultad</strong>,<br/>
+    luego comienza el quiz. Las preguntas se mezclarán aleatoriamente.
+  </div>
+
+  <div class="category-grid" id="categoryGrid"></div>
+
+  <div style="margin-bottom:.8rem;">
+    <div style="font-family:'Playfair Display',serif;font-size:.9rem;color:var(--ink3);margin-bottom:.5rem;letter-spacing:.04em;text-transform:uppercase;">Dificultad</div>
+    <div class="difficulty-row">
+      <button class="diff-btn selected" data-diff="all">Todas <span class="diff-label">Mezcladas</span></button>
+      <button class="diff-btn" data-diff="easy">Fácil <span class="diff-label">Básicas</span></button>
+      <button class="diff-btn" data-diff="medium">Medio <span class="diff-label">Intermedias</span></button>
+      <button class="diff-btn" data-diff="hard">Difícil <span class="diff-label">Avanzadas</span></button>
+    </div>
+  </div>
+
+  <div style="font-size:.85rem;color:var(--ink3);font-style:italic;text-align:center;margin-bottom:1rem;" id="questionCount"></div>
+  <button class="btn-start" id="btnStart">Comenzar Quiz ✦</button>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quizScreen" class="screen">
+  <div class="quiz-meta">
+    <div class="quiz-cat-label" id="quizCatLabel"></div>
+    <div style="display:flex;align-items:center;gap:.8rem;">
+      <div class="quiz-counter">Pregunta <span id="qNum">1</span> de <span id="qTotal">10</span></div>
+      <div class="timer-ring" id="timerRing">
+        <svg width="46" height="46" viewBox="0 0 46 46">
+          <circle class="bg" cx="23" cy="23" r="19"/>
+          <circle class="fg" id="timerCircle" cx="23" cy="23" r="19"
+            stroke-dasharray="119.4" stroke-dashoffset="0"/>
+        </svg>
+        <div class="num" id="timerNum">20</div>
+      </div>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="score-live">
+    <div class="score-chip correct">✓ <span class="chip-n" id="liveCorrect">0</span> correctas</div>
+    <div class="score-chip wrong">✗ <span class="chip-n" id="liveWrong">0</span> incorrectas</div>
+  </div>
+
+  <div class="question-card" id="questionCard">
+    <div class="question-ref" id="qRef"></div>
+    <div class="question-text" id="qText"></div>
+  </div>
+
+  <div class="options-grid" id="optionsGrid"></div>
+  <div class="explanation-box" id="explanationBox"></div>
+
+  <div class="quiz-actions">
+    <button class="btn-skip" id="btnSkip">Saltar →</button>
+    <button class="btn-next" id="btnNext" style="display:none">Siguiente pregunta →</button>
+  </div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div id="resultsScreen" class="screen">
+  <div class="results-card">
+    <div class="results-trophy" id="resTrophy">🏆</div>
+    <div class="results-title" id="resTitle">¡Excelente!</div>
+    <div class="results-verse" id="resVerse"></div>
+
+    <div class="results-stats">
+      <div class="stat-box">
+        <div class="stat-n good" id="resCorrect">0</div>
+        <div class="stat-label">Correctas</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-n bad" id="resWrong">0</div>
+        <div class="stat-label">Incorrectas</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-n pct" id="resPct">0%</div>
+        <div class="stat-label">Puntaje</div>
+      </div>
+    </div>
+
+    <div class="score-bar-wrap">
+      <div class="score-bar-bg"><div class="score-bar-fill" id="scoreBar" style="width:0%"></div></div>
+      <div class="score-bar-label" id="scoreBarLabel"></div>
+    </div>
+
+    <div class="results-actions">
+      <button class="btn-restart" id="btnRestart">Jugar de nuevo ✦</button>
+      <button class="btn-home" id="btnHome">← Cambiar categoría</button>
+    </div>
+  </div>
+
+  <div class="review-section" id="reviewSection">
+    <div class="review-title">📖 Revisión de respuestas</div>
+    <div id="reviewList"></div>
+  </div>
+</div>
+
+<div class="offline-badge" id="offlineBadge">⚡ Modo sin conexión</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  BANCO DE PREGUNTAS
+// ═══════════════════════════════════════════════════════
+const CATEGORIES = [
+  { id:'genesis',   name:'Génesis y Creación', icon:'🌍' },
+  { id:'exodo',     name:'Éxodo y Ley',         icon:'📜' },
+  { id:'historia',  name:'Historia de Israel',  icon:'⚔️' },
+  { id:'poesia',    name:'Salmos y Poesía',      icon:'🎵' },
+  { id:'profetas',  name:'Los Profetas',         icon:'🔥' },
+  { id:'evangelios',name:'Los Evangelios',       icon:'✝️' },
+  { id:'hechos',    name:'Hechos y Cartas',      icon:'✉️' },
+  { id:'general',   name:'General',              icon:'📖' },
+];
+
+const ALL_QUESTIONS = [
+// ── GÉNESIS / CREACIÓN ─────────────────────────────────
+{ cat:'genesis', diff:'easy',
+  ref:'Génesis 1',
+  q:'¿Cuántos días tardó Dios en crear el mundo?',
+  opts:['5 días','6 días','7 días','10 días'], ans:1,
+  exp:'Dios creó el mundo en 6 días y descansó el séptimo (Génesis 2:2).' },
+{ cat:'genesis', diff:'easy',
+  ref:'Génesis 2:21-22',
+  q:'¿De qué parte del cuerpo de Adán fue creada Eva?',
+  opts:['De su costilla','De su pie','De su brazo','De su cabeza'], ans:0,
+  exp:'Dios tomó una de las costillas de Adán y con ella formó a la mujer (Génesis 2:21-22).' },
+{ cat:'genesis', diff:'easy',
+  ref:'Génesis 4:1-2',
+  q:'¿Cuáles fueron los dos primeros hijos de Adán y Eva?',
+  opts:['Set y Enós','Caín y Abel','Lamec y Noé','Sem y Cam'], ans:1,
+  exp:'Caín fue el primogénito y Abel el segundo hijo de Adán y Eva.' },
+{ cat:'genesis', diff:'easy',
+  ref:'Génesis 6-7',
+  q:'¿Qué construyó Noé por mandato de Dios?',
+  opts:['Un templo','Una torre','Un arca','Un altar'], ans:2,
+  exp:'Dios mandó a Noé construir un arca para salvar a su familia y a los animales del diluvio.' },
+{ cat:'genesis', diff:'medium',
+  ref:'Génesis 5:27',
+  q:'¿Cuántos años vivió Matusalén, el hombre que más vivió en la Biblia?',
+  opts:['777 años','900 años','969 años','1000 años'], ans:2,
+  exp:'Matusalén vivió 969 años, siendo el ser humano que más vivió según las Escrituras.' },
+{ cat:'genesis', diff:'medium',
+  ref:'Génesis 11:31',
+  q:'¿De qué ciudad partió Abram antes de llegar a Canaán?',
+  opts:['Babilonia','Ur de los caldeos','Nínive','Damasco'], ans:1,
+  exp:'Abram salió de Ur de los caldeos junto con su padre Taré, aunque llegó a establecerse en Harán primero.' },
+{ cat:'genesis', diff:'medium',
+  ref:'Génesis 17',
+  q:'¿Cómo se llamó el hijo que Dios prometió a Abraham y Sara en su vejez?',
+  opts:['Ismael','Esaú','Jacob','Isaac'], ans:3,
+  exp:'Dios prometió que Sara daría a luz un hijo al que llamarían Isaac, que significa "él ríe".' },
+{ cat:'genesis', diff:'medium',
+  ref:'Génesis 32:28',
+  q:'¿Qué nombre recibió Jacob después de luchar con Dios?',
+  opts:['Israel','Abraham','Moisés','Elías'], ans:0,
+  exp:'Dios cambió el nombre de Jacob a Israel, que significa "el que lucha con Dios" o "príncipe de Dios".' },
+{ cat:'genesis', diff:'medium',
+  ref:'Génesis 35:22-26',
+  q:'¿Cuántos hijos tuvo Jacob (Israel)?',
+  opts:['10','11','12','13'], ans:2,
+  exp:'Jacob tuvo 12 hijos que se convirtieron en las 12 tribus de Israel.' },
+{ cat:'genesis', diff:'hard',
+  ref:'Génesis 41',
+  q:'¿Qué soñó el faraón que José interpretó como 7 años de abundancia y 7 de hambre?',
+  opts:['7 estrellas y 7 nubes','7 vacas gordas y 7 flacas','7 panes y 7 espinas','7 ríos y 7 desiertos'], ans:1,
+  exp:'El faraón soñó con 7 vacas hermosas y 7 vacas flacas, y también con 7 espigas llenas y 7 marchitas.' },
+{ cat:'genesis', diff:'hard',
+  ref:'Génesis 22',
+  q:'¿En qué monte mandó Dios a Abraham ofrecer a Isaac en sacrificio?',
+  opts:['Monte Sinaí','Monte Carmelo','Monte Moriah','Monte Horeb'], ans:2,
+  exp:'Dios mandó a Abraham ir al monte Moriah, donde al final proveyó un carnero en lugar de Isaac.' },
+{ cat:'genesis', diff:'hard',
+  ref:'Génesis 5:24',
+  q:'¿Qué le sucedió a Enoc según la Biblia, sin pasar por la muerte?',
+  opts:['Fue devorado por el mar','Dios lo llevó consigo','Desapareció en el desierto','Subió a una montaña sagrada'], ans:1,
+  exp:'"Caminó Enoc con Dios, y desapareció, porque le llevó Dios" (Génesis 5:24).' },
+
+// ── ÉXODO Y LEY ────────────────────────────────────────
+{ cat:'exodo', diff:'easy',
+  ref:'Éxodo 3:2',
+  q:'¿Cómo se le apareció Dios a Moisés por primera vez?',
+  opts:['En una nube','En una zarza ardiente','En un sueño','En el río Nilo'], ans:1,
+  exp:'El ángel del Señor se le apareció a Moisés en una llama de fuego en medio de una zarza (Éxodo 3:2).' },
+{ cat:'exodo', diff:'easy',
+  ref:'Éxodo 7-12',
+  q:'¿Cuántas plagas mandó Dios sobre Egipto?',
+  opts:['7','9','10','12'], ans:2,
+  exp:'Dios mandó 10 plagas sobre Egipto para que el faraón dejara ir al pueblo de Israel.' },
+{ cat:'exodo', diff:'easy',
+  ref:'Éxodo 20',
+  q:'¿Cuántos mandamientos recibió Moisés en el monte Sinaí?',
+  opts:['5','7','10','12'], ans:2,
+  exp:'Dios entregó a Moisés los 10 mandamientos en el monte Sinaí, escritos en tablas de piedra.' },
+{ cat:'exodo', diff:'easy',
+  ref:'Éxodo 16',
+  q:'¿Qué alimento que caía del cielo comieron los israelitas en el desierto?',
+  opts:['Néctar','Maná','Codornices doradas','Pan ácimo'], ans:1,
+  exp:'Dios proveyó maná cada mañana para alimentar al pueblo de Israel durante los 40 años en el desierto.' },
+{ cat:'exodo', diff:'medium',
+  ref:'Éxodo 14',
+  q:'¿Qué cuerpo de agua cruzaron los israelitas milagrosamente cuando huían de Egipto?',
+  opts:['El río Nilo','El mar Mediterráneo','El Mar Rojo','El río Jordán'], ans:2,
+  exp:'Dios dividió las aguas del Mar Rojo para que Israel pasara en seco, y el ejército egipcio fue cubierto por las aguas.' },
+{ cat:'exodo', diff:'medium',
+  ref:'Éxodo 2',
+  q:'¿Quién escondió a Moisés en una cesta en el río Nilo cuando era bebé?',
+  opts:['La hija del faraón','Su madre Jocabed','Su hermana María','Su abuela'], ans:1,
+  exp:'La madre de Moisés, Jocabed, lo puso en una cesta de papiro y lo colocó en el río para salvarlo del decreto del faraón.' },
+{ cat:'exodo', diff:'medium',
+  ref:'Éxodo 20:3-17',
+  q:'¿Cuál es el cuarto mandamiento según la Biblia?',
+  opts:['No matarás','Honra a tu padre y madre','Acuérdate del día de reposo','No cometerás adulterio'], ans:2,
+  exp:'El cuarto mandamiento establece: "Acuérdate del día de reposo para santificarlo" (Éxodo 20:8).' },
+{ cat:'exodo', diff:'hard',
+  ref:'Éxodo 25-27',
+  q:'¿Qué objeto sagrado del tabernáculo contenía las tablas de la ley?',
+  opts:['El altar de incienso','El candelabro de oro','El Arca del Pacto','La mesa de los panes'], ans:2,
+  exp:'El Arca del Pacto contenía las tablas de la ley, una vasija con maná y la vara de Aarón que reverdeció.' },
+{ cat:'exodo', diff:'hard',
+  ref:'Números 13-14',
+  q:'¿Cuántos espías envió Moisés a explorar la tierra de Canaán?',
+  opts:['2','7','10','12'], ans:3,
+  exp:'Moisés envió 12 espías, uno por cada tribu de Israel, para reconocer la tierra prometida.' },
+
+// ── HISTORIA DE ISRAEL ─────────────────────────────────
+{ cat:'historia', diff:'easy',
+  ref:'1 Samuel 9-10',
+  q:'¿Quién fue el primer rey de Israel?',
+  opts:['David','Salomón','Saúl','Josué'], ans:2,
+  exp:'Saúl fue ungido como el primer rey de Israel por el profeta Samuel.' },
+{ cat:'historia', diff:'easy',
+  ref:'1 Samuel 17',
+  q:'¿Quién mató al gigante filisteo Goliat?',
+  opts:['Sansón','Jonatán','David','Gedeón'], ans:2,
+  exp:'El joven David mató a Goliat con una honda y una piedra, confiando en el Señor.' },
+{ cat:'historia', diff:'easy',
+  ref:'1 Reyes 6',
+  q:'¿Quién construyó el primer templo de Jerusalén?',
+  opts:['David','Salomón','Nehemías','Josías'], ans:1,
+  exp:'El rey Salomón construyó el gran templo en Jerusalén según los planes que David había preparado.' },
+{ cat:'historia', diff:'medium',
+  ref:'Jueces 16',
+  q:'¿Cuál era la fuente de la fuerza sobrenatural de Sansón?',
+  opts:['Un anillo mágico','Su cabello sin cortar','Ayunar 40 días','Una espada especial'], ans:1,
+  exp:'La fuerza de Sansón residía en su cabello, como parte de su voto de nazareo ante Dios.' },
+{ cat:'historia', diff:'medium',
+  ref:'1 Reyes 18',
+  q:'¿Qué profeta hizo descender fuego del cielo sobre el altar en el Monte Carmelo?',
+  opts:['Eliseo','Elías','Isaías','Jeremías'], ans:1,
+  exp:'Elías desafió a 450 profetas de Baal en el Monte Carmelo y Dios respondió con fuego que consumió el sacrificio.' },
+{ cat:'historia', diff:'medium',
+  ref:'Daniel 6',
+  q:'¿A quién arrojaron al foso de los leones por seguir orando a Dios?',
+  opts:['Ezequiel','Mardoqueo','Daniel','Nehemías'], ans:2,
+  exp:'Daniel fue arrojado al foso de los leones por desobedecer el decreto del rey Darío, pero Dios cerró la boca de los leones.' },
+{ cat:'historia', diff:'medium',
+  ref:'Jonás 1:17',
+  q:'¿Cuántos días y noches estuvo Jonás en el vientre del gran pez?',
+  opts:['1','3','7','40'], ans:1,
+  exp:'Jonás estuvo 3 días y 3 noches en el vientre del gran pez antes de ser vomitado en tierra seca.' },
+{ cat:'historia', diff:'medium',
+  ref:'1 Samuel 1',
+  q:'¿Quién fue la madre del profeta Samuel?',
+  opts:['Rut','Noemí','Ana','Débora'], ans:2,
+  exp:'Ana clamó a Dios pidiendo un hijo y prometió dedicarlo al Señor. Dios respondió su oración y nació Samuel.' },
+{ cat:'historia', diff:'hard',
+  ref:'Jueces 14-15',
+  q:'¿Con qué insólita arma mató Sansón a mil filisteos?',
+  opts:['Con la espada de Goliat','Con una quijada de asno','Con sus propias manos','Con una honda'], ans:1,
+  exp:'"Hirió Sansón a mil hombres con una quijada de asno" (Jueces 15:15).' },
+{ cat:'historia', diff:'hard',
+  ref:'1 Reyes 11:3',
+  q:'¿Cuántas esposas tuvo el rey Salomón según 1 Reyes?',
+  opts:['300','500','700','1000'], ans:2,
+  exp:'Salomón tuvo 700 esposas de condición real y 300 concubinas, lo cual lo alejó de Dios.' },
+{ cat:'historia', diff:'hard',
+  ref:'2 Reyes 2:11',
+  q:'¿Cómo fue llevado el profeta Elías al cielo?',
+  opts:['Murió y resucitó','En un carro de fuego con torbellino','Fue arrebatado por un ángel','Dios lo llamó desde una nube'], ans:1,
+  exp:'Elías fue llevado al cielo en un carro de fuego con caballos de fuego, en un torbellino (2 Reyes 2:11).' },
+{ cat:'historia', diff:'hard',
+  ref:'Jueces 4-5',
+  q:'¿Quién fue la única mujer juez de Israel?',
+  opts:['Débora','Rut','Ester','Miriam'], ans:0,
+  exp:'Débora fue profetisa y juez de Israel, y junto con Barac lideró al pueblo contra el ejército de Sísara.' },
+
+// ── SALMOS Y POESÍA ────────────────────────────────────
+{ cat:'poesia', diff:'easy',
+  ref:'Salmos',
+  q:'¿Quién escribió la mayoría de los Salmos?',
+  opts:['Moisés','Salomón','David','Asaf'], ans:2,
+  exp:'El rey David escribió al menos 73 de los 150 salmos. Otros autores incluyen a Asaf, los hijos de Coré y Salomón.' },
+{ cat:'poesia', diff:'easy',
+  ref:'Salmo 23:1',
+  q:'¿Cómo comienza el famoso Salmo 23?',
+  opts:['"En el principio creó Dios"','"El Señor es mi pastor"','"Alabad al Señor"','"Bendice alma mía al Señor"'], ans:1,
+  exp:'"El Señor es mi pastor; nada me faltará" es el comienzo del Salmo 23, uno de los más amados de la Biblia.' },
+{ cat:'poesia', diff:'medium',
+  ref:'Salmos 117',
+  q:'¿Cuál es el salmo más corto de la Biblia?',
+  opts:['Salmo 1','Salmo 100','Salmo 117','Salmo 150'], ans:2,
+  exp:'El Salmo 117 tiene sólo 2 versículos, siendo el capítulo más corto de toda la Biblia.' },
+{ cat:'poesia', diff:'medium',
+  ref:'Eclesiastés 3:1',
+  q:'¿Qué libro de la Biblia dice "Para todo hay una estación, y un tiempo para cada propósito bajo el cielo"?',
+  opts:['Proverbios','Job','Eclesiastés','Cantares'], ans:2,
+  exp:'Esta frase se encuentra en Eclesiastés 3:1, un libro de sabiduría atribuido al rey Salomón.' },
+{ cat:'poesia', diff:'medium',
+  ref:'Proverbios 1:7',
+  q:'Según Proverbios, ¿cuál es el principio de la sabiduría?',
+  opts:['El conocimiento','El amor al prójimo','El temor de Jehová','El estudio de la Ley'], ans:2,
+  exp:'"El temor de Jehová es el principio de la sabiduría" (Proverbios 1:7).' },
+{ cat:'poesia', diff:'hard',
+  ref:'Salmos 119',
+  q:'¿Cuál es el capítulo más largo de toda la Biblia?',
+  opts:['Números 7','Salmo 119','1 Crónicas 1','Isaías 36'], ans:1,
+  exp:'El Salmo 119 tiene 176 versículos y es el capítulo más largo de la Biblia. Cada sección comienza con una letra del alfabeto hebreo.' },
+{ cat:'poesia', diff:'hard',
+  ref:'Job 1:1',
+  q:'¿En qué tierra vivía Job según el libro que lleva su nombre?',
+  opts:['Uz','Nod','Gosén','Madián'], ans:0,
+  exp:'Job habitaba en la tierra de Uz y era "hombre perfecto y recto, temeroso de Dios y apartado del mal" (Job 1:1).' },
+
+// ── PROFETAS ────────────────────────────────────────────
+{ cat:'profetas', diff:'easy',
+  ref:'Isaías 53:5',
+  q:'¿Qué profeta escribió "por sus llagas fuimos nosotros curados"?',
+  opts:['Jeremías','Ezequiel','Isaías','Daniel'], ans:2,
+  exp:'Isaías 53 es conocido como el capítulo del "Siervo Sufriente" y es una profecía mesiánica del NT.' },
+{ cat:'profetas', diff:'medium',
+  ref:'Ezequiel 37',
+  q:'¿Qué visión tuvo el profeta Ezequiel sobre un campo lleno de restos humanos?',
+  opts:['La visión de los cuatro querubines','El valle de los huesos secos','La rueda dentro de la rueda','El río de vida'], ans:1,
+  exp:'Ezequiel vio un valle lleno de huesos secos que cobrarán vida como símbolo de la restauración de Israel.' },
+{ cat:'profetas', diff:'medium',
+  ref:'Miqueas 5:2',
+  q:'¿Qué profeta anunció que el Mesías nacería en Belén?',
+  opts:['Isaías','Amós','Miqueas','Jeremías'], ans:2,
+  exp:'"Pero tú, Belén Efrata... de ti me saldrá el que será Señor en Israel" (Miqueas 5:2).' },
+{ cat:'profetas', diff:'medium',
+  ref:'Jeremías 31:31',
+  q:'¿Qué profeta habló del "nuevo pacto" que Dios haría con Israel?',
+  opts:['Isaías','Jeremías','Oseas','Zacarías'], ans:1,
+  exp:'Jeremías 31:31 anuncia el nuevo pacto: "He aquí que vienen días, dice Jehová, en los cuales haré nuevo pacto con la casa de Israel."' },
+{ cat:'profetas', diff:'hard',
+  ref:'Daniel 2',
+  q:'¿Qué imagen vio Nabucodonosor en su sueño que Daniel interpretó?',
+  opts:['Un gran árbol','Una estatua de metales mixtos','Cuatro bestias del mar','Un río de fuego'], ans:1,
+  exp:'Nabucodonosor vio una estatua con cabeza de oro, pecho de plata, vientre de bronce, piernas de hierro y pies de barro, representando reinos sucesivos.' },
+{ cat:'profetas', diff:'hard',
+  ref:'Ezequiel 1',
+  q:'¿Cuántas caras tenían cada uno de los seres vivientes en la visión de Ezequiel?',
+  opts:['2','3','4','7'], ans:2,
+  exp:'Cada ser viviente tenía cuatro caras: de hombre, de león, de buey y de águila (Ezequiel 1:10).' },
+
+// ── EVANGELIOS ─────────────────────────────────────────
+{ cat:'evangelios', diff:'easy',
+  ref:'Mateo 2:1 / Lucas 2:4-7',
+  q:'¿En qué ciudad nació Jesús?',
+  opts:['Nazaret','Jerusalén','Belén','Capernaum'], ans:2,
+  exp:'Jesús nació en Belén de Judea, cumpliendo la profecía de Miqueas sobre el lugar de nacimiento del Mesías.' },
+{ cat:'evangelios', diff:'easy',
+  ref:'Marcos 1:9',
+  q:'¿Quién bautizó a Jesús en el río Jordán?',
+  opts:['Pedro','Simón','Juan el Bautista','El apóstol Juan'], ans:2,
+  exp:'Juan el Bautista bautizó a Jesús en el río Jordán, y al salir del agua el Espíritu Santo descendió sobre él como paloma.' },
+{ cat:'evangelios', diff:'easy',
+  ref:'Juan 2:1-11',
+  q:'¿Cuál fue el primer milagro que realizó Jesús?',
+  opts:['Sanar a un leproso','Caminar sobre el agua','Convertir agua en vino','Multiplicar los panes'], ans:2,
+  exp:'El primer milagro de Jesús fue convertir el agua en vino durante una boda en Caná de Galilea.' },
+{ cat:'evangelios', diff:'easy',
+  ref:'Juan 11',
+  q:'¿A quién resucitó Jesús después de 4 días de haber muerto?',
+  opts:['Jairo','Lázaro','Ananías','Tabita'], ans:1,
+  exp:'Jesús resucitó a Lázaro de Betania, hermano de María y Marta, después de 4 días en el sepulcro.' },
+{ cat:'evangelios', diff:'easy',
+  ref:'Mateo 10:2-4',
+  q:'¿Cuántos discípulos eligió Jesús?',
+  opts:['7','10','12','70'], ans:2,
+  exp:'Jesús eligió a 12 discípulos (apóstoles), uno por cada tribu de Israel.' },
+{ cat:'evangelios', diff:'medium',
+  ref:'Mateo 4:2',
+  q:'¿Cuántos días ayunó Jesús en el desierto antes de ser tentado?',
+  opts:['7','21','40','50'], ans:2,
+  exp:'Jesús ayunó 40 días y 40 noches en el desierto. Al final fue tentado por el diablo tres veces.' },
+{ cat:'evangelios', diff:'medium',
+  ref:'Juan 14:6',
+  q:'¿Qué dijo Jesús sobre sí mismo en Juan 14:6?',
+  opts:['Soy la luz del mundo','Soy el buen pastor','Yo soy el camino, la verdad y la vida','Yo soy la resurrección'], ans:2,
+  exp:'"Yo soy el camino, y la verdad, y la vida; nadie viene al Padre, sino por mí" (Juan 14:6).' },
+{ cat:'evangelios', diff:'medium',
+  ref:'Juan 3:16',
+  q:'Completa el versículo: "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree..."',
+  opts:['...tenga vida eterna','...no se pierda, mas tenga vida eterna','...reciba su bendición','...sea salvo de sus pecados'], ans:1,
+  exp:'"...no se pierda, mas tenga vida eterna." (Juan 3:16) es quizás el versículo más conocido del Nuevo Testamento.' },
+{ cat:'evangelios', diff:'medium',
+  ref:'Mateo 5-7',
+  q:'¿Qué nombre recibe el discurso de Jesús que incluye las Bienaventuranzas y el Padrenuestro?',
+  opts:['El Sermón de la Llanura','El Sermón del Monte','El Discurso del Reino','El Sermón del Templo'], ans:1,
+  exp:'El Sermón del Monte (Mateo 5-7) es el discurso más extenso de Jesús registrado en los evangelios.' },
+{ cat:'evangelios', diff:'medium',
+  ref:'Lucas 22:47-48',
+  q:'¿Quién traicionó a Jesús con un beso en el huerto de Getsemaní?',
+  opts:['Pedro','Tomás','Judas Iscariote','Bartolomé'], ans:2,
+  exp:'Judas Iscariote, uno de los 12 apóstoles, traicionó a Jesús con un beso como señal a los guardias del templo.' },
+{ cat:'evangelios', diff:'medium',
+  ref:'Lucas 22:54-62',
+  q:'¿Qué apóstol negó conocer a Jesús tres veces en la noche de su arresto?',
+  opts:['Juan','Santiago','Pedro','Andrés'], ans:2,
+  exp:'Pedro negó a Jesús tres veces antes de que cantara el gallo, tal como Jesús lo había predicho.' },
+{ cat:'evangelios', diff:'hard',
+  ref:'Juan 6:9',
+  q:'¿Cuántos panes y peces tuvo Jesús para alimentar a la multitud?',
+  opts:['3 panes y 2 peces','5 panes y 2 peces','7 panes y 3 peces','5 panes y 5 peces'], ans:1,
+  exp:'Con 5 panes de cebada y 2 peces de un niño, Jesús alimentó a más de 5,000 personas y sobró 12 canastas.' },
+{ cat:'evangelios', diff:'hard',
+  ref:'Marcos 15:22',
+  q:'¿Cuál es el significado de Gólgota, el lugar donde fue crucificado Jesús?',
+  opts:['El monte sagrado','Lugar de la calavera','La colina del rey','El valle del llanto'], ans:1,
+  exp:'Gólgota o Calvario significa "lugar de la calavera" en arameo y latín respectivamente.' },
+{ cat:'evangelios', diff:'hard',
+  ref:'Mateo 2:1-2',
+  q:'¿Quiénes siguieron la estrella para adorar a Jesús recién nacido?',
+  opts:['Los reyes de Oriente','Pastores de Belén','Magos del Oriente','Sacerdotes de Jerusalén'], ans:2,
+  exp:'Magos (sabios) del Oriente siguieron la estrella y llegaron a adorar a Jesús. La Biblia no especifica cuántos eran.' },
+
+// ── HECHOS Y CARTAS ────────────────────────────────────
+{ cat:'hechos', diff:'easy',
+  ref:'Hechos 7',
+  q:'¿Quién fue el primer mártir cristiano?',
+  opts:['Santiago','Pablo','Esteban','Felipe'], ans:2,
+  exp:'Esteban fue lapidado hasta morir por predicar el evangelio, convirtiéndose en el primer mártir de la fe cristiana.' },
+{ cat:'hechos', diff:'easy',
+  ref:'Hechos 9:1-19',
+  q:'¿Cómo se llamaba el apóstol Pablo antes de su conversión?',
+  opts:['Simón','Saulo','Barnabás','Timoteo'], ans:1,
+  exp:'Pablo se llamaba Saulo de Tarso. Se encontró con el Cristo resucitado en el camino a Damasco, donde quedó ciego por tres días.' },
+{ cat:'hechos', diff:'medium',
+  ref:'Hechos 11:26',
+  q:'¿En qué ciudad se llamaron "cristianos" por primera vez los seguidores de Jesús?',
+  opts:['Jerusalén','Roma','Corinto','Antioquía'], ans:3,
+  exp:'"Y a los discípulos se les llamó cristianos por primera vez en Antioquía" (Hechos 11:26).' },
+{ cat:'hechos', diff:'medium',
+  ref:'Hechos 2',
+  q:'¿Qué evento marcó el nacimiento oficial de la iglesia cristiana?',
+  opts:['La ascensión de Jesús','El día de Pentecostés','La conversión de Pablo','El concilio de Jerusalén'], ans:1,
+  exp:'En el día de Pentecostés, el Espíritu Santo descendió sobre los 120 discípulos y Pedro predicó, convirtiéndose 3,000 personas.' },
+{ cat:'hechos', diff:'medium',
+  ref:'Hechos 27-28',
+  q:'¿En qué isla naufragó Pablo durante su viaje a Roma?',
+  opts:['Creta','Chipre','Malta','Patmos'], ans:2,
+  exp:'Pablo naufragó en la isla de Malta, donde fue mordido por una víbora pero no le pasó nada, asombrando a los habitantes.' },
+{ cat:'hechos', diff:'hard',
+  ref:'Gálatas 1:17-18',
+  q:'¿Cuántos años después de su conversión visitó Pablo a Pedro en Jerusalén por primera vez?',
+  opts:['1 año','3 años','5 años','7 años'], ans:1,
+  exp:'Pablo esperó 3 años después de su conversión antes de ir a Jerusalén a conocer a Pedro (Gálatas 1:17-18).' },
+{ cat:'hechos', diff:'hard',
+  ref:'Apocalipsis 1:9',
+  q:'¿Qué apóstol fue desterrado a la isla de Patmos?',
+  opts:['Pedro','Pablo','Andrés','Juan'], ans:3,
+  exp:'El apóstol Juan fue desterrado a la isla de Patmos donde recibió las visiones del Apocalipsis.' },
+
+// ── GENERAL ────────────────────────────────────────────
+{ cat:'general', diff:'easy',
+  ref:'Biblia',
+  q:'¿Cuántos libros tiene la Biblia Protestante en total?',
+  opts:['60','63','66','73'], ans:2,
+  exp:'La Biblia protestante tiene 66 libros: 39 en el Antiguo Testamento y 27 en el Nuevo Testamento.' },
+{ cat:'general', diff:'easy',
+  ref:'Biblia',
+  q:'¿Cuántos libros tiene el Nuevo Testamento?',
+  opts:['22','25','27','30'], ans:2,
+  exp:'El Nuevo Testamento tiene 27 libros, desde el Evangelio de Mateo hasta el Apocalipsis.' },
+{ cat:'general', diff:'easy',
+  ref:'Juan 11:35',
+  q:'¿Cuál es el versículo más corto de la Biblia?',
+  opts:['"Amén."\n(Apocalipsis)','Jesús lloró.\n(Juan 11:35)','Aleluya.\n(Salmo 117)','Y fue así.\n(Génesis 1)'], ans:1,
+  exp:'"Jesús lloró" (Juan 11:35) es considerado el versículo más corto en la Biblia en español e inglés.' },
+{ cat:'general', diff:'medium',
+  ref:'Biblia',
+  q:'¿Cuál es el libro más largo de la Biblia?',
+  opts:['Génesis','Isaías','Salmos','Jeremías'], ans:2,
+  exp:'El libro de Salmos es el más largo de la Biblia con 150 salmos y más de 2,400 versículos.' },
+{ cat:'general', diff:'medium',
+  ref:'Mateo 22:37-39',
+  q:'¿Cuáles son los dos mandamientos más grandes según Jesús?',
+  opts:['No matar y no robar','Amar a Dios y amar al prójimo','Honrar a los padres y guardar el sábado','Orar y ayunar'], ans:1,
+  exp:'Jesús dijo que el mayor mandamiento es amar a Dios con todo el corazón, y el segundo es amar al prójimo como a uno mismo.' },
+{ cat:'general', diff:'medium',
+  ref:'Génesis 1:1',
+  q:'¿Con qué palabras comienza la Biblia?',
+  opts:['"El Señor es mi pastor"','"Amad a vuestros enemigos"','"En el principio creó Dios los cielos y la tierra"','"Bienaventurados los pobres en espíritu"'], ans:2,
+  exp:'"En el principio creó Dios los cielos y la tierra" es el primer versículo de la Biblia (Génesis 1:1).' },
+{ cat:'general', diff:'medium',
+  ref:'Lucas 1:26-38',
+  q:'¿Qué ángel le anunció a María que daría a luz al Hijo de Dios?',
+  opts:['Miguel','Rafael','Gabriel','Uriel'], ans:2,
+  exp:'El ángel Gabriel fue enviado por Dios a María para anunciarle que concebiría y daría a luz a Jesús.' },
+{ cat:'general', diff:'hard',
+  ref:'Biblia',
+  q:'¿Quién escribió más libros del Nuevo Testamento?',
+  opts:['Pedro','Lucas','Juan','Pablo'], ans:3,
+  exp:'El apóstol Pablo escribió 13 (o 14 con Hebreos) de los 27 libros del NT, siendo el autor más prolífico.' },
+{ cat:'general', diff:'hard',
+  ref:'Apocalipsis 13:18',
+  q:'¿Qué número se asocia con la bestia en el libro de Apocalipsis?',
+  opts:['444','616','666','777'], ans:2,
+  exp:'"Aquí hay sabiduría. El que tiene entendimiento, cuente el número de la bestia; pues es número de hombre. Y su número es seiscientos sesenta y seis" (Apocalipsis 13:18).' },
+{ cat:'general', diff:'hard',
+  ref:'Apocalipsis 21-22',
+  q:'¿Cuántas puertas tiene la Nueva Jerusalén según el Apocalipsis?',
+  opts:['7','10','12','24'], ans:2,
+  exp:'La Nueva Jerusalén tiene 12 puertas (3 en cada lado), cada una con el nombre de una de las 12 tribus de Israel (Apocalipsis 21:12).' },
+];
+
+// ═══════════════════════════════════════════════════════
+//  ESTADO DEL JUEGO
+// ═══════════════════════════════════════════════════════
+let state = {
+  selectedCats: [],
+  difficulty: 'all',
+  questions: [],
+  current: 0,
+  correct: 0,
+  wrong: 0,
+  answered: false,
+  results: [],
+  timerInterval: null,
+  timerSec: 20,
+};
+
+// ═══════════════════════════════════════════════════════
+//  UTILIDADES
+// ═══════════════════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function $(id) { return document.getElementById(id); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════════════════════
+function buildHome() {
+  const grid = $('categoryGrid');
+  grid.innerHTML = '';
+
+  // Count questions per category
+  CATEGORIES.forEach(cat => {
+    const count = ALL_QUESTIONS.filter(q => q.cat === cat.id).length;
+    const card = document.createElement('div');
+    card.className = 'cat-card';
+    card.dataset.id = cat.id;
+    card.innerHTML = `
+      <div class="cat-icon">${cat.icon}</div>
+      <div class="cat-info">
+        <div class="cat-name">${cat.name}</div>
+        <div class="cat-count">${count} preguntas</div>
+      </div>`;
+    card.addEventListener('click', () => toggleCat(cat.id, card));
+    grid.appendChild(card);
+  });
+
+  updateStartBtn();
+}
+
+function toggleCat(id, card) {
+  const idx = state.selectedCats.indexOf(id);
+  if (idx === -1) { state.selectedCats.push(id); card.classList.add('selected'); }
+  else { state.selectedCats.splice(idx, 1); card.classList.remove('selected'); }
+  updateStartBtn();
+}
+
+function updateStartBtn() {
+  const pool = getPool();
+  $('questionCount').textContent = pool.length > 0
+    ? `${pool.length} pregunta${pool.length !== 1 ? 's' : ''} disponible${pool.length !== 1 ? 's' : ''}`
+    : 'Selecciona al menos una categoría';
+  $('btnStart').disabled = pool.length === 0;
+}
+
+function getPool() {
+  let pool = state.selectedCats.length === 0 ? ALL_QUESTIONS
+    : ALL_QUESTIONS.filter(q => state.selectedCats.includes(q.cat));
+  if (state.difficulty !== 'all') pool = pool.filter(q => q.diff === state.difficulty);
+  return pool;
+}
+
+// ═══════════════════════════════════════════════════════
+//  DIFFICULTY BUTTONS
+// ═══════════════════════════════════════════════════════
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.difficulty = btn.dataset.diff;
+    updateStartBtn();
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+//  START QUIZ
+// ═══════════════════════════════════════════════════════
+$('btnStart').addEventListener('click', () => {
+  const pool = getPool();
+  state.questions = shuffle(pool).slice(0, Math.min(pool.length, 20));
+  state.current = 0;
+  state.correct = 0;
+  state.wrong = 0;
+  state.results = [];
+  showScreen('quizScreen');
+  renderQuestion();
+});
+
+// ═══════════════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════════════
+const CIRCUMFERENCE = 2 * Math.PI * 19; // r=19
+
+function startTimer() {
+  stopTimer();
+  state.timerSec = 20;
+  updateTimerUI(20);
+  state.timerInterval = setInterval(() => {
+    state.timerSec--;
+    updateTimerUI(state.timerSec);
+    if (state.timerSec <= 0) {
+      stopTimer();
+      if (!state.answered) autoSkip();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(state.timerInterval);
+  state.timerInterval = null;
+}
+
+function updateTimerUI(sec) {
+  $('timerNum').textContent = sec;
+  const circle = $('timerCircle');
+  const offset = CIRCUMFERENCE * (1 - sec / 20);
+  circle.style.strokeDashoffset = offset;
+  if (sec <= 5) {
+    circle.style.stroke = '#8b2020';
+    $('timerNum').style.color = '#8b2020';
+  } else if (sec <= 10) {
+    circle.style.stroke = '#d4aa45';
+    $('timerNum').style.color = '#b8902a';
+  } else {
+    circle.style.stroke = '#b8902a';
+    $('timerNum').style.color = '#2c1f0e';
+  }
+}
+
+function autoSkip() {
+  if (state.answered) return;
+  state.answered = true;
+  const q = state.questions[state.current];
+  // Reveal correct answer
+  const opts = $('optionsGrid').querySelectorAll('.opt-btn');
+  opts.forEach(b => { b.disabled = true; });
+  opts[q.ans].classList.add('reveal');
+  state.results.push({ q, userAns: -1, correct: false });
+  state.wrong++;
+  updateLiveScore();
+  $('explanationBox').textContent = '⏱ Tiempo agotado. ' + q.exp;
+  $('explanationBox').classList.add('show');
+  $('btnSkip').style.display = 'none';
+  $('btnNext').style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ═══════════════════════════════════════════════════════
+function renderQuestion() {
+  state.answered = false;
+  const q = state.questions[state.current];
+  const total = state.questions.length;
+
+  $('qNum').textContent = state.current + 1;
+  $('qTotal').textContent = total;
+  $('progressFill').style.width = `${(state.current / total) * 100}%`;
+  $('qRef').textContent = q.ref;
+  $('qText').textContent = q.q;
+
+  // Category label
+  const catObj = CATEGORIES.find(c => c.id === q.cat);
+  $('quizCatLabel').textContent = catObj ? `${catObj.icon} ${catObj.name}` : q.cat;
+
+  // Reset explanation
+  $('explanationBox').classList.remove('show');
+  $('explanationBox').textContent = '';
+  $('btnNext').style.display = 'none';
+  $('btnSkip').style.display = 'block';
+
+  // Build options
+  const grid = $('optionsGrid');
+  grid.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.addEventListener('click', () => answer(i));
+    grid.appendChild(btn);
+  });
+
+  // Reset question card animation
+  const card = $('questionCard');
+  card.style.animation = 'none';
+  requestAnimationFrame(() => { card.style.animation = ''; });
+
+  // Difficulty badge in ref
+  const diffMap = { easy: '⭐', medium: '⭐⭐', hard: '⭐⭐⭐' };
+  $('qRef').textContent = `${q.ref} · ${diffMap[q.diff] || ''}`;
+
+  startTimer();
+}
+
+// ═══════════════════════════════════════════════════════
+//  ANSWER
+// ═══════════════════════════════════════════════════════
+function answer(i) {
+  if (state.answered) return;
+  state.answered = true;
+  stopTimer();
+
+  const q = state.questions[state.current];
+  const opts = $('optionsGrid').querySelectorAll('.opt-btn');
+  const isCorrect = i === q.ans;
+
+  opts.forEach(b => b.disabled = true);
+  opts[q.ans].classList.add('correct');
+  if (!isCorrect) opts[i].classList.add('wrong');
+
+  if (isCorrect) state.correct++; else state.wrong++;
+  state.results.push({ q, userAns: i, correct: isCorrect });
+  updateLiveScore();
+
+  $('explanationBox').textContent = (isCorrect ? '✓ ¡Correcto! ' : '✗ Incorrecto. ') + q.exp;
+  $('explanationBox').classList.add('show');
+  $('btnSkip').style.display = 'none';
+  $('btnNext').style.display = 'block';
+}
+
+function updateLiveScore() {
+  $('liveCorrect').textContent = state.correct;
+  $('liveWrong').textContent = state.wrong;
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+$('btnNext').addEventListener('click', () => {
+  state.current++;
+  if (state.current >= state.questions.length) { showResults(); }
+  else { renderQuestion(); }
+});
+
+$('btnSkip').addEventListener('click', () => {
+  stopTimer();
+  if (!state.answered) {
+    state.answered = true;
+    const q = state.questions[state.current];
+    const opts = $('optionsGrid').querySelectorAll('.opt-btn');
+    opts.forEach(b => b.disabled = true);
+    opts[q.ans].classList.add('reveal');
+    state.results.push({ q, userAns: -1, correct: false });
+    state.wrong++;
+    updateLiveScore();
+    $('explanationBox').textContent = 'Saltado. ' + q.exp;
+    $('explanationBox').classList.add('show');
+    $('btnSkip').style.display = 'none';
+    $('btnNext').style.display = 'block';
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+//  RESULTS
+// ═══════════════════════════════════════════════════════
+const VERSES = [
+  { pct:[90,100], text:'"Todo lo puedo en Cristo que me fortalece." — Filipenses 4:13', trophy:'🏆', title:'¡Conocimiento extraordinario!' },
+  { pct:[75,89],  text:'"Bienaventurado el que lee y los que oyen las palabras de esta profecía." — Apocalipsis 1:3', trophy:'🥇', title:'¡Excelente conocimiento!' },
+  { pct:[55,74],  text:'"Lámpara es a mis pies tu palabra, y lumbrera a mi camino." — Salmo 119:105', trophy:'📖', title:'¡Buen conocimiento!' },
+  { pct:[30,54],  text:'"Estudia para presentarte a Dios aprobado." — 2 Timoteo 2:15', trophy:'📚', title:'Sigue estudiando' },
+  { pct:[0,29],   text:'"Escudriñad las Escrituras." — Juan 5:39', trophy:'🙏', title:'¡Sigue leyendo la Biblia!' },
+];
+
+function showResults() {
+  stopTimer();
+  const total = state.questions.length;
+  const pct = Math.round((state.correct / total) * 100);
+
+  const band = VERSES.find(v => pct >= v.pct[0] && pct <= v.pct[1]) || VERSES[4];
+  $('resTrophy').textContent = band.trophy;
+  $('resTitle').textContent = band.title;
+  $('resVerse').innerHTML = band.text.replace('—', '<strong>—');
+
+  $('resCorrect').textContent = state.correct;
+  $('resWrong').textContent = state.wrong;
+  $('resPct').textContent = pct + '%';
+  $('scoreBarLabel').textContent = `${state.correct} de ${total} correctas`;
+
+  setTimeout(() => {
+    $('scoreBar').style.width = pct + '%';
+  }, 100);
+
+  // Review
+  const list = $('reviewList');
+  list.innerHTML = '';
+  state.results.forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'review-item ' + (r.correct ? 'ok' : 'fail');
+    const userLabel = r.userAns === -1 ? 'Saltada' : r.q.opts[r.userAns];
+    item.innerHTML = `
+      <div class="review-q">${r.q.q}</div>
+      <div class="review-a correct">Correcta: <span>${r.q.opts[r.q.ans]}</span></div>
+      ${!r.correct ? `<div class="review-a wrong">Tu respuesta: <span>${userLabel}</span></div>` : ''}`;
+    list.appendChild(item);
+  });
+
+  showScreen('resultsScreen');
+}
+
+$('btnRestart').addEventListener('click', () => {
+  // Same config, reshuffle
+  const pool = getPool();
+  state.questions = shuffle(pool).slice(0, Math.min(pool.length, 20));
+  state.current = 0; state.correct = 0; state.wrong = 0; state.results = [];
+  $('liveCorrect').textContent = '0';
+  $('liveWrong').textContent = '0';
+  showScreen('quizScreen');
+  renderQuestion();
+});
+
+$('btnHome').addEventListener('click', () => {
+  stopTimer();
+  showScreen('homeScreen');
+});
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+buildHome();
+
+// ═══════════════════════════════════════════════════════
+//  SERVICE WORKER
+// ═══════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        console.log('SW registrado:', reg.scope);
+      })
+      .catch(err => console.warn('SW no registrado:', err));
+  });
+
+  window.addEventListener('offline', () => {
+    $('offlineBadge').classList.add('show');
+  });
+  window.addEventListener('online', () => {
+    $('offlineBadge').classList.remove('show');
+  });
+  if (!navigator.onLine) $('offlineBadge').classList.add('show');
+}
+</script>
+</body>
+</html>

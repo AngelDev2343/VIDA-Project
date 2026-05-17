@@ -55,21 +55,27 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
       _widgetMissing = false;
     });
 
+    await HomeWidget.saveWidgetData('favorito', value);
+
     try {
       if (value) {
         final index = _selectedIndex ?? 0;
         await prefs.setInt('fav_index', index);
         if (mounted) setState(() => _selectedIndex = index);
         await _pushToWidget(index);
-        final supported =
-            await HomeWidget.isRequestPinWidgetSupported() ?? false;
-        if (supported) {
-          await HomeWidget.requestPinWidget(
-            androidName: 'FavoritoWidgetProvider',
-          );
+        final firstFavPin = prefs.getBool('first_launch_fav_pin') ?? false;
+        if (!firstFavPin) {
+          await prefs.setBool('first_launch_fav_pin', true);
+          final supported =
+              await HomeWidget.isRequestPinWidgetSupported() ?? false;
+          if (supported) {
+            await HomeWidget.requestPinWidget(
+              androidName: 'FavoritoWidgetProvider',
+            );
+          }
+          if (mounted && !supported) _showManualPinDialog();
         }
         if (mounted) {
-          if (!supported) _showManualPinDialog();
           Navigator.pop(context);
         }
       } else {

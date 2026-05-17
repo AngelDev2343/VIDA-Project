@@ -50,6 +50,8 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
       _widgetMissing = false;
     });
 
+    await HomeWidget.saveWidgetData('contra_pecado', value);
+
     if (value) {
       final phrase = getTodaysPhrase();
       await HomeWidget.saveWidgetData('phrase', phrase.text);

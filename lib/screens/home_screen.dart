@@ -12,6 +12,8 @@ import 'estudio_biblico_screen.dart';
 import 'favorito_screen.dart';
 import 'gallery_screen.dart';
 import 'streak_screen.dart';
+import 'mini_arcade_screen.dart';
+import 'perfil_screen.dart';
 import 'situacion_dificil_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -112,18 +114,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const Spacer(),
-                  const Icon(Icons.notifications_none_rounded,
-                      size: 24, color: AppColors.emerald700),
-                  const SizedBox(width: 12),
-                  CircleAvatar(
-                    radius: 19,
-                    backgroundColor: cs.primary,
-                    child: Text(
-                      userName.isNotEmpty ? userName[0].toUpperCase() : '?',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                  GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PerfilScreen()),
+                    ),
+                    child: CircleAvatar(
+                      radius: 19,
+                      backgroundColor: cs.primary,
+                      child: Text(
+                        userName.isNotEmpty ? userName[0].toUpperCase() : '?',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -135,9 +140,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
             FadeIn(
               child: VidaVerseCard(
-                verseText:
-                    'Porque yo sé los planes que tengo para vosotros, planes de bienestar y no de calamidad...',
-                reference: 'Jeremías 29:11',
+                verseText: 'Próximamente',
+                reference: 'Tu versículo VIDA',
                 onShare: () {},
                 onSave: () {},
               ),
@@ -307,9 +311,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   FadeIn(
                     index: 8,
                     child: ToolCard(
-                      icon: Icons.music_note_rounded,
-                      title: 'Canciones',
-                      subtitle: 'Música cristiana',
+                      icon: Icons.volunteer_activism_rounded,
+                      title: 'Evangelízate',
+                      subtitle: 'Guía de evangelización',
                       onTap: () {},
                     ),
                   ),
@@ -323,55 +327,61 @@ class _HomeScreenState extends State<HomeScreen> {
               index: 9,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 18, vertical: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: AppColors.emerald300,
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.emerald900.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MiniArcadeScreen()),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.sports_esports_rounded,
-                          size: 30, color: cs.primary),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Mini Arcade',
-                              style: GoogleFonts.dmSans(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: cs.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              'Próximamente · En desarrollo',
-                              style: GoogleFonts.dmSans(
-                                fontSize: 12,
-                                color: AppColors.emerald700,
-                              ),
-                            ),
-                          ],
-                        ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: AppColors.emerald300,
+                        width: 1.5,
                       ),
-                      const Icon(Icons.lock_outline_rounded,
-                          size: 18, color: AppColors.emerald600),
-                    ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.emerald900.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.sports_esports_rounded,
+                            size: 30, color: cs.primary),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Mini Arcade',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: cs.onSurface,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '2 juegos disponibles',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 12,
+                                  color: AppColors.emerald600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded,
+                            size: 18, color: AppColors.emerald500),
+                      ],
+                    ),
                   ),
                 ),
               ),

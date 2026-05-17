@@ -104,8 +104,8 @@
   .home-intro strong { color: var(--em-dark); font-weight: 600; }
 
   .category-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: .55rem;
     margin-bottom: 1.2rem;
   }
@@ -145,7 +145,6 @@
   .cat-info { flex: 1; min-width: 0; }
   .cat-name {
     font-size: .82rem; font-weight: 600; color: var(--text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .cat-count { font-size: .72rem; color: var(--text3); margin-top: .1rem; }
 
@@ -295,6 +294,8 @@
     line-height: 1.5;
     color: var(--text);
     font-weight: 400;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .options-grid {
@@ -317,6 +318,8 @@
     cursor: pointer;
     display: flex; align-items: center; gap: .75rem;
     min-height: 52px;
+    word-break: break-word;
+    overflow-wrap: break-word;
     transition: border-color .12s, background .12s;
     user-select: none;
     -webkit-user-select: none;

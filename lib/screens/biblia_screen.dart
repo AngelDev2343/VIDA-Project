@@ -66,8 +66,9 @@ class _BibliaScreenState extends State<BibliaScreen> {
     });
   }
 
-  void _initController() {
+  Future<void> _initController() async {
     if (_controller != null || !_hasInternet) return;
+    var retries = 0;
     final c = WebViewController();
     c.setJavaScriptMode(JavaScriptMode.unrestricted);
     c.setNavigationDelegate(
@@ -77,6 +78,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
         },
         onPageFinished: (_) {
           if (mounted) setState(() => _loadingProgress = 100);
+          retries = 0;
           c.runJavaScript('''
             (function(){
               var s = document.createElement('style');
@@ -86,19 +88,18 @@ class _BibliaScreenState extends State<BibliaScreen> {
           ''');
         },
         onWebResourceError: (e) {
+          if (e.errorCode == -201 && retries < 2) {
+            retries++;
+            c.reload();
+            return;
+          }
           if ((e.isForMainFrame ?? true) && mounted) setState(() => _loadError = true);
         },
       ),
     );
-    c.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-      '(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    );
+    await c.clearCache();
     c.loadRequest(
-      Uri.parse(
-        'https://www.bible.com/bible/149/JHN.1.RVR1960'
-        '?t=${DateTime.now().millisecondsSinceEpoch}',
-      ),
+      Uri.parse('https://www.bible.com/bible/149/JHN.1.RVR1960'),
     );
     setState(() => _controller = c);
   }

@@ -14,6 +14,7 @@ import 'streak_screen.dart';
 import 'mini_arcade_screen.dart';
 import 'perfil_screen.dart';
 import 'situacion_dificil_screen.dart';
+import 'evangelizate_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -313,7 +314,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.volunteer_activism_rounded,
                       title: 'Evangelízate',
                       subtitle: 'Guía de evangelización',
-                      onTap: () {},
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const EvangelizateScreen()),
+                      ),
                     ),
                   ),
                 ],

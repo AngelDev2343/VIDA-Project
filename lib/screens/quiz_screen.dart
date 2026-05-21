@@ -28,10 +28,18 @@ class _QuizScreenState extends State<QuizScreen> {
             if ((e.isForMainFrame ?? true) && mounted) setState(() => _error = true);
           },
         ),
-      )
-      ..loadRequest(
-        Uri.parse('https://angeldev2343.github.io/VIDA-Project/games/quiz/'),
       );
+    _loadLocalHtml();
+  }
+
+  Future<void> _loadLocalHtml() async {
+    try {
+      final html = await DefaultAssetBundle.of(context)
+          .loadString('games/quiz/index.html');
+      await _controller.loadHtmlString(html);
+    } catch (_) {
+      if (mounted) setState(() => _error = true);
+    }
   }
 
   @override
@@ -65,7 +73,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.cloud_off_rounded,
+                      Icon(Icons.bug_report_rounded,
                           size: 48, color: AppColors.emerald400),
                       const SizedBox(height: 16),
                       Text(
@@ -83,7 +91,7 @@ class _QuizScreenState extends State<QuizScreen> {
                             _error = false;
                             _loading = true;
                           });
-                          _controller.reload();
+                          _loadLocalHtml();
                         },
                         icon: const Icon(Icons.refresh_rounded),
                         label: const Text('Reintentar'),

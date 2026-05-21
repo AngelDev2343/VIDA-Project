@@ -23,10 +23,10 @@ flutter run              # launch on device/emulator
 
 - **Entrypoint**: `lib/main.dart` — `VidaApp`, light-only M3 theme, no `debugShowCheckedModeBanner`.
 - **Splash flow**: `SplashScreen` (`lib/screens/splash_screen.dart`) asks user's name via `TextField` (word-capitalized) → saves to `SharedPreferences` → calls `VidaApp.of(context).setUserName(name)`. Name accessed via `VidaApp.of(context).userName`.
-- **Home screen**: `HomeScreen` (`lib/screens/home_screen.dart`) shows greeting, `VidaVerseCard`, streak widget, 6 `ToolCard` tools, and a locked "Mini Arcade" row.
+- **Home screen**: `HomeScreen` (`lib/screens/home_screen.dart`) shows greeting, `VidaVerseCard`, streak widget, 6 `ToolCard` tools (the 6th is "Evangelízate"), and a "Mini Arcade" row.
 - **Placeholder tabs**: Tabs 2–4 (Biblia / VIDA / Perfil) are `_PlaceholderScreen` (private class in `main.dart`) — "En construcción" stubs.
 - **Widgets**: `lib/widgets/` — `vida_verse_card.dart`, `tool_card.dart`, `fade_in.dart`, `contra_pecado_card.dart`, `favorito_card.dart`.
-- **Data layer**: `lib/data/` — `phrases.dart` (7 daily phrases), `fav.dart` (50 `FavVerse` objects), `bible_study.dart` (CRUD via SharedPreferences JSON), `consejo.dart` + `consejos_data.dart` (situation advice), `gallery_images.dart` (20 image paths), `streak.dart` (`StreakService`).
+- **Data layer**: `lib/data/` — `phrases.dart` (7 daily phrases), `fav.dart` (50 `FavVerse` objects), `bible_study.dart` (CRUD via SharedPreferences JSON), `consejo.dart` + `consejos_data.dart` (situation advice), `gallery_images.dart` (20 image paths), `streak.dart` (`StreakService`), `evangelizate_data.dart` (6 categories parsed from `guide.md`).
 - **Theme**: `lib/theme/app_theme.dart` — single light theme, emerald palette (`AppColors`, shades 50–900). Uses `GoogleFonts.dmSans` + `GoogleFonts.cormorantGaramond`. No dark theme.
 - **State**: `setState` only (no state management). User name in `_VidaAppState`.
 - **Navigation**: `NavigationBar` (M3) wrapped in `NavigationBarTheme` for icon colors + `IndexedStack` for 4 tabs (Inicio / Biblia / VIDA / Perfil). No router package.
@@ -34,6 +34,8 @@ flutter run              # launch on device/emulator
 - **Image editor**: `GalleryScreen` → `ImageEditorScreen` renders background + editable text overlay, captures via `RepaintBoundary.toImage()`, shares via `share_plus`.
 - **Bible study**: `EstudioBiblicoScreen` — CRUD list stored as JSON string in SharedPreferences, swipe-to-delete with `Dismissible`.
 - **Dependencies** (from `pubspec.yaml`): `google_fonts`, `flutter_svg` (unused in Dart code), `cupertino_icons`, `shared_preferences`, `home_widget`, `webview_flutter`, `connectivity_plus`, `share_plus`, `path_provider`. Dev: `flutter_test`, `flutter_lints`.
+- **Evangelízate**: `EvangelizateScreen` (`lib/screens/evangelizate_screen.dart`) — intro description + 2-column grid of 6 category `ToolCard`s (short 1‑line subtitles). `EvangelizateDetalleScreen` (`lib/screens/evangelizate_detalle_screen.dart`) shows sections, explanations, tips, and Bible verses for each category. Content sourced from `guide.md` at project root.
+- **Quiz**: `QuizScreen` (`lib/screens/quiz_screen.dart`) loads `games/quiz/index.html` **locally** via `DefaultAssetBundle` + `loadHtmlString` (no internet needed). All CSS/JS is inline in the HTML. Google Fonts `<link>` removed to avoid offline fetch errors. WebView only works on Android/iOS, not Flutter Web.
 - **`withValues(alpha:)` not `withOpacity`**: Codebase uses `Colors.white.withValues(alpha: 0.07)` — `withOpacity` is not used anywhere (deprecated in newer Flutter).
 - **Color contrast**: All text on white uses emerald600 or darker. AppBar icons use `emerald700`. NavBar indicator is `emerald100` with selected icons in `emerald700`, unselected in `emerald400`.
 

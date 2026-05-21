@@ -251,8 +251,14 @@ class PerfilScreen extends StatelessWidget {
                     ),
                     const Divider(height: 24),
                     _creditLine(
+                      'Ayuda de',
+                      'Leonardo López',
+                      Icons.handshake_rounded,
+                    ),
+                    const Divider(height: 24),
+                    _creditLine(
                       'Versión',
-                      '0.5 (Build)',
+                      '0.5.1 (Build)',
                       Icons.info_outline_rounded,
                     ),
                   ],

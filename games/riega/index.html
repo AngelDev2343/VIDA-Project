@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Riega y Crece</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animaciones personalizadas */
+        @keyframes tiltWateringCan {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-45deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes fallDrop {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(120px) scale(0.5); opacity: 0; }
+        }
+
+        @keyframes growBounce {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes dropFruit {
+            0% { transform: translateY(0) scale(0); opacity: 0; }
+            20% { transform: translateY(-20px) scale(1); opacity: 1; }
+            80% { transform: translateY(180px) scale(1); opacity: 1; }
+            90% { transform: translateY(160px) scale(1); opacity: 1; }
+            100% { transform: translateY(180px) scale(1); opacity: 1; }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 215, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+        }
+
+        .animate-tilt {
+            animation: tiltWateringCan 1.5s ease-in-out;
+        }
+
+        .animate-drop {
+            animation: fallDrop 0.8s ease-in forwards;
+        }
+
+        .animate-grow {
+            animation: growBounce 0.8s ease-out forwards;
+        }
+
+        .fruit-falling {
+            animation: dropFruit 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .pulse-fruit {
+            border-radius: 50%;
+            animation: pulseGlow 2s infinite;
+        }
+
+        /* Prevención de selección para sensación de app nativa */
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body class="bg-sky-200 h-screen w-full overflow-hidden flex flex-col font-sans text-slate-800">
+
+    <!-- Encabezado -->
+    <header class="pt-8 pb-4 px-6 text-center z-20 relative">
+        <h1 class="text-3xl font-extrabold text-teal-800 drop-shadow-sm">Riega y Crece</h1>
+        <div class="flex justify-between items-center mt-2 bg-white/50 backdrop-blur rounded-full px-4 py-2 shadow-sm">
+            <span class="text-teal-900 font-bold" id="day-display">Día 1</span>
+            <button id="btn-collection" class="text-amber-600 font-bold text-sm flex items-center gap-1 active:scale-95 transition-transform">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg> Mis Versículos
+            </button>
+        </div>
+    </header>
+
+    <!-- Área del Juego (Cielo y Planta) -->
+    <main class="flex-1 relative flex justify-center items-end pb-24 z-10" id="game-area">
+        <!-- Sol SVG -->
+        <div class="absolute top-10 right-10 w-24 h-24 opacity-90 animate-pulse">
+            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-lg overflow-visible">
+                <circle cx="50" cy="50" r="25" fill="#FDE047"/>
+                <circle cx="50" cy="50" r="35" fill="#FEF08A" opacity="0.4"/>
+                <circle cx="50" cy="50" r="45" fill="#FEF9C3" opacity="0.2"/>
+                <path d="M50 5 L50 15 M50 85 L50 95 M5 50 L15 50 M85 50 L95 50 M18 18 L25 25 M75 75 L82 82 M18 82 L25 75 M75 18 L82 25" stroke="#FDE047" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+        </div>
+        
+        <!-- Nubes simples SVG -->
+        <div class="absolute top-24 left-4 w-32 h-20 opacity-80">
+            <svg viewBox="0 0 100 60" class="w-full h-full drop-shadow-md">
+                <path d="M 20 45 A 15 15 0 0 1 25 20 A 20 20 0 0 1 60 15 A 18 18 0 0 1 85 30 A 15 15 0 0 1 80 55 Z" fill="#FFFFFF"/>
+            </svg>
+        </div>
+        <div class="absolute top-16 left-32 w-24 h-16 opacity-60">
+            <svg viewBox="0 0 100 60" class="w-full h-full drop-shadow-md">
+                <path d="M 20 45 A 15 15 0 0 1 25 20 A 20 20 0 0 1 60 15 A 18 18 0 0 1 85 30 A 15 15 0 0 1 80 55 Z" fill="#FFFFFF"/>
+            </svg>
+        </div>
+
+        <!-- Regadera SVG (Rediseñada) -->
+        <div id="watering-can" class="absolute hidden w-28 h-28 z-30 transition-all duration-300 transform -translate-x-16 -translate-y-24">
+            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-xl overflow-visible">
+                <!-- Mango -->
+                <path d="M 75 40 C 105 35, 100 80, 75 75" fill="none" stroke="#38BDF8" stroke-width="8" stroke-linecap="round"/>
+                <!-- Boquilla -->
+                <path d="M 25 75 L 5 35" stroke="#0284C7" stroke-width="10" stroke-linecap="round"/>
+                <!-- Cabezal de la boquilla -->
+                <ellipse cx="5" cy="35" rx="5" ry="12" fill="#E0F2FE" transform="rotate(-20 5 35)"/>
+                <!-- Cuerpo de la regadera -->
+                <path d="M 25 40 L 75 40 L 80 85 C 80 95, 20 95, 20 85 Z" fill="#0EA5E9"/>
+                <!-- Tapa/Abertura -->
+                <ellipse cx="50" cy="40" rx="25" ry="10" fill="#0284C7"/>
+            </svg>
+        </div>
+
+        <!-- Planta -->
+        <div id="plant-wrapper" class="relative z-20 flex flex-col justify-end items-center transition-all duration-1000">
+            <div id="plant-emoji" class="transition-all duration-500 transform origin-bottom flex justify-center items-end drop-shadow-lg">
+                <!-- SVG inyectado por JS -->
+            </div>
+        </div>
+
+        <!-- Suelo donde caen los frutos -->
+        <div id="ground-fruits" class="absolute bottom-6 left-0 w-full h-20 z-30 pointer-events-none"></div>
+
+        <!-- Decoración del suelo -->
+        <div class="absolute bottom-0 left-0 w-full h-32 bg-emerald-600 rounded-t-[100%] scale-x-150 z-0"></div>
+        <div class="absolute bottom-0 left-0 w-full h-12 bg-amber-800 z-10"></div>
+    </main>
+
+    <!-- Controles -->
+    <footer class="p-6 bg-white/40 backdrop-blur-md rounded-t-3xl z-40 border-t border-white/50 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] flex flex-col gap-3">
+        <button id="btn-water" class="w-full bg-gradient-to-b from-blue-400 to-blue-600 text-white text-xl py-4 rounded-2xl shadow-lg font-bold flex items-center justify-center gap-3 active:scale-95 transition-transform">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg> Regar Planta
+        </button>
+        
+        <!-- Botón de simular día eliminado -->
+    </footer>
+
+    <!-- Modales -->
+    
+    <!-- Modal de Mensajes Generales -->
+    <div id="msg-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl transform scale-95 transition-transform duration-300" id="msg-modal-content">
+            <div id="msg-icon" class="w-16 h-16 mx-auto mb-4 text-emerald-500">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h2 id="msg-title" class="text-xl font-bold text-slate-800 mb-2">Mensaje</h2>
+            <p id="msg-text" class="text-slate-600 mb-6">Texto del mensaje aquí.</p>
+            <button id="btn-close-msg" class="bg-emerald-500 text-white px-8 py-3 rounded-full font-bold w-full active:scale-95 transition-transform">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Modal de Versículo Descubierto -->
+    <div id="verse-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] bg-amber-50 rounded-lg p-8 w-full max-w-md text-center shadow-2xl border-4 border-double border-amber-800/30 transform scale-95 transition-transform duration-300" id="verse-modal-content">
+            <div class="w-12 h-12 mx-auto mb-4 text-amber-800">
+                <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+            </div>
+            <h2 class="text-sm font-bold text-amber-800/60 uppercase tracking-widest mb-4">Fruto de Hoy</h2>
+            <p id="verse-text" class="text-xl text-slate-800 font-serif italic mb-6 leading-relaxed">"..."</p>
+            <p id="verse-ref" class="text-lg font-bold text-amber-900 mb-8">- Referencia</p>
+            <button id="btn-close-verse" class="bg-amber-800 text-amber-50 px-8 py-3 rounded-full font-bold shadow-md active:scale-95 transition-transform w-full">Guardar en el corazón</button>
+        </div>
+    </div>
+
+    <!-- Modal de Colección -->
+    <div id="collection-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 hidden flex justify-center items-end sm:items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-lg h-[80vh] sm:h-[70vh] flex flex-col shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300" id="collection-modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-teal-800">Mis Versículos (Frutos)</h2>
+                <button id="btn-close-collection" class="text-slate-400 hover:text-slate-700 text-2xl p-2">&times;</button>
+            </div>
+            <div id="collection-list" class="flex-1 overflow-y-auto space-y-4 pr-2 pb-4">
+                <!-- Lista de versículos inyectada por JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // === DATOS ===
+            const versiculos = [
+                { ref: "Romanos 8:28", text: "Y sabemos que a los que aman a Dios, todas las cosas les ayudan a bien, esto es, a los que conforme a su propósito son llamados." },
+                { ref: "Romanos 12:21", text: "No seas vencido de lo malo, sino vence con el bien el mal." },
+                { ref: "Romanos 12:12", text: "Gozosos en la esperanza; sufridos en la tribulación; constantes en la oración." },
+                { ref: "Juan 10:10", text: "El ladrón no viene sino para hurtar y matar y destruir; yo he venido para que tengan vida, y para que la tengan en abundancia." },
+                { ref: "Mateo 5:14", text: "Vosotros sois la luz del mundo; una ciudad asentada sobre un monte no se puede esconder." },
+                { ref: "Isaías 40:31", text: "Pero los que esperan a Jehová tendrán nuevas fuerzas; levantarán alas como las águilas; correrán, y no se cansarán; caminarán, y no se fatigarán." },
+                { ref: "Salmos 23:1", text: "Jehová es mi pastor; nada me faltará." },
+                { ref: "1 Corintios 10:13", text: "No os ha sobrevenido ninguna tentación que no sea humana; pero fiel es Dios, que no os dejará ser tentados más de lo que podéis resistir..." },
+                { ref: "2 Corintios 12:9", text: "Y me ha dicho: Bástate mi gracia; porque mi poder se perfecciona en la debilidad." },
+                { ref: "Filipenses 4:13", text: "Todo lo puedo en Cristo que me fortalece." },
+                { ref: "Colosenses 3:23", text: "Y todo lo que hagáis, hacedlo de corazón, como para el Señor y no para los hombres." },
+                { ref: "1 Tesalonicenses 5:18", text: "Dad gracias en todo, porque esta es la voluntad de Dios para con vosotros en Cristo Jesús." },
+                { ref: "Hebreos 11:1", text: "Es, pues, la fe la certeza de lo que se espera, la convicción de lo que no se ve." },
+                { ref: "1 Juan 4:8", text: "El que no ama, no ha conocido a Dios; porque Dios es amor." }
+            ];
+
+            // SVGs de Gráficos
+            const svgSeed = `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md overflow-visible"><ellipse cx="50" cy="80" rx="20" ry="12" fill="#6B4226"/><path d="M35 75 Q50 60 65 75" stroke="#4A2F1D" fill="none" stroke-width="3"/></svg>`;
+            const svgSprout = `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md overflow-visible"><path d="M50 95 Q48 70 50 50" stroke="#4ADE80" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M50 65 Q30 50 35 35 Q55 45 50 65" fill="#22C55E"/><path d="M50 60 Q70 45 65 30 Q45 40 50 60" fill="#22C55E"/></svg>`;
+            const svgPlant = `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-lg overflow-visible"><path d="M50 95 Q45 50 50 20" stroke="#16A34A" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M48 75 Q20 60 25 35 Q45 50 48 75" fill="#15803D"/><path d="M49 60 Q80 40 75 20 Q55 35 49 60" fill="#15803D"/><path d="M49 40 Q25 25 35 5 Q55 20 49 40" fill="#22C55E"/></svg>`;
+            const svgTree = `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-xl overflow-visible"><path d="M42 95 L46 50 L54 50 L58 95 Z" fill="#78350F"/><path d="M46 70 Q30 50 25 40" stroke="#78350F" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M54 65 Q70 50 75 45" stroke="#78350F" stroke-width="6" stroke-linecap="round" fill="none"/><circle cx="50" cy="35" r="28" fill="#16A34A"/><circle cx="30" cy="40" r="18" fill="#15803D"/><circle cx="70" cy="40" r="18" fill="#15803D"/><circle cx="50" cy="15" r="22" fill="#22C55E"/></svg>`;
+            const svgMatureTree = `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl overflow-visible"><path d="M38 95 L44 40 L56 40 L62 95 Z" fill="#78350F"/><path d="M44 65 Q20 40 15 35" stroke="#78350F" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M56 60 Q80 40 85 30" stroke="#78350F" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="50" cy="35" r="35" fill="#16A34A"/><circle cx="20" cy="45" r="25" fill="#15803D"/><circle cx="80" cy="45" r="25" fill="#15803D"/><circle cx="30" cy="20" r="28" fill="#22C55E"/><circle cx="70" cy="20" r="28" fill="#22C55E"/><circle cx="50" cy="10" r="30" fill="#4ADE80"/></svg>`;
+            const svgApple = `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md overflow-visible"><path d="M50 25 Q55 10 65 5" stroke="#78350F" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M50 25 Q65 20 70 35 Q75 45 60 40 Q55 35 50 25" fill="#22C55E"/><circle cx="38" cy="60" r="30" fill="#EF4444"/><circle cx="62" cy="60" r="30" fill="#EF4444"/><path d="M38 30 Q50 45 62 30 Q75 60 62 88 Q50 95 38 88 Q25 60 38 30 Z" fill="#EF4444"/><path d="M30 45 Q40 35 45 45" stroke="#FCA5A5" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`;
+            const svgDrop = `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M50 15 C 50 15, 20 65, 20 80 C 20 95, 35 100, 50 100 C 65 100, 80 95, 80 80 C 80 65, 50 15, 50 15 Z" fill="#60A5FA" opacity="0.9"/></svg>`;
+
+            const iconWait = `<svg class="w-full h-full text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            const iconGrow = `<svg class="w-full h-full text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>`;
+            const iconFull = `<svg class="w-full h-full text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            const iconSun = `<svg class="w-full h-full text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+
+            const stagesInfo = [
+                { svg: svgSeed, size: '60px', class: 'translate-y-4' }, // 0: Semilla
+                { svg: svgSprout, size: '80px', class: 'translate-y-2' }, // 1: Brote
+                { svg: svgPlant, size: '120px', class: 'translate-y-0' }, // 2: Planta pequeña
+                { svg: svgTree, size: '180px', class: 'translate-y-2' }, // 3: Árbol joven
+                { svg: svgMatureTree, size: '280px', class: 'translate-y-4' }  // 4: Árbol Maduro
+            ];
+
+            // === ESTADO DEL JUEGO (Persistente en localStorage) ===
+            const STORAGE_KEY = 'riega_game_state';
+
+            function saveState() {
+                const data = {
+                    day: state.day,
+                    hasWateredToday: state.hasWateredToday,
+                    currentStage: state.currentStage,
+                    unlockedVerses: state.unlockedVerses,
+                    generatedFruits: state.generatedFruits
+                };
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.warn('No se pudo guardar el progreso:', e);
+                }
+            }
+
+            function loadState() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        state.day = data.day ?? 1;
+                        state.hasWateredToday = data.hasWateredToday ?? false;
+                        state.currentStage = data.currentStage ?? 0;
+                        state.unlockedVerses = data.unlockedVerses ?? [];
+                        state.generatedFruits = data.generatedFruits ?? 0;
+                        return true;
+                    }
+                } catch (e) {
+                    console.warn('No se pudo cargar el progreso:', e);
+                }
+                return false;
+            }
+
+            let state = {
+                day: 1,
+                hasWateredToday: false,
+                currentStage: 0,
+                unlockedVerses: [],
+                generatedFruits: 0
+            };
+
+            // === ELEMENTOS DEL DOM ===
+            const ui = {
+                dayDisplay: document.getElementById('day-display'),
+                plantEmoji: document.getElementById('plant-emoji'),
+                plantWrapper: document.getElementById('plant-wrapper'),
+                wateringCan: document.getElementById('watering-can'),
+                groundFruits: document.getElementById('ground-fruits'),
+                
+                btnWater: document.getElementById('btn-water'),
+                btnNextDay: document.getElementById('btn-next-day'),
+                btnCollection: document.getElementById('btn-collection'),
+                
+                // Modales
+                msgModal: document.getElementById('msg-modal'),
+                msgModalContent: document.getElementById('msg-modal-content'),
+                msgTitle: document.getElementById('msg-title'),
+                msgText: document.getElementById('msg-text'),
+                msgIcon: document.getElementById('msg-icon'),
+                btnCloseMsg: document.getElementById('btn-close-msg'),
+
+                verseModal: document.getElementById('verse-modal'),
+                verseModalContent: document.getElementById('verse-modal-content'),
+                verseText: document.getElementById('verse-text'),
+                verseRef: document.getElementById('verse-ref'),
+                btnCloseVerse: document.getElementById('btn-close-verse'),
+
+                collectionModal: document.getElementById('collection-modal'),
+                collectionModalContent: document.getElementById('collection-modal-content'),
+                collectionList: document.getElementById('collection-list'),
+                btnCloseCollection: document.getElementById('btn-close-collection'),
+            };
+
+            // === FUNCIONES DE RENDERIZADO ===
+            
+            function updateUI() {
+                ui.dayDisplay.textContent = `Día ${state.day}`;
+                
+                // Actualizar estilo del botón de regar
+                if (state.hasWateredToday) {
+                    ui.btnWater.classList.remove('from-blue-400', 'to-blue-600');
+                    ui.btnWater.classList.add('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
+                    ui.btnWater.innerHTML = `<svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Regado por hoy`;
+                } else {
+                    ui.btnWater.classList.add('from-blue-400', 'to-blue-600');
+                    ui.btnWater.classList.remove('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
+                    ui.btnWater.innerHTML = `<svg class="w-6 h-6 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg> Regar Planta`;
+                }
+
+                // Actualizar planta visualmente
+                const stageData = stagesInfo[state.currentStage];
+                ui.plantEmoji.innerHTML = stageData.svg;
+                ui.plantEmoji.style.width = stageData.size;
+                ui.plantEmoji.style.height = stageData.size;
+                ui.plantEmoji.className = `transition-all duration-1000 transform origin-bottom flex justify-center items-end ${stageData.class}`;
+            }
+
+            // === LÓGICA DE ACCIONES ===
+
+            function showMessage(title, text, iconSvg) {
+                ui.msgTitle.textContent = title;
+                ui.msgText.textContent = text;
+                if(iconSvg) {
+                    ui.msgIcon.innerHTML = iconSvg;
+                }
+                
+                ui.msgModal.classList.remove('hidden');
+                // Pequeño delay para la transición
+                setTimeout(() => {
+                    ui.msgModal.classList.remove('opacity-0');
+                    ui.msgModalContent.classList.remove('scale-95');
+                }, 10);
+            }
+
+            function hideMessage() {
+                ui.msgModal.classList.add('opacity-0');
+                ui.msgModalContent.classList.add('scale-95');
+                setTimeout(() => {
+                    ui.msgModal.classList.add('hidden');
+                }, 300);
+            }
+
+            function playWateringAnimation(callback) {
+                ui.wateringCan.classList.remove('hidden');
+                ui.wateringCan.classList.add('animate-tilt');
+
+                // Crear gotas de agua
+                let drops = 0;
+                const dropInterval = setInterval(() => {
+                    if (drops >= 5) {
+                        clearInterval(dropInterval);
+                        return;
+                    }
+                    const drop = document.createElement('div');
+                    drop.innerHTML = svgDrop;
+                    drop.className = 'absolute w-6 h-6 z-20 animate-drop pointer-events-none';
+                    // Posición de la gota saliendo de la boquilla
+                    drop.style.left = '5px';
+                    drop.style.top = '35px';
+                    ui.wateringCan.appendChild(drop);
+                    
+                    setTimeout(() => drop.remove(), 800);
+                    drops++;
+                }, 200);
+
+                setTimeout(() => {
+                    ui.wateringCan.classList.remove('animate-tilt');
+                    ui.wateringCan.classList.add('hidden');
+                    callback();
+                }, 1500);
+            }
+
+            function dropFruit() {
+                // Verificar si ya se generaron todos los versículos posibles
+                if (state.generatedFruits >= versiculos.length) {
+                    showMessage("Árbol Pleno", "Tu árbol ha dado todos los frutos posibles. ¡Sigue repasando la Palabra en tu colección!", iconFull);
+                    return;
+                }
+
+                // Asignamos el índice basado en los frutos que ya se han generado
+                const verseIndex = state.generatedFruits;
+                // Incrementamos el contador para que la próxima manzana tenga el siguiente versículo
+                state.generatedFruits++;
+                saveState();
+                
+                // Crear la fruta (Manzana)
+                const fruit = document.createElement('div');
+                fruit.innerHTML = svgApple;
+                fruit.className = 'absolute w-16 h-16 cursor-pointer pointer-events-auto fruit-falling pulse-fruit z-40 transition-transform hover:scale-110';
+                
+                // Posición inicial (arriba en la copa del árbol)
+                fruit.style.left = `calc(50% + ${(Math.random() * 60 - 30)}px)`; // Variación horizontal ligera
+                fruit.style.bottom = '120px';
+
+                // Añadir al DOM
+                ui.groundFruits.appendChild(fruit);
+
+                // Evento al recoger la fruta
+                fruit.addEventListener('click', () => {
+                    // Solo lo añadimos a la colección si no estaba ya (por seguridad)
+                    if (!state.unlockedVerses.includes(verseIndex)) {
+                        state.unlockedVerses.push(verseIndex);
+                        saveState();
+                    }
+                    fruit.remove();
+                    showVerse(versiculos[verseIndex]);
+                });
+            }
+
+            function showVerse(verseData) {
+                ui.verseText.textContent = `"${verseData.text}"`;
+                ui.verseRef.textContent = `- ${verseData.ref}`;
+                
+                ui.verseModal.classList.remove('hidden');
+                setTimeout(() => {
+                    ui.verseModal.classList.remove('opacity-0');
+                    ui.verseModalContent.classList.remove('scale-95');
+                }, 10);
+            }
+
+            function hideVerse() {
+                ui.verseModal.classList.add('opacity-0');
+                ui.verseModalContent.classList.add('scale-95');
+                setTimeout(() => {
+                    ui.verseModal.classList.add('hidden');
+                }, 300);
+            }
+
+            function openCollection() {
+                ui.collectionList.innerHTML = '';
+                
+                if (state.unlockedVerses.length === 0) {
+                    ui.collectionList.innerHTML = `
+                        <div class="text-center text-slate-400 py-10 flex flex-col items-center">
+                            <svg class="w-16 h-16 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                            <p>Aún no has cosechado ningún versículo.</p>
+                            <p class="text-sm mt-2">¡Riega tu árbol para que crezca y dé frutos!</p>
+                        </div>
+                    `;
+                } else {
+                    state.unlockedVerses.forEach(index => {
+                        const v = versiculos[index];
+                        const card = document.createElement('div');
+                        card.className = 'bg-amber-50 p-4 rounded-xl border border-amber-200 shadow-sm';
+                        card.innerHTML = `
+                            <p class="text-slate-700 italic mb-2">"${v.text}"</p>
+                            <p class="text-amber-800 font-bold text-right text-sm">- ${v.ref}</p>
+                        `;
+                        ui.collectionList.appendChild(card);
+                    });
+                }
+
+                ui.collectionModal.classList.remove('hidden');
+                setTimeout(() => {
+                    ui.collectionModal.classList.remove('opacity-0');
+                    if(window.innerWidth < 640) {
+                        ui.collectionModalContent.classList.remove('translate-y-full');
+                    } else {
+                        ui.collectionModalContent.classList.remove('scale-95');
+                    }
+                }, 10);
+            }
+
+            function closeCollection() {
+                ui.collectionModal.classList.add('opacity-0');
+                if(window.innerWidth < 640) {
+                    ui.collectionModalContent.classList.add('translate-y-full');
+                } else {
+                    ui.collectionModalContent.classList.add('scale-95');
+                }
+                setTimeout(() => {
+                    ui.collectionModal.classList.add('hidden');
+                }, 300);
+            }
+
+            // === EVENTOS ===
+
+            ui.btnWater.addEventListener('click', () => {
+                if (state.hasWateredToday) {
+                    showMessage("Ya regaste hoy", "La paciencia es clave para crecer. Vuelve mañana para regar de nuevo.", iconWait);
+                    return;
+                }
+
+                ui.btnWater.disabled = true; // Prevenir múltiples clicks
+
+                playWateringAnimation(() => {
+                    state.hasWateredToday = true;
+                    saveState();
+
+                    // Efecto visual de crecimiento
+                    ui.plantEmoji.classList.remove('animate-grow');
+                    void ui.plantEmoji.offsetWidth; // Trigger reflow
+                    ui.plantEmoji.classList.add('animate-grow');
+
+                    if (state.currentStage < 4) {
+                        state.currentStage++;
+                        saveState();
+                        showMessage("¡Ha crecido!", "El agua le ha dado vida a tu planta. Está más fuerte que ayer.", iconGrow);
+                    } else {
+                        // Está en la última etapa, debe dar fruto
+                        dropFruit();
+                    }
+
+                    updateUI();
+                    ui.btnWater.disabled = false;
+                });
+            });
+
+            // Eventos de modales
+            ui.btnCloseMsg.addEventListener('click', hideMessage);
+            ui.btnCloseVerse.addEventListener('click', hideVerse);
+            ui.btnCollection.addEventListener('click', openCollection);
+            ui.btnCloseCollection.addEventListener('click', closeCollection);
+
+            // Cargar progreso guardado
+            const loaded = loadState();
+            
+            // Si el día actual es diferente al de la última vez o no se ha regado hoy
+            // (al cargar se restaura el estado exacto)
+
+            // Inicializar
+            updateUI();
+
+            // Si había estado guardado, mostrar mensaje de bienvenida
+            if (loaded) {
+                setTimeout(() => {
+                    showMessage("🌱 Progreso Restaurado", 
+                        `Sigues en el día ${state.day} con tu árbol en etapa ${state.currentStage + 1}. ¡Sigue adelante!`,
+                        iconSun);
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

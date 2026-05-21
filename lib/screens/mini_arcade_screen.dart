@@ -2,6 +2,7 @@
 import '../theme/app_theme.dart';
 import '../theme/transitions.dart';
 import 'quiz_screen.dart';
+import 'riega_screen.dart';
 
 class MiniArcadeScreen extends StatelessWidget {
   const MiniArcadeScreen({super.key});
@@ -38,7 +39,8 @@ class MiniArcadeScreen extends StatelessWidget {
             ),
             _GameCard(
               data: _games[1],
-              onTap: () {},
+              onTap: () =>
+                  Navigator.push(context, slideUpRoute(const RiegaScreen())),
             ),
           ],
         ),

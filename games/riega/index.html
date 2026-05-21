@@ -4,9 +4,261 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Riega y Crece</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Animaciones personalizadas */
+        /* ===== Tailwind utility classes inlined for offline use ===== */
+
+        /* Layout & Display */
+        .hidden { display: none !important; }
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .fixed { position: fixed; }
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .flex-1 { flex: 1 1 0%; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .items-end { align-items: flex-end; }
+        .pointer-events-none { pointer-events: none; }
+        .pointer-events-auto { pointer-events: auto; }
+
+        /* Z-index */
+        .z-0 { z-index: 0; }
+        .z-10 { z-index: 10; }
+        .z-20 { z-index: 20; }
+        .z-30 { z-index: 30; }
+        .z-40 { z-index: 40; }
+        .z-50 { z-index: 50; }
+
+        /* Width */
+        .w-full { width: 100%; }
+        .w-4 { width: 1rem; }
+        .w-6 { width: 1.5rem; }
+        .w-12 { width: 3rem; }
+        .w-16 { width: 4rem; }
+        .w-24 { width: 6rem; }
+        .w-28 { width: 7rem; }
+        .w-32 { width: 8rem; }
+        .max-w-sm { max-width: 24rem; }
+        .max-w-md { max-width: 28rem; }
+        .max-w-lg { max-width: 32rem; }
+
+        /* Height */
+        .h-screen { height: 100%; }
+        .h-4 { height: 1rem; }
+        .h-6 { height: 1.5rem; }
+        .h-12 { height: 3rem; }
+        .h-16 { height: 4rem; }
+        .h-20 { height: 5rem; }
+        .h-24 { height: 6rem; }
+        .h-28 { height: 7rem; }
+        .h-32 { height: 8rem; }
+        .h-\[80vh\] { height: 80vh; }
+
+        /* Padding */
+        .p-0 { padding: 0; }
+        .p-2 { padding: 0.5rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .py-10 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+        .pt-8 { padding-top: 2rem; }
+        .pb-4 { padding-bottom: 1rem; }
+        .pb-24 { padding-bottom: 6rem; }
+        .pr-2 { padding-right: 0.5rem; }
+        .pb-4 { padding-bottom: 1rem; }
+
+        /* Margin */
+        .mt-2 { margin-top: 0.5rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .mr-2 { margin-right: 0.5rem; }
+        .left-0 { left: 0; }
+        .left-4 { left: 1rem; }
+        .left-32 { left: 8rem; }
+        .right-10 { right: 2.5rem; }
+        .bottom-0 { bottom: 0; }
+        .bottom-6 { bottom: 1.5rem; }
+        .top-10 { top: 2.5rem; }
+        .top-16 { top: 4rem; }
+        .top-24 { top: 6rem; }
+
+        /* Gap */
+        .gap-1 { gap: 0.25rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+
+        /* Space between */
+        .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+
+        /* Background colors */
+        .bg-white { background-color: #ffffff; }
+        .bg-white\/40 { background-color: rgba(255,255,255,0.4); }
+        .bg-white\/50 { background-color: rgba(255,255,255,0.5); }
+        .bg-black\/40 { background-color: rgba(0,0,0,0.4); }
+        .bg-black\/60 { background-color: rgba(0,0,0,0.6); }
+        .bg-slate-900\/90 { background-color: rgba(15,23,42,0.9); }
+        .bg-slate-300 { background-color: #cbd5e1; }
+        .bg-sky-200 { background-color: #bae6fd; }
+        .bg-emerald-500 { background-color: #10b981; }
+        .bg-emerald-600 { background-color: #059669; }
+        .bg-amber-50 { background-color: #fffbeb; }
+        .bg-amber-100 { background-color: #fef3c7; }
+        .bg-amber-800 { background-color: #92400e; }
+        .from-blue-400 { --tw-gradient-from: #60a5fa; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(96,165,250,0)); }
+        .to-blue-600 { --tw-gradient-to: #2563eb; }
+
+        /* Background gradient */
+        .bg-gradient-to-b { background-image: linear-gradient(to bottom, var(--tw-gradient-stops)); }
+
+        /* Backdrop blur */
+        .backdrop-blur-sm { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+        /* Text colors */
+        .text-white { color: #ffffff; }
+        .text-slate-800 { color: #1e293b; }
+        .text-slate-700 { color: #334155; }
+        .text-slate-600 { color: #475569; }
+        .text-slate-500 { color: #64748b; }
+        .text-slate-400 { color: #94a3b8; }
+        .text-slate-300 { color: #cbd5e1; }
+        .text-teal-800 { color: #115e59; }
+        .text-teal-900 { color: #134e4a; }
+        .text-amber-600 { color: #d97706; }
+        .text-amber-800 { color: #92400e; }
+        .text-amber-800\/60 { color: rgba(146,64,14,0.6); }
+        .text-amber-900 { color: #78350f; }
+        .text-amber-50 { color: #fffbeb; }
+        .text-emerald-500 { color: #10b981; }
+        .text-emerald-600 { color: #059669; }
+
+        /* Text alignment */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        /* Font size */
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+
+        /* Font family */
+        .font-sans { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+        .font-serif { font-family: ui-serif, Georgia, serif; }
+
+        /* Font weight */
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .font-extrabold { font-weight: 800; }
+
+        /* Text style */
+        .italic { font-style: italic; }
+        .uppercase { text-transform: uppercase; }
+        .tracking-widest { letter-spacing: 0.1em; }
+        .leading-relaxed { line-height: 1.625; }
+
+        /* Border */
+        .border { border-width: 1px; border-style: solid; }
+        .border-t { border-top-width: 1px; border-style: solid; }
+        .border-4 { border-width: 4px; border-style: solid; }
+        .border-double { border-style: double; }
+        .border-white\/50 { border-color: rgba(255,255,255,0.5); }
+        .border-amber-300 { border-color: #fcd34d; }
+        .border-amber-200 { border-color: #fde68a; }
+        .border-amber-800\/30 { border-color: rgba(146,64,14,0.3); }
+
+        /* Border radius */
+        .rounded-full { border-radius: 9999px; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-3xl { border-radius: 1.5rem; }
+        .rounded-t-3xl { border-top-left-radius: 1.5rem; border-top-right-radius: 1.5rem; }
+        .rounded-t-\[100\%\] { border-top-left-radius: 100%; border-top-right-radius: 100%; }
+
+        /* Shadows */
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); }
+        .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
+        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .shadow-\[0_-10px_30px_rgba\(0\2c 0\2c 0\2c 0\.1\)\] { box-shadow: 0 -10px 30px rgba(0,0,0,0.1); }
+
+        /* Drop shadows (SVG) */
+        .drop-shadow-sm { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05)); }
+        .drop-shadow-md { filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07)) drop-shadow(0 2px 2px rgba(0,0,0,0.06)); }
+        .drop-shadow-lg { filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); }
+        .drop-shadow-xl { filter: drop-shadow(0 20px 13px rgba(0,0,0,0.03)) drop-shadow(0 8px 5px rgba(0,0,0,0.08)); }
+        .drop-shadow-2xl { filter: drop-shadow(0 25px 25px rgba(0,0,0,0.15)); }
+
+        /* Transform */
+        .transform { transform-origin: center; }
+        .scale-95 { transform: scale(0.95); }
+        .scale-x-150 { transform: scaleX(1.5); }
+        .translate-y-full { transform: translateY(100%); }
+        .translate-y-0 { transform: translateY(0); }
+        .translate-y-2 { transform: translateY(0.5rem); }
+        .translate-y-4 { transform: translateY(1rem); }
+        .-translate-x-16 { transform: translateX(-4rem); }
+        .-translate-y-24 { transform: translateY(-6rem); }
+        .origin-bottom { transform-origin: bottom; }
+
+        /* Transitions */
+        .transition-all { transition-property: all; }
+        .transition-transform { transition-property: transform; }
+        .transition-opacity { transition-property: opacity; }
+        .duration-300 { transition-duration: 300ms; }
+        .duration-500 { transition-duration: 500ms; }
+        .duration-1000 { transition-duration: 1000ms; }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        /* States */
+        .cursor-pointer { cursor: pointer; }
+        .cursor-not-allowed { cursor: not-allowed; }
+        .active\:scale-95:active { transform: scale(0.95); }
+        .hover\:scale-110:hover { transform: scale(1.1); }
+        .hover\:text-slate-700:hover { color: #334155; }
+
+        /* Overflow */
+        .overflow-hidden { overflow: hidden; }
+        .overflow-y-auto { overflow-y: auto; }
+        .overflow-visible { overflow: visible; }
+
+        /* Opacity */
+        .opacity-0 { opacity: 0; }
+        .opacity-60 { opacity: 0.6; }
+        .opacity-80 { opacity: 0.8; }
+        .opacity-90 { opacity: 0.9; }
+
+        /* Responsive sm: (≥640px) */
+        @media (min-width: 640px) {
+            .sm\:items-center { align-items: center; }
+            .sm\:p-4 { padding: 1rem; }
+            .sm\:h-\[70vh\] { height: 70vh; }
+            .sm\:rounded-3xl { border-radius: 1.5rem; }
+            .sm\:translate-y-0 { transform: translateY(0); }
+        }
+
+        /* ===== Animaciones personalizadas ===== */
         @keyframes tiltWateringCan {
             0% { transform: rotate(0deg); }
             50% { transform: rotate(-45deg); }
@@ -59,8 +311,10 @@
             animation: pulseGlow 2s infinite;
         }
 
-        /* Prevención de selección para sensación de app nativa */
+        /* Reset y prevención de selección */
+        html { height: 100%; }
         body {
+            margin: 0;
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
@@ -71,7 +325,6 @@
 
     <!-- Encabezado -->
     <header class="pt-8 pb-4 px-6 text-center z-20 relative">
-        <h1 class="text-3xl font-extrabold text-teal-800 drop-shadow-sm">Riega y Crece</h1>
         <div class="flex justify-between items-center mt-2 bg-white/50 backdrop-blur rounded-full px-4 py-2 shadow-sm">
             <span class="text-teal-900 font-bold" id="day-display">Día 1</span>
             <button id="btn-collection" class="text-amber-600 font-bold text-sm flex items-center gap-1 active:scale-95 transition-transform">
@@ -160,7 +413,7 @@
 
     <!-- Modal de Versículo Descubierto -->
     <div id="verse-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] bg-amber-50 rounded-lg p-8 w-full max-w-md text-center shadow-2xl border-4 border-double border-amber-800/30 transform scale-95 transition-transform duration-300" id="verse-modal-content">
+        <div class="bg-amber-50 rounded-lg p-8 w-full max-w-md text-center shadow-2xl border-4 border-double border-amber-800/30 transform scale-95 transition-transform duration-300" id="verse-modal-content">
             <div class="w-12 h-12 mx-auto mb-4 text-amber-800">
                 <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
             </div>
@@ -226,8 +479,25 @@
                 { svg: svgMatureTree, size: '280px', class: 'translate-y-4' }  // 4: Árbol Maduro
             ];
 
-            // === ESTADO DEL JUEGO (Persistente en localStorage) ===
+            // === ESTADO DEL JUEGO (Persistente: localStorage + Flutter) ===
             const STORAGE_KEY = 'riega_game_state';
+
+            function notifyFlutter() {
+                if (window.RiegaChannel) {
+                    const data = {
+                        day: state.day,
+                        hasWateredToday: state.hasWateredToday,
+                        currentStage: state.currentStage,
+                        unlockedVerses: state.unlockedVerses,
+                        generatedFruits: state.generatedFruits
+                    };
+                    try {
+                        window.RiegaChannel.postMessage(JSON.stringify(data));
+                    } catch (e) {
+                        console.warn('No se pudo notificar a Flutter:', e);
+                    }
+                }
+            }
 
             function saveState() {
                 const data = {
@@ -242,6 +512,7 @@
                 } catch (e) {
                     console.warn('No se pudo guardar el progreso:', e);
                 }
+                notifyFlutter();
             }
 
             function loadState() {
@@ -262,6 +533,26 @@
                 return false;
             }
 
+            // Llamado por Flutter después de cargar la página
+            function restoreFlutterState(jsonStr) {
+                try {
+                    const data = JSON.parse(jsonStr);
+                    state.day = data.day ?? 1;
+                    state.hasWateredToday = data.hasWateredToday ?? false;
+                    state.currentStage = data.currentStage ?? 0;
+                    state.unlockedVerses = data.unlockedVerses ?? [];
+                    state.generatedFruits = data.generatedFruits ?? 0;
+                    updateUI();
+                    setTimeout(() => {
+                        showMessage("\u{1F331} Progreso Restaurado",
+                            `Sigues en el d\u00EDa ${state.day} con tu \u00E1rbol en etapa ${state.currentStage + 1}. \u00A1Sigue adelante!`,
+                            iconSun);
+                    }, 500);
+                } catch (e) {
+                    console.warn('Error al restaurar estado desde Flutter:', e);
+                }
+            }
+
             let state = {
                 day: 1,
                 hasWateredToday: false,
@@ -279,7 +570,6 @@
                 groundFruits: document.getElementById('ground-fruits'),
                 
                 btnWater: document.getElementById('btn-water'),
-                btnNextDay: document.getElementById('btn-next-day'),
                 btnCollection: document.getElementById('btn-collection'),
                 
                 // Modales
@@ -523,23 +813,9 @@
             ui.btnCollection.addEventListener('click', openCollection);
             ui.btnCloseCollection.addEventListener('click', closeCollection);
 
-            // Cargar progreso guardado
-            const loaded = loadState();
-            
-            // Si el día actual es diferente al de la última vez o no se ha regado hoy
-            // (al cargar se restaura el estado exacto)
-
-            // Inicializar
+            // Intentar restaurar desde localStorage (por si acaso)
+            loadState();
             updateUI();
-
-            // Si había estado guardado, mostrar mensaje de bienvenida
-            if (loaded) {
-                setTimeout(() => {
-                    showMessage("🌱 Progreso Restaurado", 
-                        `Sigues en el día ${state.day} con tu árbol en etapa ${state.currentStage + 1}. ¡Sigue adelante!`,
-                        iconSun);
-                }, 500);
-            }
         });
     </script>
 </body>

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../theme/app_theme.dart';
 
@@ -19,10 +20,13 @@ class _RiegaScreenState extends State<RiegaScreen> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..addJavaScriptChannel('RiegaChannel',
+          onMessageReceived: _onStateChanged)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageFinished: (_) {
+          onPageFinished: (_) async {
             if (mounted) setState(() => _loading = false);
+            await _restoreState();
           },
           onWebResourceError: (e) {
             if ((e.isForMainFrame ?? true) && mounted) setState(() => _error = true);
@@ -36,9 +40,24 @@ class _RiegaScreenState extends State<RiegaScreen> {
     try {
       final html = await DefaultAssetBundle.of(context)
           .loadString('games/riega/index.html');
-      await _controller.loadHtmlString(html);
+      await _controller.loadHtmlString(html,
+          baseUrl: 'https://riega-game.local/');
     } catch (_) {
       if (mounted) setState(() => _error = true);
+    }
+  }
+
+  Future<void> _onStateChanged(JavaScriptMessage message) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('riega_game_state', message.message);
+  }
+
+  Future<void> _restoreState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('riega_game_state');
+    if (saved != null) {
+      final escaped = saved.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+      await _controller.runJavaScript("restoreFlutterState('$escaped')");
     }
   }
 
@@ -52,56 +71,58 @@ class _RiegaScreenState extends State<RiegaScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              if (_loading)
-                const LinearProgressIndicator(
-                  color: AppColors.emerald600,
-                  backgroundColor: AppColors.emerald100,
-                ),
-              Expanded(child: WebViewWidget(controller: _controller)),
-            ],
-          ),
-          if (_error)
-            Container(
-              color: Colors.white,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.bug_report_rounded,
-                          size: 48, color: AppColors.emerald400),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No se pudo cargar el juego',
-                        style: TextStyle(
-                            fontFamily: 'DM Sans',
-                            fontSize: 16,
-                            color: AppColors.emerald700),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      FilledButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _error = false;
-                            _loading = true;
-                          });
-                          _loadLocalHtml();
-                        },
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: const Text('Reintentar'),
-                      ),
-                    ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                if (_loading)
+                  const LinearProgressIndicator(
+                    color: AppColors.emerald600,
+                    backgroundColor: AppColors.emerald100,
+                  ),
+                Expanded(child: WebViewWidget(controller: _controller)),
+              ],
+            ),
+            if (_error)
+              Container(
+                color: Colors.white,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.bug_report_rounded,
+                            size: 48, color: AppColors.emerald400),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No se pudo cargar el juego',
+                          style: TextStyle(
+                              fontFamily: 'DM Sans',
+                              fontSize: 16,
+                              color: AppColors.emerald700),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _error = false;
+                              _loading = true;
+                            });
+                            _loadLocalHtml();
+                          },
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

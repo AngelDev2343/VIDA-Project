@@ -41,23 +41,6 @@ Android — Descarga la APK más reciente desde la raíz del proyecto (`VIDA.apk
 - **Persistencia local:** SharedPreferences
 - **WebView:** webview_flutter
 
-## 🤝 Contribuir
-
-Este proyecto es de código abierto y gratuito. Si deseas contribuir, ¡eres bienvenido!
-
-1. Haz fork del repositorio
-2. Crea una rama (`git checkout -b feature/nueva-funcionalidad`)
-3. Haz commit de tus cambios (`git commit -m 'Agrega nueva funcionalidad'`)
-4. Haz push (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request
-
-## 🧪 Desarrollo
-
-```bash
-flutter pub get
-flutter run
-flutter build apk --release
-```
 
 ## 📄 Licencia
 

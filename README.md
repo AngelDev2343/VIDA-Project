@@ -13,7 +13,7 @@
 ## ✨ Funcionalidades
 
 - 📖 **Biblia completa** — WebView integrado con YouVersion
-- 🌱 **Versículo del día** — Inspiración diaria en la pantalla de inicio
+- 🌱 **Versículo VIDA** — Inspiración diaria en la pantalla de inicio
 - 🔥 **Racha espiritual** — Lleva el registro de tu constancia diaria
 - 📚 **Estudio bíblico** — Crea y administra tus propios estudios con notas
 - 🛐 **"Contra pecado"** — Widget en pantalla de inicio con frases que te ayudan a mantener el enfoque

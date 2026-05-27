@@ -258,8 +258,16 @@ class PerfilScreen extends StatelessWidget {
                     const Divider(height: 24),
                     _creditLine(
                       'Versión',
-                      '0.5.1 (Build)',
+                      '0.6.0 (Build)',
                       Icons.info_outline_rounded,
+                    ),
+                    const Divider(height: 24),
+                    _creditLine(
+                      'Mapas',
+                      '© OpenStreetMap contributors',
+                      Icons.map_rounded,
+                      onTap: () => _openUrl(
+                          'https://www.openstreetmap.org/copyright'),
                     ),
                   ],
                 ),

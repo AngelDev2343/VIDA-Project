@@ -15,7 +15,9 @@ import 'screens/vida_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await FirebaseAuth.instance.signInAnonymously();
+  if (FirebaseAuth.instance.currentUser == null) {
+    await FirebaseAuth.instance.signInAnonymously();
+  }
   await NotificationService.init();
   NotificationService.requestPermission();
   HomeWidget.setAppGroupId('group.com.vida.project');

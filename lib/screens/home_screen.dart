@@ -15,6 +15,9 @@ import 'mini_arcade_screen.dart';
 import 'perfil_screen.dart';
 import 'situacion_dificil_screen.dart';
 import 'evangelizate_screen.dart';
+import 'mapa_iglesias_screen.dart';
+import 'testimonios_screen.dart';
+import 'community_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -320,6 +323,42 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
+                  FadeIn(
+                    index: 9,
+                    child: ToolCard(
+                      icon: Icons.map_rounded,
+                      title: 'Iglesias',
+                      subtitle: 'Encuentra congregaciones',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const MapaIglesiasScreen()),
+                      ),
+                    ),
+                  ),
+                  FadeIn(
+                    index: 10,
+                    child: ToolCard(
+                      icon: Icons.auto_stories_rounded,
+                      title: 'Testimonios',
+                      subtitle: 'Comparte tu fe',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const TestimoniosScreen()),
+                      ),
+                    ),
+                  ),
+                  FadeIn(
+                    index: 11,
+                    child: ToolCard(
+                      icon: Icons.forum_rounded,
+                      title: 'Comunidad',
+                      subtitle: 'Conecta con otros',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CommunityScreen()),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -327,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
 
             FadeIn(
-              index: 9,
+              index: 12,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: GestureDetector(

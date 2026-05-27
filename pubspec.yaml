@@ -1,7 +1,7 @@
 name: vida_app
 description: VIDA — App espiritual cristiana con versículos, racha, estudio bíblico y más.
 publish_to: 'none'
-version: 0.5.1+1
+version: 0.6.0+6
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -19,6 +19,12 @@ dependencies:
   path_provider: ^2.1.5
   url_launcher: ^6.3.2
   flutter_local_notifications: ^21.0.0
+  firebase_core: ^3.13.0
+  cloud_firestore: ^5.6.6
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  firebase_auth: ^5.5.6
+  geolocator: ^13.0.2
 
 dev_dependencies:
   flutter_test:

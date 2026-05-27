@@ -1,5 +1,9 @@
 # vida_app — agent guide
 
+## Version
+
+Current: `0.6.0+6` (see `pubspec.yaml`). Release APK at project root as `VIDA.apk`.
+
 ## Commands
 
 ```bash
@@ -7,6 +11,7 @@ flutter pub get          # install deps
 flutter analyze          # lint (package:flutter_lints/flutter.yaml, no custom rules)
 flutter test             # runs widget_test.dart
 flutter run              # launch on device/emulator
+flutter build apk --release  # build release APK → build/app/outputs/flutter-apk/app-release.apk
 ```
 
 ## Package name vs directory
@@ -33,7 +38,9 @@ flutter run              # launch on device/emulator
 - **Biblia WebView**: `BibliaScreen` receives `isActive` prop — creates `WebViewController` **only** when tab is selected and disposes it when switching away (lazy init + memory cleanup). Uses `connectivity_plus` to detect offline.
 - **Image editor**: `GalleryScreen` → `ImageEditorScreen` renders background + editable text overlay, captures via `RepaintBoundary.toImage()`, shares via `share_plus`.
 - **Bible study**: `EstudioBiblicoScreen` — CRUD list stored as JSON string in SharedPreferences, swipe-to-delete with `Dismissible`.
-- **Dependencies** (from `pubspec.yaml`): `google_fonts`, `flutter_svg` (unused in Dart code), `cupertino_icons`, `shared_preferences`, `home_widget`, `webview_flutter`, `connectivity_plus`, `share_plus`, `path_provider`. Dev: `flutter_test`, `flutter_lints`.
+- **Mapa Iglesias**: `MapaIglesiasScreen` (`lib/screens/mapa_iglesias_screen.dart`) — interactive map via `flutter_map` + OpenStreetMap/CartoDB tiles. Churches stored in Firestore `iglesias` collection with `asistentes` array for attendance tracking. "Yo asisto aquí" button updates via real-time `snapshots()` stream. Search by name/city, add church with Nominatim address search, Google Maps directions.
+- **Community**: `CommunityScreen` (`lib/screens/community_screen.dart`) — Firebase Auth login/register, post feed from `community_posts` collection, like/unlike, comments via nested subcollection.
+- **Dependencies** (from `pubspec.yaml`): `google_fonts`, `flutter_svg` (unused in Dart code), `cupertino_icons`, `shared_preferences`, `home_widget`, `webview_flutter`, `connectivity_plus`, `share_plus`, `path_provider`, `url_launcher`, `firebase_core`, `cloud_firestore`, `firebase_auth`, `flutter_map`, `latlong2`, `geolocator`. Dev: `flutter_test`, `flutter_lints`.
 - **Evangelízate**: `EvangelizateScreen` (`lib/screens/evangelizate_screen.dart`) — intro description + 2-column grid of 6 category `ToolCard`s (short 1‑line subtitles). `EvangelizateDetalleScreen` (`lib/screens/evangelizate_detalle_screen.dart`) shows sections, explanations, tips, and Bible verses for each category. Content sourced from `guide.md` at project root.
 - **Quiz**: `QuizScreen` (`lib/screens/quiz_screen.dart`) loads `games/quiz/index.html` **locally** via `DefaultAssetBundle` + `loadHtmlString` (no internet needed). All CSS/JS is inline in the HTML. Google Fonts `<link>` removed to avoid offline fetch errors. WebView only works on Android/iOS, not Flutter Web.
 - **`withValues(alpha:)` not `withOpacity`**: Codebase uses `Colors.white.withValues(alpha: 0.07)` — `withOpacity` is not used anywhere (deprecated in newer Flutter).

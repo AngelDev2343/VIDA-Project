@@ -82,7 +82,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
           c.runJavaScript('''
             (function(){
               var s = document.createElement('style');
-              s.textContent = 'body{overflow-x:hidden!important;max-width:100vw!important}html{overflow-x:hidden!important}';
+              s.textContent = 'body{overflow-x:hidden!important;max-width:100vw!important}html{overflow-x:hidden!important}#bottom-widgets{display:none!important}div[style*="z-index:999"]{display:none!important}';
               document.head.appendChild(s);
             })();
           ''');

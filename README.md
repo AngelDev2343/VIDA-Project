@@ -22,7 +22,6 @@
 - 👥 **Comunidad** — Comparte y conecta con otros creyentes (publicaciones, likes, comentarios)
 - 📸 **Creador de imágenes** — Combina fondos con texto bíblico para compartir
 - 🎮 **Mini Arcade** — Juegos cristianos (Quiz bíblico, Riega la semilla y más)
-- 🎵 **Descubre música** — Canciones para y sobre Dios
 - 💬 **Consejo en situaciones difíciles** — Versículos específicos para cada momento
 - 🧠 **VIDA** — Algoritmo que asigna un versículo según tu personalidad
 - 🔔 **Recordatorios** — Notificaciones para mantenerte conectado

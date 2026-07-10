@@ -2,46 +2,73 @@
 
 # 🌿 VIDA
 
-**Tu acompañamiento espiritual diario**
+**Your Daily Spiritual Companion**
 
-*Gratuito · Sin publicidad · Para todos*
+*Free · Ad-Free · For Everyone*
 
----
+[![Platform](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)](#-availability)
+[![Framework](https://img.shields.io/badge/framework-Flutter-02569B?logo=flutter&logoColor=white)](#-tech-stack)
+[![License](https://img.shields.io/badge/license-Free-lightgrey)](#-license)
 
 </div>
 
-## ✨ Funcionalidades
+---
 
-- 📖 **Biblia completa** — WebView integrado con YouVersion
-- 🌱 **Versículo VIDA** — Inspiración diaria en la pantalla de inicio
-- 🔥 **Racha espiritual** — Lleva el registro de tu constancia diaria
-- 📚 **Estudio bíblico** — Crea y administra tus propios estudios con notas
-- 🛐 **"Contra pecado"** — Widget en pantalla de inicio con frases que te ayudan a mantener el enfoque
-- ⭐ **Versículo favorito** — Widget personalizable con tu versículo elegido
-- 🗺️ **Mapa de iglesias** — Encuentra congregaciones cercanas, guarda las que asistes y obtén direcciones
-- 👥 **Comunidad** — Comparte y conecta con otros creyentes (publicaciones, likes, comentarios)
-- 📸 **Creador de imágenes** — Combina fondos con texto bíblico para compartir
-- 🎮 **Mini Arcade** — Juegos cristianos (Quiz bíblico, Riega la semilla y más)
-- 💬 **Consejo en situaciones difíciles** — Versículos específicos para cada momento
-- 🧠 **VIDA** — Algoritmo que asigna un versículo según tu personalidad
-- 🔔 **Recordatorios** — Notificaciones para mantenerte conectado
+## Overview
 
-## 📱 Disponible para
+VIDA is a mobile application designed to support users in their daily spiritual life. It combines Bible reading, Christian community, study tools, and personalized content into a completely free, ad-free experience.
 
-Android — Descarga la APK más reciente desde la raíz del proyecto (`VIDA.apk`).
+---
 
-> *Nota: Los widgets de pantalla de inicio (Contra pecado y Versículo favorito) son exclusivos de Android.*
+## ✨ Key Features
 
-## 🛠️ Tecnologías
+| Feature | Description |
+|---|---|
+| 📖 **Complete Bible** | Integrated Bible reading via YouVersion WebView |
+| 🌱 **VIDA Verse** | Daily inspirational verse on the home screen |
+| 🔥 **Spiritual Streak** | Track daily consistency and engagement |
+| 📚 **Bible Study** | Create and manage personal Bible studies with notes |
+| 🛐 **"Against Sin" Widget** | Home screen widget with encouraging, Bible-based reminders |
+| ⭐ **Favorite Verse Widget** | Display a favorite verse directly on the home screen |
+| 🗺️ **Church Map** | Discover nearby churches, save favorites, and get directions |
+| 👥 **Community** | Connect with other Christians through posts, likes, and comments |
+| 📸 **Image Creator** | Combine backgrounds with Bible verses to create shareable graphics |
+| 🎮 **Mini Arcade** | Christian mini-games, including Bible Quiz and Water the Seed |
+| 💬 **Support for Difficult Times** | Curated scripture recommendations for specific life situations |
+| 🧠 **VIDA Algorithm** | Personalized verse recommendations based on user personality |
+| 🔔 **Reminders** | Daily notifications to stay connected with one's faith |
+
+> **Note:** Home screen widgets ("Against Sin" and "Favorite Verse") are currently available on Android only.
+
+---
+
+## 📱 Availability
+
+Currently available for **Android**.
+
+📦 Download the latest release from the project root: [`VIDA.apk`](./VIDA.apk)
+
+---
+
+## 🛠️ Tech Stack
 
 - **Framework:** Flutter (Dart)
-- **Backend:** Firebase (Auth, Firestore)
-- **Mapas:** OpenStreetMap + CartoDB (flutter_map)
-- **Autenticación:** Firebase Auth (correo/contraseña)
-- **Persistencia local:** SharedPreferences
+- **Backend:** Firebase (Authentication, Firestore)
+- **Maps:** OpenStreetMap + CartoDB (`flutter_map`)
+- **Authentication:** Firebase Authentication (Email & Password)
+- **Local Storage:** SharedPreferences
 - **WebView:** webview_flutter
 
+---
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto es gratuito (Código solo demostrativo). Desarrollado con ❤️ para fortalecer la fe y la comunidad.
+This project is free to use. Source code is provided for demonstration purposes.
+
+---
+
+<div align="center">
+
+Built with ❤️ to strengthen faith, encourage Bible reading, and build a Christ-centered community.
+
+</div>

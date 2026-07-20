@@ -4,69 +4,69 @@
 
 # VIDA
 
-**Your Daily Spiritual Companion**
+**Tu compañero espiritual diario**
 
-*Free · Ad-Free · For Everyone*
+*Gratis · Sin publicidad · Para todos*
 
 **v0.7 (Beta)** · WDG Technologies
 
-[![Platform](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)](#-availability)
-[![Framework](https://img.shields.io/badge/framework-Flutter-02569B?logo=flutter&logoColor=white)](#-tech-stack)
-[![License](https://img.shields.io/badge/license-MIT-green)](#-license)
+[![Platform](https://img.shields.io/badge/plataforma-Android-3DDC84?logo=android&logoColor=white)](#-disponibilidad)
+[![Framework](https://img.shields.io/badge/framework-Flutter-02569B?logo=flutter&logoColor=white)](#%EF%B8%8F-tecnolog%C3%ADas)
+[![License](https://img.shields.io/badge/licencia-MIT-green)](#-licencia)
 
 </div>
 
 ---
 
-## Overview
+## Resumen
 
-VIDA is a mobile application designed to support users in their daily spiritual life. It combines Bible reading, Christian community, study tools, and personalized content into a completely free, ad-free experience.
+VIDA es una aplicación móvil pensada para acompañarte en tu vida espiritual día a día. Une lectura bíblica, comunidad cristiana, herramientas de estudio y contenido personalizado en una experiencia gratuita y sin anuncios.
 
 ---
 
-## ✨ Key Features
+## ✨ Funcionalidades
 
-| Feature | Description |
+| Función | Descripción |
 |---|---|
-| 📖 **Complete Bible** | Offline RVR1909 reader with highlights; other versions via YouVersion |
-| 🌱 **VIDA Verse** | Monthly personalized verse from local activity signals |
-| 🔥 **Spiritual Streak** | Track daily consistency and engagement |
-| 📚 **Bible Study** | Create and manage personal Bible studies with notes |
-| 🛐 **"Against Sin" Widget** | Home screen widget with encouraging, Bible-based reminders |
-| ⭐ **Favorite Verse Widget** | Display a favorite verse directly on the home screen |
-| 🗺️ **Church Map** | Discover nearby churches, save favorites, and get directions |
-| 👥 **Community** | Connect with other Christians through posts, likes, and comments |
-| 📸 **Image Creator** | Combine backgrounds with Bible verses to create shareable graphics |
-| 🎮 **Mini Arcade** | Christian mini-games (Quiz, memory, trivia, and more) |
-| 🎨 **Appearance** | Light/dark, visual themes, and custom accent color |
-| 💬 **Support for Difficult Times** | Curated scripture recommendations for specific life situations |
-| 🧠 **VIDA Algorithm** | Personalized verse recommendations based on in-app activity |
-| 🔔 **Reminders** | Daily notifications to stay connected with one's faith |
+| 📖 **Biblia completa** | Lector offline RVR1909 con resaltados; otras versiones vía YouVersion |
+| 🌱 **Versículo VIDA** | Versículo mensual personalizado según tu actividad en la app |
+| 🔥 **Racha espiritual** | Lleva el control de tu constancia diaria |
+| 📚 **Estudio bíblico** | Crea y administra estudios personales con notas |
+| 🛐 **Widget Contra pecado** | Widget en la pantalla de inicio con recordatorios bíblicos |
+| ⭐ **Widget favorito** | Muestra tu versículo favorito en la pantalla de inicio |
+| 🗺️ **Mapa de iglesias** | Encuentra iglesias cercanas, guarda favoritos y obtén direcciones |
+| 👥 **Comunidad** | Conéctate con otros cristianos: publicaciones, likes y comentarios |
+| 📸 **Crear imagen** | Combina fondos con versículos para compartir |
+| 🎮 **Mini Arcade** | Minijuegos cristianos (Quiz, memorama, trivia y más) |
+| 🎨 **Apariencia** | Claro/oscuro, temas visuales y color de acento personalizado |
+| 💬 **Situaciones difíciles** | Versículos recomendados para momentos concretos |
+| 🧠 **Algoritmo VIDA** | Recomendaciones personalizadas según tu uso de la app |
+| 🔔 **Recordatorios** | Notificaciones para mantenerte cerca de tu fe |
 
-> **Note:** Home screen widgets ("Against Sin" and "Favorite Verse") are currently available on Android only.
-
----
-
-## 📱 Availability
-
-Currently available for **Android**.
-
-📦 Download the latest release from the project root: [`VIDA.apk`](./VIDA.apk)
+> **Nota:** Los widgets de pantalla de inicio (Contra pecado y Favorito) están disponibles principalmente en Android.
 
 ---
 
-## 🛠️ Tech Stack
+## 📱 Disponibilidad
+
+Disponible para **Android**.
+
+📦 Descarga la última versión desde la raíz del proyecto: [`VIDA.apk`](./VIDA.apk)
+
+---
+
+## 🛠️ Tecnologías
 
 - **Framework:** Flutter (Dart)
 - **Backend:** Firebase (Authentication, Firestore)
-- **Maps:** OpenStreetMap + CartoDB (`flutter_map`)
-- **Authentication:** Firebase Authentication (Email & Password)
-- **Local Storage:** SharedPreferences
+- **Mapas:** OpenStreetMap + CartoDB (`flutter_map`)
+- **Autenticación:** Firebase Authentication (correo y contraseña)
+- **Almacenamiento local:** SharedPreferences
 - **WebView:** webview_flutter
 
 ---
 
-## 📄 License
+## 📄 Licencia
 
 Este proyecto se publica bajo la licencia **MIT**.
 
@@ -78,7 +78,7 @@ Consulta el archivo [`LICENSE`](LICENSE) para el texto completo.
 
 <div align="center">
 
-Built with ❤️ to strengthen faith, encourage Bible reading, and build a Christ-centered community.
+Hecho con ❤️ para fortalecer la fe, animar la lectura de la Biblia y construir comunidad en Cristo.
 
 © WDG Technologies — VIDA
 

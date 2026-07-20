@@ -51,7 +51,7 @@ VIDA es una aplicación móvil pensada para acompañarte en tu vida espiritual d
 
 Disponible para **Android**.
 
-📦 Descarga la última versión desde la raíz del proyecto: [`VIDA.apk`](./VIDA.apk)
+📦 Descarga la última versión desde la raíz del proyecto: [[`VIDA.apk`](./VIDA.apk)](https://github.com/AngelDev2343/VIDA-Project/releases/download/BETA/VIDA.apk)
 
 ---
 

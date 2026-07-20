@@ -1,5 +1,10 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/fav.dart';
 import '../theme/app_theme.dart';
@@ -15,6 +20,11 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
   bool _enabled = false;
   bool _widgetMissing = false;
   int? _selectedIndex;
+  String? _customBgPath;
+  bool _darkBg = false;
+
+  static const _bgPrefsKey = 'fav_bg_path';
+  static const _darkPrefsKey = 'fav_dark_bg';
 
   @override
   void initState() {
@@ -26,10 +36,20 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
     final prefs = await SharedPreferences.getInstance();
     final enabled = prefs.getBool('favorito') ?? false;
     final selected = prefs.getInt('fav_index');
+    final bg = prefs.getString(_bgPrefsKey);
+    final bgExists = bg != null && File(bg).existsSync();
+    var dark = prefs.getBool(_darkPrefsKey) ?? false;
+    if (bgExists && !prefs.containsKey(_darkPrefsKey)) {
+      dark = await _isDarkBackground(File(bg));
+      await prefs.setBool(_darkPrefsKey, dark);
+      await HomeWidget.saveWidgetData('fav_dark_bg', dark);
+    }
     if (mounted) {
       setState(() {
         _enabled = enabled;
         _selectedIndex = selected;
+        _customBgPath = bgExists ? bg : null;
+        _darkBg = bgExists && dark;
       });
     }
 
@@ -44,6 +64,139 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
         if (mounted) setState(() => _widgetMissing = !found);
       } catch (_) {}
     }
+  }
+
+  Future<Directory> _bgDir() => getApplicationSupportDirectory();
+
+  Future<void> _deleteOldBgs({String? keepPath}) async {
+    try {
+      final dir = await _bgDir();
+      await for (final entity in dir.list()) {
+        if (entity is! File) continue;
+        final name = entity.uri.pathSegments.isNotEmpty
+            ? entity.uri.pathSegments.last
+            : entity.path;
+        if (!name.startsWith('favorito_bg')) continue;
+        if (keepPath != null && entity.path == keepPath) continue;
+        try {
+          await entity.delete();
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  /// Samples the center; dark if average is low or most pixels are dim.
+  Future<bool> _isDarkBackground(File file) async {
+    try {
+      final bytes = await file.readAsBytes();
+      final codec = await ui.instantiateImageCodec(
+        bytes,
+        targetWidth: 64,
+        targetHeight: 64,
+      );
+      final frame = await codec.getNextFrame();
+      final img = frame.image;
+      final w = img.width;
+      final h = img.height;
+      final data = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
+      img.dispose();
+      if (data == null || w == 0 || h == 0) return false;
+
+      final x0 = w ~/ 5;
+      final y0 = h ~/ 5;
+      final x1 = w - x0;
+      final y1 = h - y0;
+      var sum = 0.0;
+      var darkPixels = 0;
+      var n = 0;
+      for (var y = y0; y < y1; y++) {
+        for (var x = x0; x < x1; x++) {
+          final i = (y * w + x) * 4;
+          final r = data.getUint8(i) / 255.0;
+          final g = data.getUint8(i + 1) / 255.0;
+          final b = data.getUint8(i + 2) / 255.0;
+          final lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+          sum += lum;
+          if (lum < 0.55) darkPixels++;
+          n++;
+        }
+      }
+      if (n == 0) return false;
+      final avg = sum / n;
+      return avg < 0.58 || darkPixels >= (n * 0.55).round();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _refreshWidget() async {
+    if (_enabled && _selectedIndex != null) {
+      await _pushToWidget(_selectedIndex!);
+    } else {
+      await HomeWidget.saveWidgetData('fav_bg_path', _customBgPath ?? '');
+      await HomeWidget.saveWidgetData('fav_dark_bg', _darkBg);
+      await HomeWidget.updateWidget(
+        androidName: 'FavoritoWidgetProvider',
+        iOSName: 'FavoritoWidget',
+      );
+    }
+  }
+
+  Future<void> _pickBackground() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 78,
+    );
+    if (picked == null) return;
+
+    try {
+      final dir = await _bgDir();
+      final dest = File(
+        '${dir.path}/favorito_bg_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      await File(picked.path).copy(dest.path);
+      await _deleteOldBgs(keepPath: dest.path);
+      final dark = await _isDarkBackground(dest);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_bgPrefsKey, dest.path);
+      await prefs.setBool(_darkPrefsKey, dark);
+      if (!mounted) return;
+      setState(() {
+        _customBgPath = dest.path;
+        _darkBg = dark;
+      });
+      await _refreshWidget();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fondo del widget actualizado'),
+          duration: Duration(milliseconds: 1400),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo usar esa imagen')),
+      );
+    }
+  }
+
+  Future<void> _resetBackground() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_bgPrefsKey);
+    await prefs.setBool(_darkPrefsKey, false);
+    await HomeWidget.saveWidgetData('fav_bg_path', '');
+    await HomeWidget.saveWidgetData('fav_dark_bg', false);
+    await _deleteOldBgs();
+    if (!mounted) return;
+    setState(() {
+      _customBgPath = null;
+      _darkBg = false;
+    });
+    await _refreshWidget();
   }
 
   Future<void> _toggle(bool value) async {
@@ -61,6 +214,10 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
         final index = _selectedIndex ?? 0;
         await prefs.setInt('fav_index', index);
         if (mounted) setState(() => _selectedIndex = index);
+        if (_customBgPath != null) {
+          await HomeWidget.saveWidgetData('fav_bg_path', _customBgPath);
+          await HomeWidget.saveWidgetData('fav_dark_bg', _darkBg);
+        }
         await _pushToWidget(index);
         final firstFavPin = prefs.getBool('first_launch_fav_pin') ?? false;
         if (!firstFavPin) {
@@ -103,7 +260,8 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Versículo actualizado: ${favVerses[index].referencia}'),
+            content: Text(
+                'Versículo actualizado: ${favVerses[index].referencia}'),
             duration: const Duration(milliseconds: 1200),
           ),
         );
@@ -115,6 +273,8 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
     final verse = favVerses[index];
     await HomeWidget.saveWidgetData('fav_ref', verse.referencia);
     await HomeWidget.saveWidgetData('fav_verse', verse.versiculo);
+    await HomeWidget.saveWidgetData('fav_bg_path', _customBgPath ?? '');
+    await HomeWidget.saveWidgetData('fav_dark_bg', _darkBg);
     await HomeWidget.updateWidget(
       androidName: 'FavoritoWidgetProvider',
       iOSName: 'FavoritoWidget',
@@ -181,7 +341,8 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                             children: [
                               Text(
                                 'Widget activo',
-                                style: TextStyle(fontFamily: 'DM Sans', 
+                                style: TextStyle(
+                                  fontFamily: 'DM Sans',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.emerald900,
@@ -190,7 +351,8 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 'Muestra un versículo en la pantalla de inicio',
-                                style: TextStyle(fontFamily: 'DM Sans', 
+                                style: TextStyle(
+                                  fontFamily: 'DM Sans',
                                   fontSize: 13,
                                   color: AppColors.emerald600,
                                 ),
@@ -215,11 +377,14 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                 if (_enabled && _selectedVerse != null) ...[
                   const SizedBox(height: 24),
                   _previewCard(),
+                  const SizedBox(height: 12),
+                  _backgroundControls(),
                 ],
                 const SizedBox(height: 24),
                 Text(
                   'ELIGE UN VERSÍCULO',
-                  style: TextStyle(fontFamily: 'DM Sans', 
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
                     fontSize: 10,
                     letterSpacing: 2,
                     fontWeight: FontWeight.w600,
@@ -252,7 +417,8 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                                   children: [
                                     Text(
                                       verse.referencia,
-                                      style: TextStyle(fontFamily: 'DM Sans', 
+                                      style: TextStyle(
+                                        fontFamily: 'DM Sans',
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.emerald900,
@@ -261,7 +427,8 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                                     const SizedBox(height: 3),
                                     Text(
                                       verse.versiculo,
-                                      style: TextStyle(fontFamily: 'DM Sans', 
+                                      style: TextStyle(
+                                        fontFamily: 'DM Sans',
                                         fontSize: 12,
                                         color: AppColors.emerald700,
                                         height: 1.3,
@@ -273,7 +440,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                                 ),
                               ),
                               if (selected)
-                                const Icon(Icons.check_circle_rounded,
+                                Icon(Icons.check_circle_rounded,
                                     color: AppColors.emerald600, size: 22),
                             ],
                           ),
@@ -293,13 +460,14 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.info_outline_rounded,
+                      Icon(Icons.info_outline_rounded,
                           size: 18, color: AppColors.emerald500),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Selecciona un versículo de la lista y aparecerá en el widget. Puedes cambiarlo cuando quieras.',
-                          style: TextStyle(fontFamily: 'DM Sans', 
+                          'Selecciona un versículo y, si quieres, cambia el fondo del widget con una foto tuya.',
+                          style: TextStyle(
+                            fontFamily: 'DM Sans',
                             fontSize: 12,
                             height: 1.4,
                             color: AppColors.emerald700,
@@ -317,6 +485,43 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
     );
   }
 
+  Widget _backgroundControls() {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: _pickBackground,
+            icon: Icon(Icons.photo_library_rounded, size: 18),
+            label: Text(
+              _customBgPath == null ? 'Elegir fondo' : 'Cambiar fondo',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.emerald700,
+              side: BorderSide(color: AppColors.emerald400),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+        if (_customBgPath != null) ...[
+          const SizedBox(width: 8),
+          IconButton(
+            tooltip: 'Usar fondo original',
+            onPressed: _resetBackground,
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.emerald50,
+              foregroundColor: AppColors.emerald700,
+            ),
+            icon: Icon(Icons.restart_alt_rounded),
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _warningBanner() {
     return Container(
       width: double.infinity,
@@ -328,7 +533,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded,
+          Icon(Icons.warning_amber_rounded,
               color: AppColors.amber400, size: 22),
           const SizedBox(width: 10),
           Expanded(
@@ -337,7 +542,8 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
               children: [
                 Text(
                   'Widget eliminado',
-                  style: TextStyle(fontFamily: 'DM Sans', 
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.emerald900,
@@ -346,7 +552,8 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                 const SizedBox(height: 2),
                 Text(
                   'El widget ya no está en tu pantalla de inicio.',
-                  style: TextStyle(fontFamily: 'DM Sans', 
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
                     fontSize: 12,
                     color: AppColors.emerald700,
                   ),
@@ -357,7 +564,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
           const SizedBox(width: 8),
           FilledButton.tonalIcon(
             onPressed: _repin,
-            icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+            icon: Icon(Icons.add_circle_outline_rounded, size: 18),
             label: const Text('Añadir'),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.emerald600,
@@ -376,6 +583,10 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
 
   Widget _previewCard() {
     final v = _selectedVerse!;
+    final bg = _customBgPath;
+    final dark = bg != null && _darkBg;
+    final verseColor = dark ? Colors.white : Colors.black87;
+    final refColor = dark ? Colors.white70 : Colors.black54;
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: SizedBox(
@@ -384,12 +595,28 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: Image.asset(
-                'widget-fav.png',
-                fit: BoxFit.cover,
-              ),
+              child: bg != null
+                  ? Image.file(
+                      File(bg),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Image.asset(
+                        'widget-fav.png',
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Image.asset(
+                      'widget-fav.png',
+                      fit: BoxFit.cover,
+                    ),
             ),
-            Container(color: Colors.white.withValues(alpha: 0.69)),
+            // Light default needs a veil; custom uses auto text contrast instead.
+            if (bg == null)
+              Container(color: Colors.white.withValues(alpha: 0.69))
+            else
+              Container(
+                color: (dark ? Colors.black : Colors.white)
+                    .withValues(alpha: 0.22),
+              ),
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -399,9 +626,10 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                   children: [
                     Text(
                       '"${v.versiculo}"',
-                      style: TextStyle(fontFamily: 'Cormorant Garamond', 
+                      style: TextStyle(
+                        fontFamily: 'Cormorant Garamond',
                         fontSize: 18,
-                        color: Colors.black87,
+                        color: verseColor,
                         height: 1.4,
                         fontStyle: FontStyle.italic,
                       ),
@@ -412,11 +640,12 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
                     const SizedBox(height: 10),
                     Text(
                       v.referencia,
-                      style: TextStyle(fontFamily: 'DM Sans', 
+                      style: TextStyle(
+                        fontFamily: 'DM Sans',
                         fontSize: 10,
                         letterSpacing: 2,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black54,
+                        color: refColor,
                       ),
                     ),
                   ],

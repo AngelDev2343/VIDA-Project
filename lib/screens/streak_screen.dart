@@ -80,7 +80,7 @@ class _StreakScreenState extends State<StreakScreen> {
                     ],
                   ),
                 ),
-                const Icon(Icons.local_fire_department_rounded,
+                Icon(Icons.local_fire_department_rounded,
                     size: 36, color: AppColors.amber400),
               ],
             ),
@@ -89,7 +89,7 @@ class _StreakScreenState extends State<StreakScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.chevron_left_rounded),
+                  icon: Icon(Icons.chevron_left_rounded),
                   color: AppColors.emerald600,
                   onPressed: _prevMonth,
                 ),
@@ -103,7 +103,7 @@ class _StreakScreenState extends State<StreakScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.chevron_right_rounded),
+                  icon: Icon(Icons.chevron_right_rounded),
                   color: canGoNext ? AppColors.emerald600 : AppColors.emerald200,
                   onPressed: canGoNext ? _nextMonth : null,
                 ),

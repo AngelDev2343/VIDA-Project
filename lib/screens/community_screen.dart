@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../theme/app_theme.dart';
 
 class CommunityScreen extends StatefulWidget {
@@ -18,7 +19,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
   @override
   void initState() {
     super.initState();
-    _authSub = _auth.authStateChanges().listen((_) {
+    // userChanges also fires on link/profile reload (authStateChanges often does not).
+    _authSub = _auth.userChanges().listen((_) {
       if (mounted) setState(() {});
     });
   }
@@ -27,6 +29,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
   void dispose() {
     _authSub?.cancel();
     super.dispose();
+  }
+
+  void _refreshAuth() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -38,10 +44,22 @@ class _CommunityScreenState extends State<CommunityScreen> {
       appBar: AppBar(
         title: Text('Comunidad',
             style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
+        actions: [
+          if (!isAnonymous)
+            IconButton(
+              tooltip: 'Cerrar sesión',
+              onPressed: () async {
+                await _auth.signOut();
+                await _auth.signInAnonymously();
+              },
+              icon: Icon(Icons.logout_rounded,
+                  color: AppColors.emerald700, size: 22),
+            ),
+        ],
       ),
-      body: isAnonymous ? _AuthView() : _FeedView(),
+      body: isAnonymous
+          ? _AuthView(onAuthed: _refreshAuth)
+          : _FeedView(),
     );
   }
 }
@@ -49,15 +67,32 @@ class _CommunityScreenState extends State<CommunityScreen> {
 // ─────────────── Auth View ───────────────
 
 class _AuthView extends StatefulWidget {
+  const _AuthView({required this.onAuthed});
+
+  final VoidCallback onAuthed;
+
   @override
   State<_AuthView> createState() => _AuthViewState();
 }
 
 class _AuthViewState extends State<_AuthView>
     with SingleTickerProviderStateMixin {
+  static const _domains = <String>[
+    '@gmail.com',
+    '@outlook.com',
+    '@hotmail.com',
+    '@live.com',
+    '@live.com.mx',
+    '@yahoo.com',
+    '@icloud.com',
+    '@proton.me',
+  ];
+
   late final TabController _tabCtrl;
-  final _emailCtrl = TextEditingController();
+  final _nameCtrl = TextEditingController();
+  final _emailLocalCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
+  String _domain = _domains.first;
   bool _loading = false;
   bool _obscure = true;
 
@@ -65,36 +100,99 @@ class _AuthViewState extends State<_AuthView>
   void initState() {
     super.initState();
     _tabCtrl = TabController(length: 2, vsync: this);
+    _tabCtrl.addListener(() {
+      if (mounted) setState(() {});
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final splashName = VidaApp.of(context).userName.trim();
+      if (splashName.isNotEmpty && _nameCtrl.text.isEmpty) {
+        _nameCtrl.text = splashName;
+      }
+    });
   }
 
   @override
   void dispose() {
     _tabCtrl.dispose();
-    _emailCtrl.dispose();
+    _nameCtrl.dispose();
+    _emailLocalCtrl.dispose();
     _passCtrl.dispose();
     super.dispose();
   }
 
+  String get _fullEmail {
+    var local = _emailLocalCtrl.text.trim().toLowerCase();
+    if (local.contains('@')) {
+      local = local.split('@').first;
+    }
+    local = local.replaceAll(RegExp(r'\s+'), '');
+    return '$local$_domain';
+  }
+
   Future<void> _submit() async {
-    final email = _emailCtrl.text.trim();
+    final name = _nameCtrl.text.trim();
+    final email = _fullEmail;
     final pass = _passCtrl.text.trim();
-    if (email.isEmpty || pass.length < 6) {
+    final isRegister = _tabCtrl.index == 1;
+    final local = _emailLocalCtrl.text.trim();
+
+    if (local.isEmpty || pass.length < 6) {
       _snack('Correo y contraseña (mín 6 caracteres)');
       return;
     }
+    if (isRegister && name.isEmpty) {
+      _snack('Ingresa tu nombre');
+      return;
+    }
+
     setState(() => _loading = true);
     try {
-      if (_tabCtrl.index == 0) {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: pass,
-        );
+      final auth = FirebaseAuth.instance;
+      final current = auth.currentUser;
+      final credential =
+          EmailAuthProvider.credential(email: email, password: pass);
+
+      if (isRegister) {
+        if (current != null && current.isAnonymous) {
+          try {
+            await current.linkWithCredential(credential);
+          } on FirebaseAuthException catch (e) {
+            if (e.code == 'email-already-in-use' ||
+                e.code == 'credential-already-in-use') {
+              await auth.signInWithEmailAndPassword(
+                  email: email, password: pass);
+            } else {
+              rethrow;
+            }
+          }
+        } else {
+          await auth.createUserWithEmailAndPassword(
+              email: email, password: pass);
+        }
+        final user = auth.currentUser;
+        if (user != null) {
+          await user.updateDisplayName(name);
+          await user.reload();
+        }
       } else {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: email,
-          password: pass,
-        );
+        await auth.signInWithEmailAndPassword(email: email, password: pass);
+        final user = auth.currentUser;
+        final fallbackName = name.isNotEmpty
+            ? name
+            : VidaApp.of(context).userName.trim();
+        if (user != null &&
+            (user.displayName == null || user.displayName!.trim().isEmpty) &&
+            fallbackName.isNotEmpty) {
+          await user.updateDisplayName(fallbackName);
+          await user.reload();
+        }
       }
+
+      // Force parent rebuild — linking anonymous users often skips authStateChanges.
+      await auth.currentUser?.reload();
+      await auth.currentUser?.getIdToken(true);
+      if (mounted) widget.onAuthed();
     } on FirebaseAuthException catch (e) {
       _snack(e.message ?? 'Error de autenticación');
     } catch (e) {
@@ -112,6 +210,8 @@ class _AuthViewState extends State<_AuthView>
 
   @override
   Widget build(BuildContext context) {
+    final isRegister = _tabCtrl.index == 1;
+
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -155,43 +255,84 @@ class _AuthViewState extends State<_AuthView>
               ),
             ),
             const SizedBox(height: 24),
-            TextField(
-              controller: _emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                labelText: 'Correo electrónico',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: AppColors.emerald200),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: AppColors.emerald200),
-                ),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            if (isRegister) ...[
+              TextField(
+                controller: _nameCtrl,
+                textCapitalization: TextCapitalization.words,
+                decoration: _fieldDec('Nombre'),
               ),
+              const SizedBox(height: 14),
+            ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _emailLocalCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    autocorrect: false,
+                    decoration: _fieldDec('Correo'),
+                    onChanged: (v) {
+                      if (!v.contains('@')) return;
+                      final parts = v.split('@');
+                      final local = parts.first;
+                      final typedDomain =
+                          parts.length > 1 ? '@${parts[1].toLowerCase()}' : '';
+                      _emailLocalCtrl.value = TextEditingValue(
+                        text: local,
+                        selection:
+                            TextSelection.collapsed(offset: local.length),
+                      );
+                      for (final d in _domains) {
+                        if (d.toLowerCase() == typedDomain) {
+                          setState(() => _domain = d);
+                          break;
+                        }
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 148,
+                  child: InputDecorator(
+                    decoration: _fieldDec('').copyWith(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: _domain,
+                        style: TextStyle(
+                          fontFamily: 'DM Sans',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.emerald800,
+                        ),
+                        items: [
+                          for (final d in _domains)
+                            DropdownMenuItem(
+                              value: d,
+                              child: Text(d, overflow: TextOverflow.ellipsis),
+                            ),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) setState(() => _domain = v);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 14),
             TextField(
               controller: _passCtrl,
               obscureText: _obscure,
-              decoration: InputDecoration(
-                labelText: 'Contraseña',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: AppColors.emerald200),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: AppColors.emerald200),
-                ),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: _fieldDec('Contraseña').copyWith(
                 suffixIcon: IconButton(
                   icon: Icon(
                       _obscure
@@ -220,7 +361,7 @@ class _AuthViewState extends State<_AuthView>
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
                     : Text(
-                        _tabCtrl.index == 0 ? 'Iniciar sesión' : 'Registrarse',
+                        isRegister ? 'Registrarse' : 'Iniciar sesión',
                         style: TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 15)),
               ),
@@ -230,6 +371,57 @@ class _AuthViewState extends State<_AuthView>
       ),
     );
   }
+
+  InputDecoration _fieldDec(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Theme.of(context).colorScheme.surface,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: AppColors.emerald200),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: AppColors.emerald200),
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+}
+
+String _resolveAuthorName(User user, BuildContext context) {
+  final display = user.displayName?.trim() ?? '';
+  if (display.isNotEmpty) return display;
+  final splash = VidaApp.of(context).userName.trim();
+  if (splash.isNotEmpty) return splash;
+  final email = user.email ?? '';
+  if (email.contains('@')) return email.split('@').first;
+  return 'Usuario';
+}
+
+String _resolveAuthorEmail(User user) => user.email?.trim() ?? '';
+
+String _authorInitial(String? name) {
+  final trimmed = name?.trim() ?? '';
+  if (trimmed.isEmpty) return '?';
+  return trimmed[0].toUpperCase();
+}
+
+String _handleLocal(String value) {
+  final v = value.trim();
+  if (v.isEmpty) return '';
+  final local = v.contains('@') ? v.split('@').first : v;
+  // Avoid "@@user" if stored value already starts with @.
+  return local.startsWith('@') ? local : '@$local';
+}
+
+String _displayHandle(String? email, String? fallbackName) {
+  final e = email?.trim() ?? '';
+  if (e.isNotEmpty) return _handleLocal(e);
+  final n = fallbackName?.trim() ?? '';
+  if (n.isNotEmpty && n.contains('@')) return _handleLocal(n);
+  return '';
 }
 
 // ─────────────── Feed View ───────────────
@@ -250,20 +442,16 @@ class _FeedViewState extends State<_FeedView> {
     super.dispose();
   }
 
-  String _authorName() {
-    final email = _auth.currentUser?.email ?? '';
-    return email.split('@').first;
-  }
-
   Future<void> _createPost() async {
     final content = _postCtrl.text.trim();
     if (content.isEmpty) return;
     final user = _auth.currentUser;
-    if (user == null) return;
+    if (user == null || user.isAnonymous) return;
 
     await _db.collection('community_posts').add({
       'userId': user.uid,
-      'authorName': _authorName(),
+      'authorName': _resolveAuthorName(user, context),
+      'authorEmail': _resolveAuthorEmail(user),
       'content': content,
       'createdAt': FieldValue.serverTimestamp(),
       'likeCount': 0,
@@ -423,7 +611,7 @@ class _PostCardState extends State<_PostCard> {
     final content = _commentCtrl.text.trim();
     if (content.isEmpty) return;
     final user = _auth.currentUser;
-    if (user == null) return;
+    if (user == null || user.isAnonymous) return;
 
     await _db
         .collection('community_posts')
@@ -431,7 +619,8 @@ class _PostCardState extends State<_PostCard> {
         .collection('comments')
         .add({
       'userId': user.uid,
-      'authorName': user.email?.split('@').first ?? '',
+      'authorName': _resolveAuthorName(user, context),
+      'authorEmail': _resolveAuthorEmail(user),
       'content': content,
       'createdAt': FieldValue.serverTimestamp(),
     });
@@ -441,6 +630,11 @@ class _PostCardState extends State<_PostCard> {
   @override
   Widget build(BuildContext context) {
     final likeCount = _data['likeCount'] as int? ?? 0;
+    final authorName = (_data['authorName'] as String?)?.trim() ?? '';
+    final handle = _displayHandle(
+      _data['authorEmail'] as String?,
+      authorName,
+    );
 
     return Card(
       elevation: 0,
@@ -460,8 +654,7 @@ class _PostCardState extends State<_PostCard> {
                   radius: 14,
                   backgroundColor: AppColors.emerald200,
                   child: Text(
-                    (_data['authorName'] as String? ?? '?')[0]
-                        .toUpperCase(),
+                    _authorInitial(authorName),
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -473,17 +666,34 @@ class _PostCardState extends State<_PostCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(_data['authorName'] ?? '',
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.emerald800)),
-                      Text(
-                        _formatDate(
-                            _data['createdAt'] as Timestamp?),
-                        style: TextStyle(
-                            fontSize: 11, color: AppColors.emerald400),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              authorName.isNotEmpty
+                                  ? authorName
+                                  : 'Usuario',
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.emerald800),
+                            ),
+                          ),
+                          Text(
+                            _formatDate(
+                                _data['createdAt'] as Timestamp?),
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.emerald400),
+                          ),
+                        ],
                       ),
+                      if (handle.isNotEmpty)
+                        Text(
+                          handle,
+                          style: TextStyle(
+                              fontSize: 11, color: AppColors.emerald400),
+                        ),
                     ],
                   ),
                 ),
@@ -525,10 +735,6 @@ class _PostCardState extends State<_PostCard> {
                   ),
                   visualDensity: VisualDensity.compact,
                 ),
-                // Comment count (from stream, simplified)
-                Text('',
-                    style: TextStyle(
-                        fontSize: 13, color: AppColors.emerald600)),
               ],
             ),
             if (_showComments) ...[
@@ -613,21 +819,31 @@ class _CommentsList extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 6),
           itemBuilder: (context, i) {
             final c = comments[i].data() as Map<String, dynamic>;
-            return Row(
+            final name = (c['authorName'] as String?)?.trim() ?? '';
+            final handle = _displayHandle(
+              c['authorEmail'] as String?,
+              name,
+            );
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${c['authorName'] ?? ''}: ',
+                  name.isNotEmpty ? name : 'Usuario',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: AppColors.emerald700),
                 ),
-                Expanded(
-                  child: Text(c['content'] ?? '',
-                      style: TextStyle(
-                          fontSize: 12, color: AppColors.emerald800)),
-                ),
+                if (handle.isNotEmpty)
+                  Text(
+                    handle,
+                    style: TextStyle(
+                        fontSize: 10, color: AppColors.emerald400),
+                  ),
+                const SizedBox(height: 2),
+                Text(c['content'] ?? '',
+                    style: TextStyle(
+                        fontSize: 12, color: AppColors.emerald800)),
               ],
             );
           },

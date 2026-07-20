@@ -40,7 +40,7 @@ class _EstudioBiblicoScreenState extends State<EstudioBiblicoScreen> {
         },
         backgroundColor: AppColors.emerald600,
         foregroundColor: Colors.white,
-        child: const Icon(Icons.add_rounded),
+        child: Icon(Icons.add_rounded),
       ),
       body: _studies.isEmpty
           ? FadeIn(
@@ -48,7 +48,7 @@ class _EstudioBiblicoScreenState extends State<EstudioBiblicoScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.menu_book_rounded,
+                    Icon(Icons.menu_book_rounded,
                         size: 56, color: AppColors.emerald200),
                     const SizedBox(height: 16),
                     Text(
@@ -94,7 +94,7 @@ class _EstudioBiblicoScreenState extends State<EstudioBiblicoScreen> {
                         color: Colors.red.shade400,
                         borderRadius: BorderRadius.circular(18),
                       ),
-                      child: const Icon(Icons.delete_outline_rounded,
+                      child: Icon(Icons.delete_outline_rounded,
                           color: Colors.white),
                     ),
                     onDismissed: (_) async {

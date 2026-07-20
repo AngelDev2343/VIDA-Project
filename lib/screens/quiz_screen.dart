@@ -48,7 +48,7 @@ class _QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         title: const Text('Quiz Bíblico'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -57,7 +57,7 @@ class _QuizScreenState extends State<QuizScreen> {
           Column(
             children: [
               if (_loading)
-                const LinearProgressIndicator(
+                LinearProgressIndicator(
                   color: AppColors.emerald600,
                   backgroundColor: AppColors.emerald100,
                 ),
@@ -66,7 +66,7 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
           if (_error)
             Container(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(32),
@@ -93,7 +93,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           });
                           _loadLocalHtml();
                         },
-                        icon: const Icon(Icons.refresh_rounded),
+                        icon: Icon(Icons.refresh_rounded),
                         label: const Text('Reintentar'),
                       ),
                     ],

@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
+import '../widgets/verse_picker_sheet.dart';
 
 enum _TextAlign { top, center, bottom }
 
@@ -25,7 +26,7 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
   double _fontSize = 32;
   _TextAlign _textAlign = _TextAlign.bottom;
 
-  static const _colors = [
+  List<Color> get _colors => [
     Colors.white,
     Colors.black,
     AppColors.emerald100,
@@ -106,7 +107,7 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.share_rounded),
+                : Icon(Icons.share_rounded),
             tooltip: 'Compartir',
           ),
         ],
@@ -126,40 +127,49 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
                       Image.asset(widget.imageAsset, fit: BoxFit.cover),
                       if (_text.isNotEmpty)
                         Positioned(
-                          left: 16,
-                          right: 16,
-                          top: _textAlign == _TextAlign.top
-                              ? 24
-                              : _textAlign == _TextAlign.center
-                                  ? 0
-                                  : null,
-                          bottom: _textAlign == _TextAlign.bottom
-                              ? 24
-                              : _textAlign == _TextAlign.center
-                                  ? 0
-                                  : null,
+                          left: 18,
+                          right: 18,
+                          top: 24,
+                          bottom: 24,
                           child: Align(
                             alignment: _textAlign == _TextAlign.top
                                 ? Alignment.topCenter
                                 : _textAlign == _TextAlign.center
                                     ? Alignment.center
                                     : Alignment.bottomCenter,
-                            child: Text(
-                              _text,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontFamily: 'Cormorant Garamond', 
-                                fontSize: _fontSize,
-                                color: _textColor,
-                                fontWeight: FontWeight.w600,
-                                height: 1.2,
-                                shadows: const [
-                                  Shadow(
-                                    blurRadius: 8,
-                                    color: Colors.black54,
-                                    offset: Offset(0, 2),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: _textAlign == _TextAlign.top
+                                      ? Alignment.topCenter
+                                      : _textAlign == _TextAlign.center
+                                          ? Alignment.center
+                                          : Alignment.bottomCenter,
+                                  child: SizedBox(
+                                    width: constraints.maxWidth,
+                                    child: Text(
+                                      _text,
+                                      textAlign: TextAlign.center,
+                                      softWrap: true,
+                                      style: TextStyle(
+                                        fontFamily: 'Cormorant Garamond',
+                                        fontSize: _fontSize,
+                                        color: _textColor,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.3,
+                                        shadows: const [
+                                          Shadow(
+                                            blurRadius: 8,
+                                            color: Colors.black54,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -173,8 +183,8 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
             top: false,
             child: Container(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
                 border: Border(top: BorderSide(color: AppColors.emerald100)),
               ),
               child: Column(
@@ -185,9 +195,9 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
                     maxLines: 3,
                     decoration: InputDecoration(
                       hintText: 'Escribe tu mensaje...',
-                      hintStyle: const TextStyle(color: AppColors.emerald400),
+                      hintStyle: TextStyle(color: AppColors.emerald400),
                       suffixIcon: IconButton(
-                        icon: const Icon(Icons.check_circle_rounded,
+                        icon: Icon(Icons.check_circle_rounded,
                             color: AppColors.emerald600),
                         onPressed: () {
                           setState(
@@ -197,8 +207,36 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
                       ),
                     ),
                     textCapitalization: TextCapitalization.sentences,
+                    onChanged: (v) => setState(() => _text = v.trim()),
                   ),
-                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: AppColors.emerald700,
+                      ),
+                      onPressed: () async {
+                        final picked = await showVersePickerSheet(context);
+                        if (picked == null || !mounted) return;
+                        setState(() {
+                          _textController.text = picked.formatted;
+                          _text = picked.formatted;
+                        });
+                      },
+                      icon: Icon(Icons.menu_book_rounded, size: 16),
+                      label: Text(
+                        'Agregar versículo',
+                        style: TextStyle(
+                          fontFamily: 'DM Sans',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(

@@ -1,9 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tzdata;
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static final _plugin = FlutterLocalNotificationsPlugin();
   static bool _initialized = false;
+
+  static const _motivationalId = 1001;
+  static const _hour = 10;
+  static const _minute = 0;
 
   static const _motivationalMessages = [
     'Dios no se ha olvidado de ti. Vuelve a casa, Él te espera.',
@@ -13,8 +21,28 @@ class NotificationService {
     'Cada día es una nueva oportunidad para volver a Dios.',
   ];
 
+  static const _details = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'vida_motivation',
+      'Motivación',
+      channelDescription: 'Recordatorios espirituales',
+      importance: Importance.high,
+      priority: Priority.high,
+    ),
+    iOS: DarwinNotificationDetails(),
+  );
+
   static Future<void> init() async {
     if (_initialized) return;
+
+    tzdata.initializeTimeZones();
+    try {
+      final info = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(info.identifier));
+    } catch (_) {
+      tz.setLocalLocation(tz.getLocation('America/Mexico_City'));
+    }
+
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
@@ -50,28 +78,55 @@ class NotificationService {
     return true;
   }
 
-  static Future<void> showMotivational() async {
-    final index = DateTime.now().day % _motivationalMessages.length;
-    final message = _motivationalMessages[index];
+  /// Cancels and reschedules the away reminder for 2 days from now at 10:00.
+  /// Repeats daily after that until the user opens the app again.
+  static Future<void> scheduleAwayReminder() async {
+    if (kIsWeb) return;
+    if (!_initialized) await init();
 
-    const androidDetails = AndroidNotificationDetails(
-      'vida_motivation',
-      'Motivación',
-      channelDescription: 'Recordatorios espirituales',
-      importance: Importance.high,
-      priority: Priority.high,
-    );
-    const iosDetails = DarwinNotificationDetails();
-    const details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
+    await _plugin.cancel(id: _motivationalId);
+
+    final when = _nextAwaySlot();
+    final message = _messageFor(when);
+
+    final mode = await _androidScheduleMode();
+    try {
+      await _plugin.zonedSchedule(
+        id: _motivationalId,
+        title: 'VIDA',
+        body: message,
+        scheduledDate: when,
+        notificationDetails: _details,
+        androidScheduleMode: mode,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } catch (_) {}
+  }
+
+  static Future<AndroidScheduleMode> _androidScheduleMode() async {
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (android == null) {
+      return AndroidScheduleMode.inexactAllowWhileIdle;
+    }
+    try {
+      final canExact = await android.canScheduleExactNotifications();
+      if (canExact == true) {
+        return AndroidScheduleMode.exactAllowWhileIdle;
+      }
+    } catch (_) {}
+    return AndroidScheduleMode.inexactAllowWhileIdle;
+  }
+
+  static Future<void> showMotivational() async {
+    if (!_initialized) await init();
+    final message = _messageFor(DateTime.now());
 
     await _plugin.show(
       id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title: 'VIDA',
       body: message,
-      notificationDetails: details,
+      notificationDetails: _details,
     );
 
     final prefs = await SharedPreferences.getInstance();
@@ -92,6 +147,25 @@ class NotificationService {
     final lastNotif = prefs.getString('last_notification_date') ?? '';
     return lastNotif != _today();
   }
+
+  static tz.TZDateTime _nextAwaySlot() {
+    final now = tz.TZDateTime.now(tz.local);
+    var target = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      _hour,
+      _minute,
+    ).add(const Duration(days: 2));
+    if (!target.isAfter(now)) {
+      target = target.add(const Duration(days: 1));
+    }
+    return target;
+  }
+
+  static String _messageFor(DateTime when) =>
+      _motivationalMessages[when.day % _motivationalMessages.length];
 
   static String _today() {
     final d = DateTime.now();

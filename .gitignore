@@ -1,48 +1,212 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
+# =========================
+# OS / editors
+# =========================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+*.temp
+.history/
 .atom/
-.build/
-.buildlog/
-.history
 .svn/
-.swiftpm/
-migrate_working_dir/
+.hg/
+*.orig
 
-# IntelliJ related
+# =========================
+# IDEs
+# =========================
+.idea/
 *.iml
 *.ipr
 *.iws
-.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.code-workspace
+.fleet/
+.cursor/
+*.sublime-project
+*.sublime-workspace
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# =========================
+# Flutter / Dart
+# =========================
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
-/build/
-/coverage/
+.build/
+build/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.flutter-plugins-dependencies
+.metadata.bak
+coverage/
+*.lcov
+.fvm/
+.fvmrc
+devtools_options.yaml
 
-# Symbolication related
+# =========================
+# Symbolication / obfuscation
+# =========================
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
+*.symbols
+*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# =========================
+# Android
+# =========================
+**/android/**/gradle-wrapper.jar
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+**/android/**/*.jks
+**/android/**/*.keystore
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/app/*.apk
+**/android/app/*.aab
+*.aab
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+.cxx/
+**/android/**/.cxx/
+app-debug.apk
+app-release.apk
+*-debug.apk
+*-release.apk
+# Distribución intencional en la raíz:
+!VIDA.apk
 
-# Firebase credentials (API keys)
-android/app/google-services.json
+# =========================
+# iOS / macOS
+# =========================
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vagrant/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+**/ios/**/xcuserdata
+**/ios/.generated/
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Pods/
+**/macos/**/xcuserdata
+*.xcuserstate
+*.xcscmblueprint
+.swiftpm/
+**/DerivedData/
+**/Pods/
+
+# =========================
+# Web / Windows / Linux
+# =========================
+**/linux/flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/web/.dart_tool/
+
+# =========================
+# Secrets & credentials
+# =========================
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+*.key
+google-services.json
+GoogleService-Info.plist
+**/android/app/google-services.json
+**/ios/Runner/GoogleService-Info.plist
+firebase_options.dart
+**/firebase_app_id_file.json
+serviceAccount*.json
+credentials.json
+secrets/
+*.secret
+
+# =========================
+# Logs & dumps
+# =========================
+*.log
+*.log.*
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+hs_err_pid*
+
+# =========================
+# Node / misc tooling
+# =========================
+node_modules/
+package-lock.json
+yarn.lock
+.pnpm-store/
+.turbo/
+.cache/
+tmp/
+temp/
+.python-version
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# =========================
+# Project / agent / local
+# =========================
+.claude/
+.agent/
+agent-transcripts/
+*.pid
+flutter_run.pid
+.hot-reload
+.local/
+*.local
+scrcpy-win64-v3.3.4/
+build_release_log.txt

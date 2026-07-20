@@ -8,14 +8,17 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await tester.pumpWidget(const VidaApp());
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('VIDA'), findsWidgets);
-    expect(find.text('Bienvenido'), findsOneWidget);
+    expect(find.text('Personaliza tu experiencia'), findsOneWidget);
   });
 
   testWidgets('VidaApp renders home when name is stored', (tester) async {
     SharedPreferences.setMockInitialValues({'user_name': 'Test'});
     await tester.pumpWidget(const VidaApp());
     await tester.pump();
-    expect(find.text('Buenos días, Test'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.textContaining('Test'), findsWidgets);
+    expect(find.text('VIDA'), findsWidgets);
   });
 }

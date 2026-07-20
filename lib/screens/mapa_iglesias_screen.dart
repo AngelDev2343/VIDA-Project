@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
+import 'community_screen.dart';
 
 class MapaIglesiasScreen extends StatefulWidget {
   const MapaIglesiasScreen({super.key});
@@ -142,16 +143,19 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
     required double latitud,
     required double longitud,
   }) async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final user = FirebaseAuth.instance.currentUser;
+    // Anyone can add a church; only real accounts count as attending.
+    final loggedIn = user != null && !user.isAnonymous;
+    final uid = user?.uid;
     await _db.collection('iglesias').add({
       'nombre': nombre,
       'ciudad': ciudad,
       'descripcion': descripcion,
       'latitud': latitud,
       'longitud': longitud,
-      'miembros': 1,
-      'asistentes': [uid],
-      'creado_por': uid,
+      'miembros': loggedIn ? 1 : 0,
+      'asistentes': loggedIn && uid != null ? [uid] : <String>[],
+      'creado_por': uid ?? '',
     });
     await _loadIglesias();
   }
@@ -182,18 +186,20 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
             initialCenter: _myLocation ?? _defaultCenter,
             initialZoom: _myLocation != null ? 13 : 5,
             onTap: (tapPos, latlng) {
-              final tapped =
-                  _filtered.cast<Map<String, dynamic>?>().firstWhere(
-                (c) {
-                  final clat = (c!['latitud'] as num).toDouble();
-                  final clng = (c['longitud'] as num).toDouble();
-                  return (latlng.latitude - clat).abs() < 0.01 &&
-                      (latlng.longitude - clng).abs() < 0.01;
-                },
-                orElse: () => null,
-              );
-              if (tapped != null) {
-                _showChurchSheet(tapped, tapped['_id'] as String);
+              Map<String, dynamic>? nearest;
+              var bestDist = 0.002; // ~200 m
+              for (final c in _filtered) {
+                final clat = (c['latitud'] as num).toDouble();
+                final clng = (c['longitud'] as num).toDouble();
+                final dist = (latlng.latitude - clat).abs() +
+                    (latlng.longitude - clng).abs();
+                if (dist < bestDist) {
+                  bestDist = dist;
+                  nearest = c;
+                }
+              }
+              if (nearest != null) {
+                _showChurchSheet(nearest, nearest['_id'] as String);
               }
             },
           ),
@@ -220,7 +226,7 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
                         child: Container(
                           width: 14,
                           height: 14,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: Colors.blue,
                             shape: BoxShape.circle,
                           ),
@@ -239,7 +245,7 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
                     child: GestureDetector(
                       onTap: () =>
                           _showChurchSheet(c, c['_id'] as String),
-                      child: const Icon(
+                      child: Icon(
                         Icons.location_on_rounded,
                         color: AppColors.emerald600,
                         size: 36,
@@ -259,10 +265,9 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
             children: [
               FloatingActionButton.small(
                 heroTag: 'locate',
-                backgroundColor: Colors.white,
-                foregroundColor: AppColors.emerald700,
+                                foregroundColor: AppColors.emerald700,
                 onPressed: _goToMyLocation,
-                child: const Icon(Icons.my_location_rounded, size: 22),
+                child: Icon(Icons.my_location_rounded, size: 22),
               ),
               const SizedBox(height: 10),
               FloatingActionButton(
@@ -270,7 +275,7 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
                 backgroundColor: AppColors.emerald600,
                 foregroundColor: Colors.white,
                 onPressed: _openAddSheet,
-                child: const Icon(Icons.add_rounded),
+                child: Icon(Icons.add_rounded),
               ),
             ],
           ),
@@ -291,7 +296,7 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
           return ListTile(
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            leading: const Icon(Icons.location_on_rounded,
+            leading: Icon(Icons.location_on_rounded,
                 color: AppColors.emerald600, size: 28),
             title: Text(c['nombre'] ?? '',
                 style: TextStyle(
@@ -336,7 +341,7 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
             const SizedBox(height: 24),
             OutlinedButton.icon(
               onPressed: _openAddSheet,
-              icon: const Icon(Icons.add_location_rounded, size: 20),
+              icon: Icon(Icons.add_location_rounded, size: 20),
               label: Text('Agregar congregación',
                   style: TextStyle(fontWeight: FontWeight.w600)),
               style: OutlinedButton.styleFrom(
@@ -360,9 +365,7 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
       appBar: AppBar(
         title: Text('Iglesias cerca',
             style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-      ),
+                      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -375,12 +378,12 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
                   hintText: 'Buscar por nombre o ciudad',
                   hintStyle: TextStyle(fontSize: 14),
                   prefixIcon: IconButton(
-                    icon: const Icon(Icons.search_rounded, size: 22),
+                    icon: Icon(Icons.search_rounded, size: 22),
                     onPressed: _doSearch,
                   ),
                   suffixIcon: _searchCtrl.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 18),
+                          icon: Icon(Icons.clear_rounded, size: 18),
                           onPressed: () {
                             _searchCtrl.clear();
                             setState(() => _searched = false);
@@ -405,8 +408,9 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
                   : _searchCtrl.text.isNotEmpty && _searched
                       ? _searchResultsView()
                       : _searchCtrl.text.isNotEmpty
-                          ? const SizedBox.expand(
-                              child: ColoredBox(color: Colors.white))
+                          ? SizedBox.expand(
+                              child: ColoredBox(
+                                  color: Theme.of(context).colorScheme.surface))
                           : _mapView(),
             ),
           ],
@@ -432,9 +436,70 @@ class _ChurchDetailSheet extends StatefulWidget {
 }
 
 class _ChurchDetailSheetState extends State<_ChurchDetailSheet> {
+  bool _joining = false;
+
+  Future<void> _promptLogin() async {
+    final go = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cuenta necesaria'),
+        content: const Text(
+          'Para marcar que asistes a esta iglesia necesitas una cuenta. '
+          'El resto del mapa se puede usar sin registrarte.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Ahora no'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.emerald600,
+            ),
+            child: const Text('Crear cuenta'),
+          ),
+        ],
+      ),
+    );
+    if (go == true && mounted) {
+      Navigator.pop(context); // close church sheet
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const CommunityScreen()),
+      );
+    }
+  }
+
+  Future<void> _joinChurch(String uid) async {
+    if (_joining) return;
+    setState(() => _joining = true);
+    try {
+      final ref =
+          FirebaseFirestore.instance.collection('iglesias').doc(widget.docId);
+      final joined = await FirebaseFirestore.instance.runTransaction((tx) async {
+        final snap = await tx.get(ref);
+        if (!snap.exists) return false;
+        final asistentes =
+            List<String>.from(snap.data()?['asistentes'] ?? []);
+        if (asistentes.contains(uid)) return false;
+        tx.update(ref, {
+          'miembros': FieldValue.increment(1),
+          'asistentes': FieldValue.arrayUnion([uid]),
+        });
+        return true;
+      });
+      if (joined && mounted) widget.onJoined();
+    } finally {
+      if (mounted) setState(() => _joining = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final user = FirebaseAuth.instance.currentUser;
+    final uid = user?.uid;
+    final needsLogin = user == null || user.isAnonymous;
 
     return SafeArea(
       child: Padding(
@@ -467,7 +532,18 @@ class _ChurchDetailSheetState extends State<_ChurchDetailSheet> {
                 final asistentes =
                     List<String>.from(data['asistentes'] ?? []);
                 final yaAsiste =
-                    uid != null && asistentes.contains(uid);
+                    !needsLogin &&
+                    uid != null &&
+                    asistentes.contains(uid);
+
+                VoidCallback? onAttend;
+                if (yaAsiste || _joining) {
+                  onAttend = null;
+                } else if (needsLogin) {
+                  onAttend = _promptLogin;
+                } else {
+                  onAttend = () => _joinChurch(uid!);
+                }
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,7 +569,7 @@ class _ChurchDetailSheetState extends State<_ChurchDetailSheet> {
                         Icon(Icons.people_rounded,
                             size: 16, color: AppColors.emerald500),
                         const SizedBox(width: 4),
-                        Text('${data['miembros'] ?? 0}',
+                        Text('${asistentes.length}',
                             style: TextStyle(
                                 fontFamily: 'DM Sans',
                                 fontSize: 13,
@@ -515,19 +591,7 @@ class _ChurchDetailSheetState extends State<_ChurchDetailSheet> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton.icon(
-                        onPressed: yaAsiste
-                            ? null
-                            : () async {
-                                await FirebaseFirestore.instance
-                                    .collection('iglesias')
-                                    .doc(widget.docId)
-                                    .update({
-                                  'miembros': FieldValue.increment(1),
-                                  'asistentes':
-                                      FieldValue.arrayUnion([uid]),
-                                });
-                                widget.onJoined();
-                              },
+                        onPressed: onAttend,
                         icon: Icon(
                             yaAsiste
                                 ? Icons.check_rounded
@@ -547,6 +611,8 @@ class _ChurchDetailSheetState extends State<_ChurchDetailSheet> {
                           foregroundColor: yaAsiste
                               ? AppColors.emerald600
                               : Colors.white,
+                          disabledBackgroundColor: AppColors.emerald200,
+                          disabledForegroundColor: AppColors.emerald600,
                           padding:
                               const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -555,10 +621,10 @@ class _ChurchDetailSheetState extends State<_ChurchDetailSheet> {
                         ),
                       ),
                     ),
-                    if (uid == null) ...[
+                    if (needsLogin) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Inicia sesión en Comunidad para marcar asistencia',
+                        'Solo se pide cuenta para marcar asistencia',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontFamily: 'DM Sans',
@@ -579,7 +645,7 @@ class _ChurchDetailSheetState extends State<_ChurchDetailSheet> {
                             ));
                           }
                         },
-                        icon: const Icon(Icons.directions_rounded,
+                        icon: Icon(Icons.directions_rounded,
                             size: 20),
                         label: Text('Cómo llegar',
                             style:
@@ -782,7 +848,7 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
               decoration: InputDecoration(
                 hintText: 'Buscar dirección o coordenadas',
                 hintStyle: TextStyle(fontSize: 13),
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                prefixIcon: Icon(Icons.search_rounded, size: 20),
                 suffixIcon: _searchingLocation
                     ? const SizedBox(
                         width: 20,
@@ -796,7 +862,7 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
                     : (_searchAddrCtrl.text.isNotEmpty
                         ? IconButton(
                             icon:
-                                const Icon(Icons.clear_rounded, size: 18),
+                                Icon(Icons.clear_rounded, size: 18),
                             onPressed: _searchAddrCtrl.clear,
                           )
                         : null),
@@ -861,7 +927,7 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
                                       width: 14,
                                       height: 14,
                                       decoration:
-                                          const BoxDecoration(
+                                          BoxDecoration(
                                         color: Colors.blue,
                                         shape: BoxShape.circle,
                                       ),
@@ -874,7 +940,7 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
                                 point: _selectedLocation!,
                                 width: 40,
                                 height: 40,
-                                child: const Icon(
+                                child: Icon(
                                   Icons.location_on_rounded,
                                   color: AppColors.emerald600,
                                   size: 36,
@@ -889,15 +955,14 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
                       bottom: 8,
                       child: FloatingActionButton.small(
                         heroTag: 'mini_locate',
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.emerald700,
+                                                foregroundColor: AppColors.emerald700,
                         onPressed: () {
                           if (_myLocation != null) {
                             _miniMapController
                                 .move(_myLocation!, 13);
                           }
                         },
-                        child: const Icon(
+                        child: Icon(
                             Icons.my_location_rounded,
                             size: 18),
                       ),

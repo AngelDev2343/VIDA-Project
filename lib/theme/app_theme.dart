@@ -1,136 +1,343 @@
 import 'package:flutter/material.dart';
+import 'theme_controller.dart';
 
+/// Classic VIDA emerald — exact values from before dynamic theming.
+class _ClassicEmerald {
+  static const c50 = Color(0xFFECFDF5);
+  static const c100 = Color(0xFFD1FAE5);
+  static const c200 = Color(0xFFA7F3D0);
+  static const c300 = Color(0xFF6EE7B7);
+  static const c400 = Color(0xFF34D399);
+  static const c500 = Color(0xFF10B981);
+  static const c600 = Color(0xFF059669);
+  static const c700 = Color(0xFF047857);
+  static const c800 = Color(0xFF065F46);
+  static const c900 = Color(0xFF064E3B);
+}
+
+/// Palette used across the app.
+///
+/// Soft fills follow the **visual theme** (classic emerald when Esmeralda).
+/// [emerald500]/[emerald600] are the interactive **accent**.
+/// [brand] is always the visual theme color (never the custom accent).
 class AppColors {
-  static const emerald50  = Color(0xFFECFDF5);
-  static const emerald100 = Color(0xFFD1FAE5);
-  static const emerald200 = Color(0xFFA7F3D0);
-  static const emerald300 = Color(0xFF6EE7B7);
-  static const emerald400 = Color(0xFF34D399);
-  static const emerald500 = Color(0xFF10B981);
-  static const emerald600 = Color(0xFF059669);
-  static const emerald700 = Color(0xFF047857);
-  static const emerald800 = Color(0xFF065F46);
-  static const emerald900 = Color(0xFF064E3B);
+  static ColorScheme _cs = ColorScheme.fromSeed(
+    seedColor: _ClassicEmerald.c600,
+  );
+  static Color _styleSeed = _ClassicEmerald.c600;
+  static Color _accent = _ClassicEmerald.c600;
+
+  static void bind(
+    ColorScheme scheme, {
+    required Color styleSeed,
+    required Color accent,
+  }) {
+    _cs = scheme;
+    _styleSeed = styleSeed;
+    _accent = accent;
+  }
+
+  /// Updates palette seeds immediately (before MaterialApp rebuilds).
+  static void applySeeds({
+    required Color styleSeed,
+    required Color accent,
+  }) {
+    _styleSeed = styleSeed;
+    _accent = accent;
+  }
+
+  static bool get isDark => _cs.brightness == Brightness.dark;
+
+  static bool get _isClassicEmerald =>
+      // ignore: deprecated_member_use
+      _styleSeed.value == _ClassicEmerald.c600.value;
+
+  static Color get primary => _accent;
+  static Color get surface => _cs.surface;
+  static Color get onSurface => _cs.onSurface;
+
+  /// Visual theme color (VIDA hero, brand marks). Ignores custom accent.
+  static Color get brand => _isClassicEmerald ? _ClassicEmerald.c600 : _styleSeed;
+
+  static Color get brandSoft =>
+      _isClassicEmerald ? _ClassicEmerald.c100 : emerald100;
+
+  static Color get emerald50 => _isClassicEmerald && !isDark
+      ? _ClassicEmerald.c50
+      : isDark
+          ? Color.lerp(_cs.surface, _styleSeed, 0.14) ??
+              _cs.surfaceContainerHighest
+          : Color.lerp(_styleSeed, Colors.white, 0.92) ?? Colors.white;
+
+  static Color get emerald100 => _isClassicEmerald && !isDark
+      ? _ClassicEmerald.c100
+      : isDark
+          ? Color.lerp(_cs.surface, _styleSeed, 0.22) ?? _cs.surfaceContainerHigh
+          : Color.lerp(_styleSeed, Colors.white, 0.82) ?? Colors.white;
+
+  static Color get emerald200 => _isClassicEmerald && !isDark
+      ? _ClassicEmerald.c200
+      : isDark
+          ? Colors.white.withValues(alpha: 0.08)
+          : Color.lerp(_styleSeed, Colors.white, 0.65) ?? _styleSeed;
+
+  static Color get emerald300 => _isClassicEmerald && !isDark
+      ? _ClassicEmerald.c300
+      : isDark
+          ? Color.lerp(_styleSeed, _cs.onSurface, 0.25) ?? _styleSeed
+          : Color.lerp(_styleSeed, Colors.white, 0.45) ?? _styleSeed;
+
+  static Color get emerald400 => _isClassicEmerald && !isDark
+      ? _ClassicEmerald.c400
+      : isDark
+          ? Color.lerp(_styleSeed, _cs.onSurface, 0.1) ?? _styleSeed
+          : Color.lerp(_styleSeed, Colors.white, 0.2) ?? _styleSeed;
+
+  /// Accent (buttons, selected nav). Custom accent or exact theme seed.
+  static Color get emerald500 =>
+      // ignore: deprecated_member_use
+      (_accent.value == _styleSeed.value && _isClassicEmerald)
+          ? _ClassicEmerald.c500
+          : _accent;
+
+  static Color get emerald600 =>
+      // ignore: deprecated_member_use
+      (_accent.value == _styleSeed.value && _isClassicEmerald)
+          ? _ClassicEmerald.c600
+          : _accent;
+
+  static Color get emerald700 => _isClassicEmerald && !isDark
+      ? _ClassicEmerald.c700
+      : isDark
+          ? Color.lerp(_cs.onSurface, _styleSeed, 0.35) ?? _cs.onSurface
+          : Color.lerp(_styleSeed, const Color(0xFF111827), 0.35) ??
+              _styleSeed;
+
+  static Color get emerald800 => _isClassicEmerald && !isDark
+      ? _ClassicEmerald.c800
+      : isDark
+          ? Color.lerp(_cs.onSurface, _styleSeed, 0.2) ?? _cs.onSurface
+          : Color.lerp(_styleSeed, const Color(0xFF111827), 0.5) ?? _styleSeed;
+
+  static Color get emerald900 => _isClassicEmerald && !isDark
+      ? _ClassicEmerald.c900
+      : _cs.onSurface;
 
   static const amber400 = Color(0xFFFBBF24);
 }
 
 class AppTheme {
-  static final _textTheme = TextTheme(
-    displayLarge: TextStyle(
-      fontFamily: 'Cormorant Garamond',
-      fontSize: 36,
-      fontWeight: FontWeight.w600,
-      color: AppColors.emerald600,
-    ),
-    displayMedium: TextStyle(
-      fontFamily: 'Cormorant Garamond',
-      fontSize: 28,
-      fontWeight: FontWeight.w600,
-      color: AppColors.emerald900,
-    ),
-    headlineMedium: TextStyle(
-      fontFamily: 'Cormorant Garamond',
-      fontSize: 20,
-      fontWeight: FontWeight.w500,
-      color: AppColors.emerald800,
-    ),
-    titleLarge: TextStyle(
-      fontFamily: 'DM Sans',
-      fontSize: 17,
-      fontWeight: FontWeight.w600,
-      color: AppColors.emerald900,
-    ),
-    titleMedium: TextStyle(
-      fontFamily: 'DM Sans',
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-      color: AppColors.emerald900,
-    ),
-    bodyMedium: TextStyle(
-      fontFamily: 'DM Sans',
-      fontSize: 14,
-      color: AppColors.emerald700,
-    ),
-    bodySmall: TextStyle(
-      fontFamily: 'DM Sans',
-      fontSize: 12,
-      color: AppColors.emerald600,
-    ),
-  );
+  static Color _onFor(Color bg) {
+    return ThemeData.estimateBrightnessForColor(bg) == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF064E3B);
+  }
 
-  static ThemeData light() {
+  /// [styleSeed] drives backgrounds. [accent] overrides interactive primary only.
+  static ThemeData build({
+    required Brightness brightness,
+    required Color styleSeed,
+    Color? accent,
+  }) {
+    final isDark = brightness == Brightness.dark;
+    final isEmerald =
+        // ignore: deprecated_member_use
+        styleSeed.value == _ClassicEmerald.c600.value;
+
+    // Surfaces: keep light mode close to original (white), not muddy M3 green-gray.
+    final base = ColorScheme.fromSeed(
+      seedColor: styleSeed,
+      brightness: brightness,
+    );
+
+    final primaryExact = accent ?? styleSeed;
+    final onPrimary = _onFor(primaryExact);
+
+    final scheme = base.copyWith(
+      primary: primaryExact,
+      onPrimary: onPrimary,
+      primaryContainer: isDark
+          ? Color.lerp(base.surface, primaryExact, 0.35)
+          : Color.lerp(primaryExact, Colors.white, 0.85),
+      onPrimaryContainer: isDark ? onPrimary : primaryExact,
+      secondary: primaryExact,
+      onSecondary: onPrimary,
+      // Neutral light surfaces for classic feel
+      surface: isDark ? base.surface : Colors.white,
+      surfaceContainerLowest: isDark ? base.surfaceContainerLowest : Colors.white,
+      surfaceContainerLow: isDark
+          ? base.surfaceContainerLow
+          : (isEmerald ? _ClassicEmerald.c50 : Color.lerp(styleSeed, Colors.white, 0.94)),
+      surfaceContainer: isDark ? base.surfaceContainer : Colors.white,
+      surfaceContainerHigh: isDark
+          ? base.surfaceContainerHigh
+          : Colors.white,
+      surfaceContainerHighest: isDark
+          ? base.surfaceContainerHighest
+          : (isEmerald ? _ClassicEmerald.c50 : Color.lerp(styleSeed, Colors.white, 0.92)),
+      onSurface: isDark
+          ? base.onSurface
+          : (isEmerald ? _ClassicEmerald.c900 : const Color(0xFF1C1917)),
+    );
+
+    final onSurface = scheme.onSurface;
+    final primary = scheme.primary!;
+    final scaffold = scheme.surface;
+    final cardColor = isDark ? base.surfaceContainerHigh : Colors.white;
+    final sheetColor = isDark ? base.surfaceContainerHigh : Colors.white;
+
+    final softFill = isDark
+        ? Color.lerp(base.surface, styleSeed, 0.18) ??
+            base.surfaceContainerHighest
+        : isEmerald
+            ? _ClassicEmerald.c50
+            : Color.lerp(styleSeed, Colors.white, 0.92) ?? Colors.white;
+
+    final textTheme = TextTheme(
+      displayLarge: TextStyle(
+        fontFamily: 'Cormorant Garamond',
+        fontSize: 36,
+        fontWeight: FontWeight.w600,
+        color: primary,
+      ),
+      displayMedium: TextStyle(
+        fontFamily: 'Cormorant Garamond',
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+        color: onSurface,
+      ),
+      headlineMedium: TextStyle(
+        fontFamily: 'Cormorant Garamond',
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+        color: onSurface,
+      ),
+      titleLarge: TextStyle(
+        fontFamily: 'DM Sans',
+        fontSize: 17,
+        fontWeight: FontWeight.w600,
+        color: onSurface,
+      ),
+      titleMedium: TextStyle(
+        fontFamily: 'DM Sans',
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: onSurface,
+      ),
+      bodyMedium: TextStyle(
+        fontFamily: 'DM Sans',
+        fontSize: 14,
+        color: onSurface.withValues(alpha: 0.85),
+      ),
+      bodySmall: TextStyle(
+        fontFamily: 'DM Sans',
+        fontSize: 12,
+        color: onSurface.withValues(alpha: 0.65),
+      ),
+    );
+
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.emerald600,
-        onPrimary: Colors.white,
-        secondary: AppColors.emerald400,
-        onSecondary: Colors.white,
-        surface: Colors.white,
-        onSurface: AppColors.emerald900,
-        surfaceContainerLowest: Colors.white,
-        surfaceContainerLow: Colors.white,
-        surfaceContainer: Colors.white,
-        surfaceContainerHigh: Colors.white,
-        surfaceContainerHighest: Colors.white,
-        outline: AppColors.emerald200,
-      ),
-      scaffoldBackgroundColor: Colors.white,
+      brightness: brightness,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: scaffold,
+      canvasColor: scaffold,
+      cardColor: cardColor,
+      dividerColor: isEmerald && !isDark
+          ? _ClassicEmerald.c100
+          : base.outline.withValues(alpha: isDark ? 0.12 : 0.25),
       cardTheme: CardThemeData(
-        color: Colors.white,
+        color: cardColor,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
         ),
         clipBehavior: Clip.hardEdge,
       ),
-      textTheme: _textTheme,
+      textTheme: textTheme,
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.white,
+        backgroundColor: scaffold,
+        foregroundColor: onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: false,
-        iconTheme: const IconThemeData(color: AppColors.emerald700),
-        titleTextStyle: TextStyle(fontFamily: 'Cormorant Garamond', 
+        iconTheme: IconThemeData(color: isEmerald ? _ClassicEmerald.c700 : primary),
+        titleTextStyle: TextStyle(
+          fontFamily: 'Cormorant Garamond',
           fontSize: 28,
           fontWeight: FontWeight.w600,
-          color: AppColors.emerald600,
+          color: isEmerald && accent == null ? _ClassicEmerald.c600 : primary,
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: sheetColor,
+        surfaceTintColor: Colors.transparent,
+        modalBackgroundColor: sheetColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: sheetColor,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: sheetColor,
+        surfaceTintColor: Colors.transparent,
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: primary,
+        textColor: onSurface,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: softFill,
+        selectedColor: primary.withValues(alpha: isDark ? 0.35 : 0.18),
+        labelStyle: TextStyle(
+          fontFamily: 'DM Sans',
+          color: onSurface,
+        ),
+        side: BorderSide(
+          color: isEmerald && !isDark
+              ? _ClassicEmerald.c200
+              : base.outline.withValues(alpha: isDark ? 0.16 : 0.35),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.emerald50,
+        fillColor: isDark ? base.surfaceContainerHighest : softFill,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.emerald200, width: 1),
+          borderSide: BorderSide(
+            color: isEmerald && !isDark
+                ? _ClassicEmerald.c200
+                : base.outline.withValues(alpha: isDark ? 0.18 : 0.4),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.emerald500, width: 1.5),
+          borderSide: BorderSide(color: primary, width: 1.5),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFFCA5A5), width: 1),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFF87171), width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        labelStyle: TextStyle(fontFamily: 'DM Sans', 
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        labelStyle: TextStyle(
+          fontFamily: 'DM Sans',
           fontSize: 13,
           fontWeight: FontWeight.w500,
-          color: AppColors.emerald700,
+          color: onSurface.withValues(alpha: 0.7),
         ),
-        hintStyle: TextStyle(fontFamily: 'DM Sans', 
+        hintStyle: TextStyle(
+          fontFamily: 'DM Sans',
           fontSize: 13,
-          color: AppColors.emerald400,
+          color: onSurface.withValues(alpha: 0.4),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
@@ -138,42 +345,97 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),
-        backgroundColor: AppColors.emerald800,
-        contentTextStyle: TextStyle(fontFamily: 'DM Sans', 
+        backgroundColor: isDark ? base.inverseSurface : primary,
+        contentTextStyle: TextStyle(
+          fontFamily: 'DM Sans',
           fontSize: 13,
-          color: Colors.white,
+          color: isDark ? base.onInverseSurface : onPrimary,
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         elevation: 0,
-        backgroundColor: Colors.white,
-        indicatorColor: AppColors.emerald100,
+        backgroundColor: scaffold,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: isEmerald && !isDark && accent == null
+            ? _ClassicEmerald.c100
+            : primary.withValues(alpha: isDark ? 0.28 : 0.16),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: AppColors.emerald700);
+            return IconThemeData(
+              color: isEmerald && accent == null
+                  ? _ClassicEmerald.c700
+                  : primary,
+            );
           }
-          return const IconThemeData(color: AppColors.emerald400);
+          return IconThemeData(
+            color: isEmerald && !isDark
+                ? _ClassicEmerald.c400
+                : onSurface.withValues(alpha: 0.45),
+          );
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return TextStyle(fontFamily: 'DM Sans', 
+            return TextStyle(
+              fontFamily: 'DM Sans',
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: AppColors.emerald700,
+              color: isEmerald && accent == null
+                  ? _ClassicEmerald.c700
+                  : primary,
             );
           }
-          return TextStyle(fontFamily: 'DM Sans', 
+          return TextStyle(
+            fontFamily: 'DM Sans',
             fontSize: 11,
             fontWeight: FontWeight.w500,
-            color: AppColors.emerald400,
+            color: isEmerald && !isDark
+                ? _ClassicEmerald.c400
+                : onSurface.withValues(alpha: 0.45),
           );
         }),
       ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.emerald100,
+      dividerTheme: DividerThemeData(
+        color: isEmerald && !isDark
+            ? _ClassicEmerald.c100
+            : base.outline.withValues(alpha: isDark ? 0.12 : 0.25),
         thickness: 1,
         space: 0,
       ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((s) {
+          if (s.contains(WidgetState.selected)) return primary;
+          return null;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((s) {
+          if (s.contains(WidgetState.selected)) {
+            return primary.withValues(alpha: 0.35);
+          }
+          return null;
+        }),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: primary,
+        foregroundColor: onPrimary,
+      ),
+    );
+  }
+
+  static ThemeData light({Color? styleSeed, Color? accent}) {
+    final ctrl = ThemeController.instance;
+    return build(
+      brightness: Brightness.light,
+      styleSeed: styleSeed ?? ctrl.style.defaultSeed,
+      accent: accent ?? ctrl.customAccent,
+    );
+  }
+
+  static ThemeData dark({Color? styleSeed, Color? accent}) {
+    final ctrl = ThemeController.instance;
+    return build(
+      brightness: Brightness.dark,
+      styleSeed: styleSeed ?? ctrl.style.defaultSeed,
+      accent: accent ?? ctrl.customAccent,
     );
   }
 }

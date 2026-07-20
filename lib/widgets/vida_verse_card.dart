@@ -3,6 +3,7 @@
 class VidaVerseCard extends StatelessWidget {
   final String verseText;
   final String reference;
+  final bool saved;
   final VoidCallback? onShare;
   final VoidCallback? onSave;
 
@@ -10,6 +11,7 @@ class VidaVerseCard extends StatelessWidget {
     super.key,
     required this.verseText,
     required this.reference,
+    this.saved = false,
     this.onShare,
     this.onSave,
   });
@@ -64,7 +66,7 @@ class VidaVerseCard extends StatelessWidget {
                     fontSize: 10,
                     letterSpacing: 2,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.55),
+                    color: Colors.white.withValues(alpha: 0.85),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -82,7 +84,7 @@ class VidaVerseCard extends StatelessWidget {
                   '— $reference',
                   style: TextStyle(fontFamily: 'DM Sans', 
                     fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.6),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -95,8 +97,10 @@ class VidaVerseCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     _ActionChip(
-                      icon: Icons.bookmark_border_rounded,
-                      label: 'Guardar',
+                      icon: saved
+                          ? Icons.bookmark_rounded
+                          : Icons.bookmark_border_rounded,
+                      label: saved ? 'Guardado' : 'Guardar',
                       onTap: onSave,
                     ),
                   ],

@@ -1,10 +1,38 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../data/vida_algorithm.dart';
 import '../main.dart';
 import '../theme/app_theme.dart';
+import 'appearance_screen.dart';
 
-class PerfilScreen extends StatelessWidget {
+class PerfilScreen extends StatefulWidget {
   const PerfilScreen({super.key});
+
+  @override
+  State<PerfilScreen> createState() => _PerfilScreenState();
+}
+
+class _PerfilScreenState extends State<PerfilScreen> {
+  VidaAssignment? _vida;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+    VidaAlgorithm.assignmentChanges.addListener(_load);
+  }
+
+  @override
+  void dispose() {
+    VidaAlgorithm.assignmentChanges.removeListener(_load);
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    final a = await VidaAlgorithm.current();
+    if (!mounted) return;
+    setState(() => _vida = a);
+  }
 
   void _openUrl(String url) {
     launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
@@ -26,6 +54,7 @@ class PerfilScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
                 border: Border.all(color: AppColors.emerald200),
                 borderRadius: BorderRadius.circular(18),
               ),
@@ -36,7 +65,8 @@ class PerfilScreen extends StatelessWidget {
                     backgroundColor: cs.primary,
                     child: Text(
                       initial,
-                      style: TextStyle(fontFamily: 'DM Sans', 
+                      style: TextStyle(
+                        fontFamily: 'DM Sans',
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -44,12 +74,17 @@ class PerfilScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 14),
-                  Text(
-                    userName,
-                    style: TextStyle(fontFamily: 'DM Sans', 
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.emerald900,
+                  Expanded(
+                    child: Text(
+                      userName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'DM Sans',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.emerald900,
+                      ),
                     ),
                   ),
                 ],
@@ -60,7 +95,7 @@ class PerfilScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   colors: [
                     AppColors.emerald600,
                     AppColors.emerald700,
@@ -75,12 +110,13 @@ class PerfilScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.eco_rounded,
+                      Icon(Icons.eco_rounded,
                           size: 16, color: Colors.white70),
                       const SizedBox(width: 6),
                       Text(
                         'TU VERSÍCULO VIDA',
-                        style: TextStyle(fontFamily: 'DM Sans', 
+                        style: TextStyle(
+                          fontFamily: 'DM Sans',
                           fontSize: 10,
                           letterSpacing: 2,
                           fontWeight: FontWeight.w500,
@@ -91,10 +127,15 @@ class PerfilScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    'Próximamente',
+                    _vida == null
+                        ? 'Aún no descubierto'
+                        : '"${_vida!.text}"',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontFamily: 'Cormorant Garamond', 
-                      fontSize: 22,
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Cormorant Garamond',
+                      fontSize: 20,
                       fontStyle: FontStyle.italic,
                       color: Colors.white,
                       height: 1.4,
@@ -102,8 +143,9 @@ class PerfilScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Un versículo único para ti',
-                    style: TextStyle(fontFamily: 'DM Sans', 
+                    _vida?.reference ?? 'Ve a la pestaña VIDA',
+                    style: TextStyle(
+                      fontFamily: 'DM Sans',
                       fontSize: 12,
                       color: Colors.white.withValues(alpha: 0.6),
                     ),
@@ -112,15 +154,55 @@ class PerfilScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: AppColors.emerald200, width: 1),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.palette_rounded, color: AppColors.emerald600),
+                title: Text(
+                  'Apariencia',
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.emerald900,
+                  ),
+                ),
+                subtitle: Text(
+                  'Tema, modo claro/oscuro y color de acento',
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
+                    fontSize: 12,
+                    color: AppColors.emerald600,
+                  ),
+                ),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: AppColors.emerald400),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AppearanceScreen()),
+                ),
               ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(18),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.favorite_rounded, color: AppColors.emerald600),
+                title: Text(
+                  'Donar',
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.emerald900,
+                  ),
+                ),
+                subtitle: Text(
+                  'Apoya este proyecto',
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
+                    fontSize: 12,
+                    color: AppColors.emerald600,
+                  ),
+                ),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: AppColors.emerald400),
                 onTap: () => showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
@@ -129,7 +211,8 @@ class PerfilScreen extends StatelessWidget {
                     ),
                     title: Text(
                       'Donar',
-                      style: TextStyle(fontFamily: 'DM Sans', 
+                      style: TextStyle(
+                        fontFamily: 'DM Sans',
                         fontWeight: FontWeight.w600,
                         color: AppColors.emerald800,
                       ),
@@ -139,7 +222,8 @@ class PerfilScreen extends StatelessWidget {
                       'Actualmente no contamos con métodos de donación '
                       'disponibles, pero pronto los habilitaremos. '
                       '¡Vuelve más tarde!',
-                      style: TextStyle(fontFamily: 'DM Sans', 
+                      style: TextStyle(
+                        fontFamily: 'DM Sans',
                         fontSize: 14,
                         height: 1.5,
                         color: AppColors.emerald700,
@@ -150,59 +234,12 @@ class PerfilScreen extends StatelessWidget {
                         onPressed: () => Navigator.pop(ctx),
                         child: Text(
                           'Entendido',
-                          style: TextStyle(fontFamily: 'DM Sans', 
+                          style: TextStyle(
+                            fontFamily: 'DM Sans',
                             fontWeight: FontWeight.w600,
                             color: AppColors.emerald600,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppColors.emerald100,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.favorite_rounded,
-                          color: AppColors.emerald600,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Donar',
-                              style: TextStyle(fontFamily: 'DM Sans', 
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.emerald900,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Apoya este proyecto',
-                              style: TextStyle(fontFamily: 'DM Sans', 
-                                fontSize: 12,
-                                color: AppColors.emerald600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.chevron_right_rounded,
-                        color: AppColors.emerald400,
                       ),
                     ],
                   ),
@@ -231,10 +268,8 @@ class PerfilScreen extends StatelessWidget {
                   children: [
                     _creditLine(
                       'Desarrollado por',
-                      'Ángel Salinas Pérez',
+                      'WDG Technologies',
                       Icons.code_rounded,
-                      onTap: () =>
-                          _openUrl('https://github.com/AngelDev2343'),
                     ),
                     const Divider(height: 24),
                     _creditLine(
@@ -245,9 +280,18 @@ class PerfilScreen extends StatelessWidget {
                     const Divider(height: 24),
                     _creditLine(
                       'Biblia',
-                      'YouVersion',
+                      'Reina-Valera 1909 (dominio público)',
                       Icons.menu_book_rounded,
-                      onTap: () => _openUrl('https://www.bible.com'),
+                    ),
+                    const Divider(height: 24),
+                    _creditLine(
+                      'Evangelízate',
+                      'Ray Comfort (Living Waters), Billy Graham, '
+                      'Greg Laurie (Harvest), Camino de Romanos',
+                      Icons.campaign_outlined,
+                      onTap: () => _openUrl(
+                        'https://livingwaters.com/how-to-effectively-share-the-gospel/',
+                      ),
                     ),
                     const Divider(height: 24),
                     _creditLine(
@@ -258,7 +302,7 @@ class PerfilScreen extends StatelessWidget {
                     const Divider(height: 24),
                     _creditLine(
                       'Versión',
-                      '0.6.0 (Build)',
+                      '0.7 (Beta)',
                       Icons.info_outline_rounded,
                     ),
                     const Divider(height: 24),
@@ -307,17 +351,21 @@ class PerfilScreen extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      Text(
-                        value,
-                        style: TextStyle(fontFamily: 'DM Sans', 
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.emerald900,
+                      Expanded(
+                        child: Text(
+                          value,
+                          softWrap: true,
+                          style: TextStyle(
+                            fontFamily: 'DM Sans',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.emerald900,
+                          ),
                         ),
                       ),
                       if (onTap != null) ...[
                         const SizedBox(width: 6),
-                        const Icon(
+                        Icon(
                           Icons.open_in_new_rounded,
                           size: 12,
                           color: AppColors.emerald400,

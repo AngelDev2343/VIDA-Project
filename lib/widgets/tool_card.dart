@@ -38,7 +38,9 @@ class _ToolCardState extends State<ToolCard> {
         onTapCancel: () => setState(() => _pressed = false),
         child: Container(
           decoration: BoxDecoration(
-            color: widget.isActive ? AppColors.emerald50 : Colors.white,
+            color: widget.isActive
+                ? AppColors.emerald50
+                : cs.surfaceContainerLow,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: widget.isActive ? AppColors.emerald300 : AppColors.emerald200,
@@ -46,7 +48,7 @@ class _ToolCardState extends State<ToolCard> {
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.emerald900.withValues(alpha: 0.04),
+                color: cs.shadow.withValues(alpha: 0.08),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

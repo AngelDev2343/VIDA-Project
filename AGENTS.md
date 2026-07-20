@@ -2,7 +2,7 @@
 
 ## Version
 
-Current: `0.6.0+6` (see `pubspec.yaml`). Release APK at project root as `VIDA.apk`.
+Current: `0.7.0+8` — **0.7 (Beta)** (see `pubspec.yaml`). Release APK at project root as `VIDA.apk`.
 
 ## Commands
 
@@ -32,16 +32,17 @@ flutter build apk --release  # build release APK → build/app/outputs/flutter-a
 - **Placeholder tabs**: Tabs 2–4 (Biblia / VIDA / Perfil) are `_PlaceholderScreen` (private class in `main.dart`) — "En construcción" stubs.
 - **Widgets**: `lib/widgets/` — `vida_verse_card.dart`, `tool_card.dart`, `fade_in.dart`, `contra_pecado_card.dart`, `favorito_card.dart`.
 - **Data layer**: `lib/data/` — `phrases.dart` (7 daily phrases), `fav.dart` (50 `FavVerse` objects), `bible_study.dart` (CRUD via SharedPreferences JSON), `consejo.dart` + `consejos_data.dart` (situation advice), `gallery_images.dart` (20 image paths), `streak.dart` (`StreakService`), `evangelizate_data.dart` (6 categories parsed from `guide.md`).
-- **Theme**: `lib/theme/app_theme.dart` — single light theme, emerald palette (`AppColors`, shades 50–900). Uses `GoogleFonts.dmSans` + `GoogleFonts.cormorantGaramond`. No dark theme.
+- **Theme**: `lib/theme/app_theme.dart` + `theme_controller.dart` — System/Light/Dark, styles (Esmeralda, Océano, Ámbar, Pizarra), optional custom accent. `AppColors.*` bound from active `ColorScheme` in `MaterialApp.builder`. Appearance UI: `AppearanceScreen` from Perfil.
+- **Verse image**: `VerseImageScreen` — any RVR1909 verse + gallery photo, auto text contrast, share. Also from Biblia verse sheet and Home → Crear imagen.
 - **State**: `setState` only (no state management). User name in `_VidaAppState`.
 - **Navigation**: `NavigationBar` (M3) wrapped in `NavigationBarTheme` for icon colors + `IndexedStack` for 4 tabs (Inicio / Biblia / VIDA / Perfil). No router package.
-- **Biblia WebView**: `BibliaScreen` receives `isActive` prop — creates `WebViewController` **only** when tab is selected and disposes it when switching away (lazy init + memory cleanup). Uses `connectivity_plus` to detect offline.
+- **Biblia local**: `BibliaScreen` loads `assets/bible/rvr1909.json` (Reina-Valera 1909, public domain) via `BibleService` (`lib/data/bible_data.dart`). Offline reader with book/chapter pickers. Version selector keeps RVR1909 local; other versions deep-link to YouVersion app/store.
 - **Image editor**: `GalleryScreen` → `ImageEditorScreen` renders background + editable text overlay, captures via `RepaintBoundary.toImage()`, shares via `share_plus`.
 - **Bible study**: `EstudioBiblicoScreen` — CRUD list stored as JSON string in SharedPreferences, swipe-to-delete with `Dismissible`.
 - **Mapa Iglesias**: `MapaIglesiasScreen` (`lib/screens/mapa_iglesias_screen.dart`) — interactive map via `flutter_map` + OpenStreetMap/CartoDB tiles. Churches stored in Firestore `iglesias` collection with `asistentes` array for attendance tracking. "Yo asisto aquí" button updates via real-time `snapshots()` stream. Search by name/city, add church with Nominatim address search, Google Maps directions.
 - **Community**: `CommunityScreen` (`lib/screens/community_screen.dart`) — Firebase Auth login/register, post feed from `community_posts` collection, like/unlike, comments via nested subcollection.
 - **Dependencies** (from `pubspec.yaml`): `google_fonts`, `flutter_svg` (unused in Dart code), `cupertino_icons`, `shared_preferences`, `home_widget`, `webview_flutter`, `connectivity_plus`, `share_plus`, `path_provider`, `url_launcher`, `firebase_core`, `cloud_firestore`, `firebase_auth`, `flutter_map`, `latlong2`, `geolocator`. Dev: `flutter_test`, `flutter_lints`.
-- **Evangelízate**: `EvangelizateScreen` (`lib/screens/evangelizate_screen.dart`) — intro description + 2-column grid of 6 category `ToolCard`s (short 1‑line subtitles). `EvangelizateDetalleScreen` (`lib/screens/evangelizate_detalle_screen.dart`) shows sections, explanations, tips, and Bible verses for each category. Content sourced from `guide.md` at project root.
+- **Evangelízate**: `EvangelizateScreen` + `EvangelizateDetalleScreen` — 6 categories (obras, sin Cristo, ateo, agnóstico, métodos, consejos) with attributed sections. Content in `lib/data/evangelizate_data.dart` drawn from Ray Comfort/Living Waters, Billy Graham (bridge), Greg Laurie/Harvest, and the Romans Road; sources listed in-screen and in Perfil credits.
 - **Quiz**: `QuizScreen` (`lib/screens/quiz_screen.dart`) loads `games/quiz/index.html` **locally** via `DefaultAssetBundle` + `loadHtmlString` (no internet needed). All CSS/JS is inline in the HTML. Google Fonts `<link>` removed to avoid offline fetch errors. WebView only works on Android/iOS, not Flutter Web.
 - **`withValues(alpha:)` not `withOpacity`**: Codebase uses `Colors.white.withValues(alpha: 0.07)` — `withOpacity` is not used anywhere (deprecated in newer Flutter).
 - **Color contrast**: All text on white uses emerald600 or darker. AppBar icons use `emerald700`. NavBar indicator is `emerald100` with selected icons in `emerald700`, unselected in `emerald400`.
@@ -62,17 +63,17 @@ Android widget code lives in `android/app/src/main/kotlin/com/vida/project/` —
 - **Toggle**: `FavoritoScreen` (`lib/screens/favorito_screen.dart`) — switch on/off + scrollable list of 50 verses, saved to `SharedPreferences` key `favorito`.
 - **Verse data**: `lib/data/fav.dart` — 50 `FavVerse` objects (referencia + versiculo).
 - **Native provider**: `FavoritoWidgetProvider` — same pattern as ContraPecado — `setImageViewResource` + `clipToOutline`. If verse is >80 chars, text size drops from 13sp to 12sp.
-- **Preview card**: `favorito_card.dart` (`lib/widgets/`) and `_previewCard()` in `FavoritoScreen` use `Stack` + `Image.asset('widget-fav.png')` + semi‑transparent white container overlay.
-- **Image**: `widget-fav.png` (570×570) in both `res/drawable-nodpi/` and Flutter assets.
+- **Preview card**: `favorito_card.dart` (`lib/widgets/`) and `_previewCard()` in `FavoritoScreen` use `Stack` + default `widget-fav.png` or custom `Image.file` + semi‑transparent white container overlay.
+- **Image**: Default `widget-fav.png` (570×570) in both `res/drawable-nodpi/` and Flutter assets. Custom background: user picks via `image_picker`, saved as `favorito_bg_*.jpg` under app support dir; path in `fav_bg_path`. Luminance sampled in Dart → `fav_dark_bg` (white text on dark photos, black on light). Native loads custom bg as a **scaled** bitmap (≤480px).
 
 ## Widget native — shared rules
 
-- **Never use `setImageViewBitmap`** in widget providers. Bitmaps are serialised through Binder (1 MB limit) → `TransactionTooLargeException` → "Problem loading widget". Always use `setImageViewResource` + `android:clipToOutline="true"` on the `ImageView` in the layout XML.
+- **Prefer `setImageViewResource`** in widget providers. Full-size `setImageViewBitmap` hits the Binder ~1 MB limit → `TransactionTooLargeException`. Exception: Favorito custom backgrounds may use **heavily downscaled** bitmaps (≤480px, `RGB_565`) so the parcel stays small; never pass full-resolution gallery images.
 - **Rounded corners**: `res/drawable/contra_pecado_bg.xml` and `favorito_bg.xml` are `<shape>` with `<corners android:radius="18dp" />` (no fill). Used as both the `ImageView` background and the `FrameLayout` background for proper clipping.
 - **Widget info XMLs**: `res/xml/contra_pecado_widget_info.xml` and `favorito_widget_info.xml` — min 294×146 dp, 24 h refresh.
 - **Manifest receivers**: Both providers declared in `AndroidManifest.xml` with `.ContraPecadoWidgetProvider` / `.FavoritoWidgetProvider`.
 - **Pin‑duplication guard**: `ContraPecadoScreen._toggle` checks `first_launch_pin` before calling `requestPinWidget` to avoid placing a second widget if already pinned on first launch. `_repin` always requests a pin (user explicitly wants to re‑add).
-- **iOS**: Both widgets need manual Xcode extension target setup (App Groups, same bundle‑ID suffix).
+- **iOS**: Widget sources in `ios/VidaWidgets/` (`ContraPecadoWidget` + `FavoritoWidget` in one WidgetBundle). App Group `group.com.vida.project`. One-time Xcode target setup: see `ios/WIDGETS.md`.
 
 ## Resources
 

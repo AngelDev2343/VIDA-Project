@@ -81,9 +81,7 @@ class _TestimoniosScreenState extends State<TestimoniosScreen> {
       appBar: AppBar(
         title: Text('Testimonios',
             style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-      ),
+                      ),
       body: _loading
           ? Center(child: CircularProgressIndicator(color: AppColors.emerald600))
           : RefreshIndicator(
@@ -374,6 +372,12 @@ class _TestimonioFormScreenState extends State<_TestimonioFormScreen> {
     }
 
     final nombre = _nombreCtrl.text.trim();
+    if (!_anonimo && nombre.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Escribe tu nombre o marca anónimo')),
+      );
+      return;
+    }
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
@@ -418,9 +422,7 @@ class _TestimonioFormScreenState extends State<_TestimonioFormScreen> {
       appBar: AppBar(
         title: Text(isEditing ? 'Editar testimonio' : 'Nuevo testimonio',
             style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        actions: [
+                        actions: [
           TextButton(
             onPressed: _saving ? null : _save,
             child: _saving

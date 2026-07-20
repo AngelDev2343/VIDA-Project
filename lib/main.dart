@@ -1,25 +1,37 @@
-﻿import 'package:firebase_auth/firebase_auth.dart';
+﻿import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/streak.dart';
 import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme_controller.dart';
 import 'screens/biblia_screen.dart';
+import 'screens/favorito_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/perfil_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/vida_screen.dart';
 
+final GlobalKey<NavigatorState> vidaNavigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+  await ThemeController.instance.load();
   await Firebase.initializeApp();
   if (FirebaseAuth.instance.currentUser == null) {
     await FirebaseAuth.instance.signInAnonymously();
   }
   await NotificationService.init();
-  NotificationService.requestPermission();
+  await NotificationService.requestPermission();
+  await NotificationService.scheduleAwayReminder();
   HomeWidget.setAppGroupId('group.com.vida.project');
   runApp(const VidaApp());
 }
@@ -38,68 +50,157 @@ class VidaApp extends StatefulWidget {
 class _VidaAppState extends State<VidaApp> {
   bool _ready = false;
   String _userName = '';
+  Uri? _pendingWidgetUri;
+  StreamSubscription<Uri?>? _widgetClickSub;
 
   String get userName => _userName;
 
   @override
   void initState() {
     super.initState();
+    ThemeController.instance.addListener(_onThemeChanged);
     _loadUser();
+    HomeWidget.initiallyLaunchedFromHomeWidget().then(_handleWidgetUri);
+    _widgetClickSub = HomeWidget.widgetClicked.listen(_handleWidgetUri);
+  }
+
+  void _onThemeChanged() {
+    final c = ThemeController.instance;
+    // Sync soft fills before AppearanceScreen (and others) rebuild.
+    AppColors.applySeeds(styleSeed: c.styleSeed, accent: c.accentColor);
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    ThemeController.instance.removeListener(_onThemeChanged);
+    _widgetClickSub?.cancel();
+    super.dispose();
+  }
+
+  void _handleWidgetUri(Uri? uri) {
+    if (uri == null) return;
+    final opensFavorito =
+        uri.host == 'favorito' || uri.toString().contains('favorito');
+    if (!opensFavorito) return;
+
+    if (!_ready || _userName.isEmpty) {
+      _pendingWidgetUri = uri;
+      return;
+    }
+    _openFavoritoFromWidget();
+  }
+
+  void _openFavoritoFromWidget() {
+    final nav = vidaNavigatorKey.currentState;
+    if (nav == null) return;
+    nav.push(
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(name: 'favorito'),
+        builder: (_) => const FavoritoScreen(),
+      ),
+    );
   }
 
   Future<void> _loadUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    _userName = prefs.getString('user_name') ?? '';
+    // Resolve the name first so the UI never waits on plugins (notifications /
+    // HomeWidget can hang in tests or on restricted devices).
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _userName = prefs.getString('user_name') ?? '';
+    } catch (_) {}
 
-    final daysAway = await NotificationService.daysSinceLastOpen();
-    if (daysAway >= 2 && await NotificationService.shouldShowToday()) {
-      NotificationService.showMotivational();
-    }
+    if (mounted) setState(() => _ready = true);
 
-    await StreakService.checkAndUpdate();
-
-    if (prefs.containsKey('contra_pecado')) {
-      try {
-        await HomeWidget.saveWidgetData(
-            'contra_pecado', prefs.getBool('contra_pecado'));
-        await HomeWidget.updateWidget(
-          androidName: 'ContraPecadoWidgetProvider',
-          iOSName: 'ContraPecadoWidget',
-        );
-      } catch (_) {}
-    }
-
-    if (prefs.containsKey('favorito')) {
-      try {
-        await HomeWidget.saveWidgetData(
-            'favorito', prefs.getBool('favorito'));
-        await HomeWidget.updateWidget(
-          androidName: 'FavoritoWidgetProvider',
-          iOSName: 'FavoritoWidget',
-        );
-      } catch (_) {}
-    }
-
-    final firstPin = prefs.getBool('first_launch_pin') ?? false;
-    if (!firstPin) {
-      await prefs.setBool('first_launch_pin', true);
-      HomeWidget.isRequestPinWidgetSupported().then((s) {
-        if (s == true) HomeWidget.requestPinWidget(androidName: 'ContraPecadoWidgetProvider');
+    final pending = _pendingWidgetUri;
+    if (pending != null && _userName.isNotEmpty) {
+      _pendingWidgetUri = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _handleWidgetUri(pending);
       });
     }
-    setState(() => _ready = true);
+
+    unawaited(_postLaunchTasks());
+  }
+
+  Future<void> _postLaunchTasks() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      try {
+        final daysAway = await NotificationService.daysSinceLastOpen();
+        if (daysAway >= 2 && await NotificationService.shouldShowToday()) {
+          await NotificationService.showMotivational();
+        }
+        await StreakService.checkAndUpdate();
+        await NotificationService.scheduleAwayReminder();
+      } catch (_) {}
+
+      if (prefs.containsKey('contra_pecado')) {
+        try {
+          await HomeWidget.saveWidgetData(
+              'contra_pecado', prefs.getBool('contra_pecado'));
+          await HomeWidget.updateWidget(
+            androidName: 'ContraPecadoWidgetProvider',
+            iOSName: 'ContraPecadoWidget',
+          );
+        } catch (_) {}
+      }
+
+      if (prefs.containsKey('favorito')) {
+        try {
+          await HomeWidget.saveWidgetData(
+              'favorito', prefs.getBool('favorito'));
+          await HomeWidget.updateWidget(
+            androidName: 'FavoritoWidgetProvider',
+            iOSName: 'FavoritoWidget',
+          );
+        } catch (_) {}
+      }
+
+      final firstPin = prefs.getBool('first_launch_pin') ?? false;
+      if (!firstPin) {
+        await prefs.setBool('first_launch_pin', true);
+        final supported = await HomeWidget.isRequestPinWidgetSupported();
+        if (supported == true) {
+          await HomeWidget.requestPinWidget(
+              androidName: 'ContraPecadoWidgetProvider');
+        }
+      }
+    } catch (_) {}
   }
 
   void setUserName(String name) {
     setState(() => _userName = name);
+    final pending = _pendingWidgetUri;
+    if (pending != null && name.isNotEmpty) {
+      _pendingWidgetUri = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _handleWidgetUri(pending);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeCtrl = ThemeController.instance;
+    final styleSeed = themeCtrl.styleSeed;
+    final accent = themeCtrl.customAccent;
     return MaterialApp(
       title: 'VIDA',
+      navigatorKey: vidaNavigatorKey,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
+      theme: AppTheme.light(styleSeed: styleSeed, accent: accent),
+      darkTheme: AppTheme.dark(styleSeed: styleSeed, accent: accent),
+      themeMode: themeCtrl.themeMode,
+      builder: (context, child) {
+        AppColors.bind(
+          Theme.of(context).colorScheme,
+          styleSeed: styleSeed,
+          accent: themeCtrl.accentColor,
+        );
+        return child ?? const SizedBox.shrink();
+      },
       home: _buildHome(),
     );
   }
@@ -142,7 +243,7 @@ class _AppShellState extends State<AppShell> {
             ),
             title: Row(
               children: [
-                const Icon(Icons.eco_rounded,
+                Icon(Icons.eco_rounded,
                     color: AppColors.emerald600, size: 24),
                 const SizedBox(width: 8),
                 Text('VIDA',
@@ -196,7 +297,7 @@ class _AppShellState extends State<AppShell> {
         children: pages,
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
             top: BorderSide(color: AppColors.emerald200, width: 1),
           ),

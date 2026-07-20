@@ -64,7 +64,7 @@ class ConsejoDetalleScreen extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.format_quote_rounded,
+                  Icon(Icons.format_quote_rounded,
                       size: 20, color: AppColors.emerald400),
                   const SizedBox(width: 10),
                   Expanded(

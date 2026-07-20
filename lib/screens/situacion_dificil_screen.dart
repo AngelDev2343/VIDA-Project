@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import '../data/consejo.dart';
 import '../data/consejos_data.dart';
+import '../data/vida_signals.dart';
 import '../theme/app_theme.dart';
 import 'consejo_detalle_screen.dart';
 
@@ -68,11 +69,11 @@ class _SituacionDificilScreenState extends State<SituacionDificilScreen> {
               onChanged: (v) => setState(() => _searchQuery = v),
               decoration: InputDecoration(
                 hintText: 'Buscar consejos…',
-                prefixIcon: const Icon(Icons.search_rounded,
+                prefixIcon: Icon(Icons.search_rounded,
                     size: 20, color: AppColors.emerald400),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear_rounded,
+                        icon: Icon(Icons.clear_rounded,
                             size: 18, color: AppColors.emerald400),
                         onPressed: () {
                           _searchCtrl.clear();
@@ -141,13 +142,16 @@ class _SituacionDificilScreenState extends State<SituacionDificilScreen> {
                       final c = results[i];
                       return _ConsejoCard(
                         consejo: c,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                ConsejoDetalleScreen(consejo: c),
-                          ),
-                        ),
+                        onTap: () {
+                          VidaSignals.trackCategory(c.category);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  ConsejoDetalleScreen(consejo: c),
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -173,7 +177,7 @@ class _ConsejoCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.emerald200, width: 1),
             boxShadow: [
@@ -206,7 +210,7 @@ class _ConsejoCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.chevron_right_rounded,
+                  Icon(Icons.chevron_right_rounded,
                       size: 18, color: AppColors.emerald400),
                 ],
               ),

@@ -203,7 +203,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded,
+                    Icon(Icons.warning_amber_rounded,
                         color: AppColors.amber400, size: 22),
                     const SizedBox(width: 10),
                     Expanded(
@@ -232,7 +232,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
                     const SizedBox(width: 8),
                     FilledButton.tonalIcon(
                       onPressed: _repin,
-                      icon: const Icon(Icons.add_circle_outline_rounded,
+                      icon: Icon(Icons.add_circle_outline_rounded,
                           size: 18),
                       label: const Text('Añadir'),
                       style: FilledButton.styleFrom(
@@ -299,7 +299,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.info_outline_rounded,
+                  Icon(Icons.info_outline_rounded,
                       size: 18, color: AppColors.emerald500),
                   const SizedBox(width: 10),
                   Expanded(

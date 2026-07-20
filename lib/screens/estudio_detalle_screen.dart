@@ -74,11 +74,11 @@ class _EstudioDetalleScreenState extends State<EstudioDetalleScreen> {
         title: Text(s.name),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_rounded),
+            icon: Icon(Icons.edit_rounded),
             onPressed: _edit,
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline_rounded),
+            icon: Icon(Icons.delete_outline_rounded),
             onPressed: _delete,
           ),
         ],
@@ -98,7 +98,7 @@ class _EstudioDetalleScreenState extends State<EstudioDetalleScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(Icons.calendar_today_rounded,
+              Icon(Icons.calendar_today_rounded,
                   size: 14, color: AppColors.emerald500),
               const SizedBox(width: 6),
               Text(
@@ -119,7 +119,7 @@ class _EstudioDetalleScreenState extends State<EstudioDetalleScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.menu_book_rounded,
+                Icon(Icons.menu_book_rounded,
                     size: 18, color: AppColors.emerald700),
                 const SizedBox(width: 10),
                 Expanded(

@@ -11,8 +11,9 @@ class GalleryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Galería',
-          style: TextStyle(fontFamily: 'Cormorant Garamond', 
+          'Plantillas',
+          style: TextStyle(
+            fontFamily: 'Cormorant Garamond',
             fontSize: 28,
             fontWeight: FontWeight.w600,
             color: AppColors.emerald600,

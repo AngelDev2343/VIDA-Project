@@ -1,6 +1,8 @@
 ﻿import 'package:flutter/material.dart';
+import '../data/vida_signals.dart';
 import '../theme/app_theme.dart';
 import '../theme/transitions.dart';
+import 'arcade_games.dart';
 import 'quiz_screen.dart';
 import 'riega_screen.dart';
 
@@ -18,7 +20,46 @@ class MiniArcadeScreen extends StatelessWidget {
       title: 'Riega y crece',
       subtitle: 'Cultiva tu fe',
     ),
+    _GameData(
+      icon: Icons.grid_view_rounded,
+      title: 'Memorama',
+      subtitle: 'Empareja versículos',
+    ),
+    _GameData(
+      icon: Icons.sort_by_alpha_rounded,
+      title: 'Ordena el versículo',
+      subtitle: 'Palabras mezcladas',
+    ),
+    _GameData(
+      icon: Icons.rule_rounded,
+      title: 'Verdadero / Falso',
+      subtitle: 'Pon a prueba lo que sabes',
+    ),
+    _GameData(
+      icon: Icons.category_rounded,
+      title: 'Trivia',
+      subtitle: 'Por categorías',
+    ),
+    _GameData(
+      icon: Icons.hiking_rounded,
+      title: 'Camino del discípulo',
+      subtitle: 'Elige con sabiduría',
+    ),
   ];
+
+  void _open(BuildContext context, int i) {
+    VidaSignals.trackEvent('arcade');
+    final Widget page = switch (i) {
+      0 => const QuizScreen(),
+      1 => const RiegaScreen(),
+      2 => const MemoramaScreen(),
+      3 => const OrdenaVersiculoScreen(),
+      4 => const VerdaderoFalsoScreen(),
+      5 => const TriviaCategoriasScreen(),
+      _ => const CaminoDiscipuloScreen(),
+    };
+    Navigator.push(context, slideUpRoute(page));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,23 +67,18 @@ class MiniArcadeScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Mini Arcade')),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 0.85,
-          children: [
-            _GameCard(
-              data: _games[0],
-              onTap: () =>
-                  Navigator.push(context, slideUpRoute(const QuizScreen())),
-            ),
-            _GameCard(
-              data: _games[1],
-              onTap: () =>
-                  Navigator.push(context, slideUpRoute(const RiegaScreen())),
-            ),
-          ],
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.85,
+          ),
+          itemCount: _games.length,
+          itemBuilder: (_, i) => _GameCard(
+            data: _games[i],
+            onTap: () => _open(context, i),
+          ),
         ),
       ),
     );
@@ -71,7 +107,7 @@ class _GameCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppColors.emerald200, width: 1),
           boxShadow: [
@@ -82,40 +118,39 @@ class _GameCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.emerald100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(data.icon, size: 24, color: AppColors.emerald600),
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: AppColors.emerald100,
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(height: 12),
-              Text(
-                data.title,
-                style: TextStyle(fontFamily: 'DM Sans', 
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.emerald900,
-                ),
+              child: Icon(data.icon, color: AppColors.emerald700),
+            ),
+            const Spacer(),
+            Text(
+              data.title,
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+                color: AppColors.emerald900,
               ),
-              const SizedBox(height: 2),
-              Text(
-                data.subtitle,
-                style: TextStyle(fontFamily: 'DM Sans', 
-                  fontSize: 11,
-                  color: AppColors.emerald600,
-                ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              data.subtitle,
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                fontSize: 12,
+                color: AppColors.emerald600,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

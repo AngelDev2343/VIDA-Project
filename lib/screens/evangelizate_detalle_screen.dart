@@ -29,6 +29,7 @@ class EvangelizateDetalleScreen extends StatelessWidget {
     final hasExplanation = section.explanation.isNotEmpty;
     final hasVerses = section.verses.isNotEmpty;
     final hasTips = section.tips.isNotEmpty;
+    final hasSource = section.source.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +102,7 @@ class EvangelizateDetalleScreen extends StatelessWidget {
             final verse = section.verses[j];
             return Padding(
               padding: EdgeInsets.only(
-                bottom: j < section.verses.length - 1 ? 10 : 24,
+                bottom: j < section.verses.length - 1 ? 10 : 0,
               ),
               child: Container(
                 width: double.infinity,
@@ -153,6 +154,31 @@ class EvangelizateDetalleScreen extends StatelessWidget {
               ),
             );
           }),
+        if (hasSource)
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 28),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline_rounded,
+                    size: 14, color: AppColors.emerald500),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Fuente: ${section.source}',
+                    style: TextStyle(
+                      fontFamily: 'DM Sans',
+                      fontSize: 11,
+                      height: 1.35,
+                      color: AppColors.emerald600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          const SizedBox(height: 24),
         if (!hasTitle && !hasExplanation && !hasVerses && !hasTips)
           const SizedBox.shrink(),
       ],

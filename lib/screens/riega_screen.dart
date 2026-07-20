@@ -67,7 +67,7 @@ class _RiegaScreenState extends State<RiegaScreen> {
       appBar: AppBar(
         title: const Text('Riega y Crece'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -77,7 +77,7 @@ class _RiegaScreenState extends State<RiegaScreen> {
             Column(
               children: [
                 if (_loading)
-                  const LinearProgressIndicator(
+                  LinearProgressIndicator(
                     color: AppColors.emerald600,
                     backgroundColor: AppColors.emerald100,
                   ),
@@ -86,7 +86,7 @@ class _RiegaScreenState extends State<RiegaScreen> {
             ),
             if (_error)
               Container(
-                color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),
@@ -113,7 +113,7 @@ class _RiegaScreenState extends State<RiegaScreen> {
                             });
                             _loadLocalHtml();
                           },
-                          icon: const Icon(Icons.refresh_rounded),
+                          icon: Icon(Icons.refresh_rounded),
                           label: const Text('Reintentar'),
                         ),
                       ],

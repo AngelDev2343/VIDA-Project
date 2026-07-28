@@ -202,6 +202,7 @@ class _FavoritoScreenState extends State<FavoritoScreen> {
   Future<void> _toggle(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('favorito', value);
+    if (!mounted) return;
     setState(() {
       _enabled = value;
       _widgetMissing = false;

@@ -12,6 +12,7 @@ class NotificationService {
   static const _motivationalId = 1001;
   static const _hour = 10;
   static const _minute = 0;
+  static const _kAwayEnabled = 'notif_away_enabled';
 
   static const _motivationalMessages = [
     'Dios no se ha olvidado de ti. Vuelve a casa, Él te espera.',
@@ -86,6 +87,8 @@ class NotificationService {
 
     await _plugin.cancel(id: _motivationalId);
 
+    if (!await areAwayRemindersEnabled()) return;
+
     final when = _nextAwaySlot();
     final message = _messageFor(when);
 
@@ -103,6 +106,38 @@ class NotificationService {
     } catch (_) {}
   }
 
+  static Future<bool> areAwayRemindersEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_kAwayEnabled) ?? true;
+  }
+
+  static Future<void> setAwayRemindersEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kAwayEnabled, enabled);
+    if (enabled) {
+      await requestPermission();
+      await scheduleAwayReminder();
+    } else if (_initialized) {
+      await _plugin.cancel(id: _motivationalId);
+    }
+  }
+
+  static Future<void> showMotivational() async {
+    if (!await areAwayRemindersEnabled()) return;
+    if (!_initialized) await init();
+    final message = _messageFor(DateTime.now());
+
+    await _plugin.show(
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title: 'VIDA',
+      body: message,
+      notificationDetails: _details,
+    );
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_notification_date', _today());
+  }
+
   static Future<AndroidScheduleMode> _androidScheduleMode() async {
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
@@ -116,21 +151,6 @@ class NotificationService {
       }
     } catch (_) {}
     return AndroidScheduleMode.inexactAllowWhileIdle;
-  }
-
-  static Future<void> showMotivational() async {
-    if (!_initialized) await init();
-    final message = _messageFor(DateTime.now());
-
-    await _plugin.show(
-      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      title: 'VIDA',
-      body: message,
-      notificationDetails: _details,
-    );
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('last_notification_date', _today());
   }
 
   static Future<int> daysSinceLastOpen() async {

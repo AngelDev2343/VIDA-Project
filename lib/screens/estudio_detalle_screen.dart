@@ -53,6 +53,7 @@ class _EstudioDetalleScreenState extends State<EstudioDetalleScreen> {
     );
     if (result == true && mounted) {
       final studies = await BibleStudyService.getAll();
+      if (!mounted) return;
       final updated =
           studies.where((s) => s.id == _study.id).firstOrNull;
       if (updated != null) {

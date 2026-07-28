@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import '../data/vida_verse_bank.dart';
 import '../theme/app_theme.dart';
@@ -68,6 +66,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
     _second = i;
     _lock = true;
     await Future<void>.delayed(const Duration(milliseconds: 650));
+    if (!mounted) return;
     final a = _cards[_first!];
     final b = _cards[_second!];
     if (a.pairId == b.pairId) {
@@ -240,7 +239,9 @@ class _OrdenaVersiculoScreenState extends State<OrdenaVersiculoScreen> {
       ),
     );
     if (ok) {
-      Future<void>.delayed(const Duration(milliseconds: 700), _newRound);
+      Future<void>.delayed(const Duration(milliseconds: 700), () {
+        if (mounted) _newRound();
+      });
     }
   }
 
@@ -816,6 +817,7 @@ class _TriviaQ {
 
 class _TriviaCategoriasScreenState extends State<TriviaCategoriasScreen> {
   static const _roundSize = 10;
+  bool _busy = false;
 
   static const _all = <_TriviaQ>[
     // —— Personajes ——
@@ -1060,6 +1062,7 @@ class _TriviaCategoriasScreenState extends State<TriviaCategoriasScreen> {
 
   void _pick(String cat) {
     setState(() {
+      _busy = false;
       _category = cat;
       final pool = cat == _mixLabel
           ? (List.of(_all)..shuffle())
@@ -1079,13 +1082,19 @@ class _TriviaCategoriasScreenState extends State<TriviaCategoriasScreen> {
   }
 
   void _answer(int opt) {
+    if (_busy) return;
+    _busy = true;
     if (opt == _qs[_i].correct) _score++;
     if (_i < _qs.length - 1) {
-      setState(() => _i++);
+      setState(() {
+        _i++;
+        _busy = false;
+      });
     } else {
       final cat = _category!;
       showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (ctx) => AlertDialog(
           title: const Text('Fin'),
           content: Text('Puntuación: $_score / ${_qs.length}'),
@@ -1100,7 +1109,10 @@ class _TriviaCategoriasScreenState extends State<TriviaCategoriasScreen> {
             TextButton(
               onPressed: () {
                 Navigator.pop(ctx);
-                setState(() => _category = null);
+                setState(() {
+                  _category = null;
+                  _busy = false;
+                });
               },
               child: const Text('Categorías'),
             ),
@@ -1473,20 +1485,27 @@ class _CaminoDiscipuloScreenState extends State<CaminoDiscipuloScreen> {
   }
 
   void _choose(_Choice c) {
+    var shouldEndWin = false;
+    var shouldEndLose = false;
     setState(() {
       _faith += c.faithDelta;
       _heart += c.heartDelta;
       if (_heart <= 0) {
-        _end(false);
+        shouldEndLose = true;
         return;
       }
       if (_step >= _path.length - 1) {
-        _end(true);
+        shouldEndWin = true;
         return;
       }
       _step++;
       _reshuffleChoices();
     });
+    if (shouldEndLose || shouldEndWin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _end(shouldEndWin);
+      });
+    }
   }
 
   void _end(bool won) {
@@ -1579,6 +1598,266 @@ class _CaminoDiscipuloScreenState extends State<CaminoDiscipuloScreen> {
                 ),
                 onPressed: () => _choose(c),
                 child: Text(c.label, textAlign: TextAlign.center),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────── ¿Quién lo dijo? ───────────────
+
+class QuienLoDijoScreen extends StatefulWidget {
+  const QuienLoDijoScreen({super.key});
+
+  @override
+  State<QuienLoDijoScreen> createState() => _QuienLoDijoScreenState();
+}
+
+class _QuienQ {
+  final String quote;
+  final String reference;
+  final List<String> options;
+  final int correct;
+  const _QuienQ(this.quote, this.reference, this.options, this.correct);
+}
+
+class _QuienLoDijoScreenState extends State<QuienLoDijoScreen> {
+  static const _roundSize = 10;
+
+  static final _pool = <_QuienQ>[
+    const _QuienQ(
+      '“Yo soy el camino, y la verdad, y la vida.”',
+      'Juan 14:6',
+      ['Pedro', 'Jesús', 'Pablo', 'Moisés'],
+      1,
+    ),
+    const _QuienQ(
+      '“Jehová es mi pastor; nada me faltará.”',
+      'Salmo 23:1',
+      ['Salomón', 'David', 'Isaías', 'Job'],
+      1,
+    ),
+    const _QuienQ(
+      '“Todo lo puedo en Cristo que me fortalece.”',
+      'Filipenses 4:13',
+      ['Pablo', 'Pedro', 'Juan', 'Santiago'],
+      0,
+    ),
+    const _QuienQ(
+      '“En el principio creó Dios los cielos y la tierra.”',
+      'Génesis 1:1',
+      ['Escritura (Moisés)', 'David', 'Elías', 'Daniel'],
+      0,
+    ),
+    const _QuienQ(
+      '“Antes que Abraham fuese, yo soy.”',
+      'Juan 8:58',
+      ['Juan el Bautista', 'Jesús', 'Nicodemo', 'Felipe'],
+      1,
+    ),
+    const _QuienQ(
+      '“Arrepentíos, porque el reino de los cielos se ha acercado.”',
+      'Mateo 3:2',
+      ['Jesús', 'Juan el Bautista', 'Pedro', 'Andrés'],
+      1,
+    ),
+    const _QuienQ(
+      '“Aun si él me matare, en él esperaré.”',
+      'Job 13:15',
+      ['Job', 'José', 'Daniel', 'Habacuc'],
+      0,
+    ),
+    const _QuienQ(
+      '“He aquí la sierva del Señor; hágase conmigo conforme a tu palabra.”',
+      'Lucas 1:38',
+      ['Isabel', 'María', 'Ana', 'Marta'],
+      1,
+    ),
+    const _QuienQ(
+      '“¿Quién eres, Señor? … ¿Qué quieres que yo haga?”',
+      'Hechos 9:5-6',
+      ['Pedro', 'Saulo (Pablo)', 'Esteban', 'Ananías'],
+      1,
+    ),
+    const _QuienQ(
+      '“Escogeos hoy a quién sirváis… pero yo y mi casa serviremos a Jehová.”',
+      'Josué 24:15',
+      ['Josué', 'Caleb', 'Gedeón', 'Samuel'],
+      0,
+    ),
+    const _QuienQ(
+      '“El Señor me ha ungido… a predicar buenas nuevas a los abatidos.”',
+      'Isaías 61:1',
+      ['Jeremías', 'Isaías', 'Ezequiel', 'Malaquías'],
+      1,
+    ),
+    const _QuienQ(
+      '“Señor, ¿a quién iremos? Tú tienes palabras de vida eterna.”',
+      'Juan 6:68',
+      ['Tomás', 'Pedro', 'Juan', 'Andrés'],
+      1,
+    ),
+    const _QuienQ(
+      '“He peleado la buena batalla, he acabado la carrera, he guardado la fe.”',
+      '2 Timoteo 4:7',
+      ['Pablo', 'Pedro', 'Timoteo', 'Tito'],
+      0,
+    ),
+    const _QuienQ(
+      '“He aquí el Cordero de Dios, que quita el pecado del mundo.”',
+      'Juan 1:29',
+      ['Pedro', 'Juan el Bautista', 'Andrés', 'Felipe'],
+      1,
+    ),
+    const _QuienQ(
+      '“Si Jehová no edificare la casa, en vano trabajan los que la edifican.”',
+      'Salmo 127:1',
+      ['David', 'Salomón', 'Asaf', 'Moisés'],
+      1,
+    ),
+  ];
+
+  late List<_QuienQ> _qs;
+  int _i = 0;
+  int _score = 0;
+  bool _busy = false;
+  int? _picked;
+
+  @override
+  void initState() {
+    super.initState();
+    _deal();
+  }
+
+  void _deal() {
+    final pool = List<_QuienQ>.from(_pool)..shuffle();
+    setState(() {
+      _qs = pool.take(_roundSize).map((q) {
+        final opts = List<String>.from(q.options);
+        final correctText = opts[q.correct];
+        opts.shuffle();
+        return _QuienQ(q.quote, q.reference, opts, opts.indexOf(correctText));
+      }).toList();
+      _i = 0;
+      _score = 0;
+      _busy = false;
+      _picked = null;
+    });
+  }
+
+  Future<void> _answer(int opt) async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _picked = opt;
+    });
+    final ok = opt == _qs[_i].correct;
+    if (ok) _score++;
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+    if (!mounted) return;
+    if (_i < _qs.length - 1) {
+      setState(() {
+        _i++;
+        _busy = false;
+        _picked = null;
+      });
+    } else {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Fin de la ronda'),
+          content: Text('Aciertos: $_score / ${_qs.length}'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _deal();
+              },
+              child: const Text('Otra ronda'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                Navigator.pop(context);
+              },
+              child: const Text('Salir'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final q = _qs[_i];
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('¿Quién lo dijo?  (${_i + 1}/${_qs.length})'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            LinearProgressIndicator(
+              value: (_i + 1) / _qs.length,
+              color: AppColors.emerald600,
+              backgroundColor: AppColors.emerald100,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Puntos: $_score',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                fontWeight: FontWeight.w600,
+                color: AppColors.emerald700,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              q.quote,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Cormorant Garamond',
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                height: 1.35,
+                color: AppColors.emerald900,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              q.reference,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                fontSize: 13,
+                color: AppColors.emerald600,
+              ),
+            ),
+            const Spacer(),
+            for (var i = 0; i < q.options.length; i++) ...[
+              FilledButton.tonal(
+                style: FilledButton.styleFrom(
+                  backgroundColor: _picked == null
+                      ? AppColors.emerald100
+                      : (i == q.correct
+                          ? AppColors.emerald200
+                          : (_picked == i
+                              ? const Color(0xFFFFE4E6)
+                              : AppColors.emerald50)),
+                  foregroundColor: AppColors.emerald900,
+                  minimumSize: const Size.fromHeight(52),
+                ),
+                onPressed: _busy ? null : () => _answer(i),
+                child: Text(q.options[i], textAlign: TextAlign.center),
               ),
               const SizedBox(height: 10),
             ],

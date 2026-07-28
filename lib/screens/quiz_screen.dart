@@ -29,7 +29,9 @@ class _QuizScreenState extends State<QuizScreen> {
           },
         ),
       );
-    _loadLocalHtml();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadLocalHtml();
+    });
   }
 
   Future<void> _loadLocalHtml() async {

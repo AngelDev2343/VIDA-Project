@@ -81,6 +81,13 @@ const List<EvangelizateSource> evangelizateSources = [
         'Usado ampliamente en iglesias evangélicas.',
     url: 'https://www.coalicionporelevangelio.org/articulo/metodo-dos-caminos-evangelismo/',
   ),
+  EvangelizateSource(
+    name: 'Cru — Las cuatro leyes espirituales',
+    detail:
+        'Resumen claro del evangelio en cuatro puntos (amor de Dios, pecado, '
+        'Cristo, recibir). cru.org',
+    url: 'https://www.cru.org/us/en/train-and-grow/share-the-gospel/ways-to-share/four-spiritual-laws.html',
+  ),
 ];
 
 final List<EvangelizateCategory> evangelizateCategories = [
@@ -314,13 +321,263 @@ final List<EvangelizateCategory> evangelizateCategories = [
         ],
         source: 'Greg Laurie — enfoque conversacional; Juan 14:6',
       ),
+      EvangelizateSection(
+        title: 'Dale un siguiente paso concreto',
+        explanation:
+            'El agnosticismo a veces es comodidad, no solo duda. Invita a un '
+            'paso pequeño y verificable: leer un evangelio (Marcos o Juan), '
+            'orar «Dios, si estás ahí, muéstrate», o visitar una iglesia sana. '
+            'No exijas una decisión forzada el primer día; acompaña el proceso.',
+        tips: [
+          'Ofrece leer juntos un capítulo corto.',
+          'Pregunta: «¿Qué te detiene de mirar a Jesús con honestidad?»',
+          'Respeta el ritmo; no manipules emociones.',
+        ],
+        verses: [
+          const BibleVerse(
+            'Hebreos 11:6',
+            'Pero sin fe es imposible agradar a Dios; porque es necesario que el que se acerca a Dios crea que le hay, y que es galardonador de los que le buscan.',
+          ),
+        ],
+        source: 'Práctica pastoral común; Hebreos 11:6',
+      ),
+    ],
+  ),
+  EvangelizateCategory(
+    title: 'Si Dios es bueno, ¿por qué hay mal?',
+    shortTitle: 'Sufrimiento',
+    icon: Icons.healing_outlined,
+    description: 'Dolor, mal y esperanza',
+    sections: [
+      EvangelizateSection(
+        title: 'Escucha el dolor antes de explicar',
+        explanation:
+            'Quien pregunta por el mal a menudo carga heridas. No empieces con '
+            'filosofía. Di: «Lamento lo que te pasó» y escucha. El evangelio no '
+            'es un argumento frío: es un Dios que entró en el sufrimiento en la '
+            'cruz.',
+        tips: [
+          'Valida el dolor; no digas «todo pasa por algo» de inmediato.',
+          'Ora con la persona si te lo permiten.',
+          'Comparte que tú también has llorado y dudado.',
+        ],
+        source: 'Pastoreo pastoral; énfasis de Graham en compasión',
+      ),
+      EvangelizateSection(
+        title: 'El mal no niega a Dios: lo hace necesario',
+        explanation:
+            'Si el mal es real (no solo «opinión»), entonces existen el bien y '
+            'la justicia objetiva. Eso apunta a un Legislador moral. El '
+            'cristianismo explica el quebranto (Génesis 3; Ro 5) y ofrece '
+            'redención: Dios no está ausente; en Cristo carga el mal consigo.',
+        verses: [
+          const BibleVerse(
+            'Romanos 8:18',
+            'Pues tengo por cierto que las aflicciones del tiempo presente no son comparables con la gloria venidera que en nosotros ha de ser manifestada.',
+          ),
+          const BibleVerse(
+            'Apocalipsis 21:4',
+            'Enjugará Dios toda lágrima de los ojos de ellos; y ya no habrá muerte, ni habrá más llanto, ni clamor, ni dolor; porque las primeras cosas pasaron.',
+          ),
+        ],
+        source: 'Teología bíblica del quebranto y la esperanza',
+      ),
+      EvangelizateSection(
+        title: 'Lleva a la cruz y a la esperanza',
+        explanation:
+            'Jesús lloró (Juan 11), sufrió injusticia y venció la muerte. No '
+            'prometas que la vida será fácil; promete que Él está cerca de los '
+            'quebrantados y que un día hará nuevas todas las cosas.',
+        verses: [
+          const BibleVerse(
+            'Salmo 34:18',
+            'Cercano está Jehová a los quebrantados de corazón; y salva a los contritos de espíritu.',
+          ),
+          const BibleVerse(
+            '2 Corintios 1:3-4',
+            'Bendito sea el Dios y Padre de nuestro Señor Jesucristo, Padre de misericordias y Dios de toda consolación, el cual nos consuela en todas nuestras tribulaciones, para que podamos también nosotros consolar a los que están en cualquier tribulación.',
+          ),
+        ],
+        source: 'Escritura; consuelo pastoral',
+      ),
+    ],
+  ),
+  EvangelizateCategory(
+    title: 'Objeciones frecuentes',
+    shortTitle: 'Objeciones',
+    icon: Icons.forum_outlined,
+    description: 'Respuestas con gracia',
+    sections: [
+      EvangelizateSection(
+        title: '«Los cristianos son hipócritas»',
+        explanation:
+            'Admite lo que sea justo: la iglesia tiene fallas porque está llena '
+            'de pecadores perdonados. No defiendas el pecado; apunta a Cristo. '
+            'La hipocresía ajena no cancela la verdad de Jesús, igual que un '
+            'médico malo no anula la medicina.',
+        tips: [
+          '«Tienes razón en que muchos fallamos; ¿podemos mirar a Jesús?»',
+          'Distingue entre Cristo y quienes lo representan mal.',
+          'No ataques a otras iglesias; enfócate en el evangelio.',
+        ],
+        verses: [
+          const BibleVerse(
+            'Lucas 5:31-32',
+            'Respondiendo Jesús, les dijo: Los que están sanos no tienen necesidad de médico, sino los enfermos. No he venido a llamar a justos, sino a pecadores al arrepentimiento.',
+          ),
+        ],
+        source: 'Apologética conversacional común',
+      ),
+      EvangelizateSection(
+        title: '«La Biblia es antigua / contradictoria»',
+        explanation:
+            'Invita a leer un evangelio completo antes de descartarlo. Explica '
+            'que la Biblia es una biblioteca con géneros distintos, no un '
+            'manual moderno. Ofrece estudiar juntos un pasaje difícil en vez de '
+            'debatir titulares.',
+        tips: [
+          'Pregunta: «¿Qué pasaje concreto te incomoda?»',
+          'Recomienda Juan o Marcos para empezar.',
+          'Sé humilde: «No lo sé todo; busquemos juntos.»',
+        ],
+        verses: [
+          const BibleVerse(
+            '2 Timoteo 3:16-17',
+            'Toda la Escritura es inspirada por Dios, y útil para enseñar, para redargüir, para corregir, para instruir en justicia, a fin de que el hombre de Dios sea perfecto, enteramente preparado para toda buena obra.',
+          ),
+          const BibleVerse(
+            'Salmo 119:105',
+            'Lámpara es a mis pies tu palabra, y lumbrera a mi camino.',
+          ),
+        ],
+        source: 'Enfoque evangélico: Escritura como autoridad',
+      ),
+      EvangelizateSection(
+        title: '«La ciencia ya lo explicó todo»',
+        explanation:
+            'La ciencia describe mecanismos; no responde por sí sola al sentido, '
+            'la moral objetiva ni el amor. Muchos científicos son creyentes. No '
+            'enfrentes fe vs. ciencia: muestra que el evangelio responde a quiénes '
+            'somos y a quién necesitamos.',
+        tips: [
+          'Evita pelear sobre cada teoría; vuelve a Jesús.',
+          '«Aunque el universo exista, ¿qué haces con tu culpa y tu muerte?»',
+        ],
+        verses: [
+          const BibleVerse(
+            'Salmo 19:1',
+            'Los cielos cuentan la gloria de Dios, y el firmamento anuncia la obra de sus manos.',
+          ),
+          const BibleVerse(
+            'Colosenses 1:16-17',
+            'Porque en él fueron creadas todas las cosas, las que hay en los cielos y las que hay en la tierra, visibles e invisibles; … y él es antes de todas las cosas, y todas las cosas en él subsisten.',
+          ),
+        ],
+        source: 'Apologética cristiana básica',
+      ),
+    ],
+  ),
+  EvangelizateCategory(
+    title: 'Amigos y familia',
+    shortTitle: 'Cercanos',
+    icon: Icons.people_outline_rounded,
+    description: 'Testificar en casa',
+    sections: [
+      EvangelizateSection(
+        title: 'Empieza por el amor constante',
+        explanation:
+            'Con familiares, tu vida habla antes que tu discurso. Sé paciente, '
+            'honesto y respetuoso. No uses cada comida como púlpito. Ora por '
+            'ellos a diario y busca momentos naturales, no emboscadas.',
+        tips: [
+          'Pide perdón cuando hayas sido agresivo o orgulloso.',
+          'Sirve en lo práctico: presencia > sermones.',
+          'Comparte cambios reales que Cristo hizo en ti.',
+        ],
+        verses: [
+          const BibleVerse(
+            '1 Pedro 3:15-16',
+            'Estad siempre preparados para presentar defensa con mansedumbre y reverence ante todo el que os demande razón de la esperanza que hay en vosotros; teniendo buena conciencia…',
+          ),
+          const BibleVerse(
+            'Colosenses 4:5-6',
+            'Andad sabiamente para con los de afuera, redimiendo el tiempo. Sea vuestra palabra siempre con gracia, sazonada con sal, para que sepáis cómo debéis responder a cada uno.',
+          ),
+        ],
+        source: '1 Pedro 3; Colosenses 4 — testificar con mansedumbre',
+      ),
+      EvangelizateSection(
+        title: 'Cuando rechazan el mensaje',
+        explanation:
+            'No fuerces. Jesús envió a sus discípulos a sacudir el polvo cuando '
+            'no eran recibidos (Mt 10). Sigue amando. A veces el mejor '
+            'evangelismo es fidelidad silenciosa y puertas abiertas.',
+        tips: [
+          'Deja de discutir el mismo punto una y otra vez.',
+          'Mantén la relación; no hagas del evangelio un ultimátum.',
+          'Confía el proceso a Dios.',
+        ],
+        verses: [
+          const BibleVerse(
+            'Gálatas 6:9',
+            'No nos cansemos, pues, de hacer bien; porque a su tiempo segaremos, si no desmayamos.',
+          ),
+        ],
+        source: 'Mateo 10; perseverancia pastoral',
+      ),
+    ],
+  ),
+  EvangelizateCategory(
+    title: 'Soy religioso / de otra tradición',
+    shortTitle: 'Religioso',
+    icon: Icons.public_rounded,
+    description: 'Religión vs. relación',
+    sections: [
+      EvangelizateSection(
+        title: 'Respeta, no ridiculices',
+        explanation:
+            'Honra lo bueno que encuentres (sinceridad, oración, ética). Luego '
+            'pregunta con suavidad: «¿En qué confías para estar bien con Dios: '
+            'tus rituales, tu moral, o a Cristo?» La diferencia del evangelio es '
+            'gracia recibida, no mérito ganado.',
+        tips: [
+          'Nunca insultes a su comunidad o líderes.',
+          'Usa preguntas, no ataques a doctrinas ajenas.',
+          'Comparte tu testimonio personal.',
+        ],
+        verses: [
+          const BibleVerse(
+            'Hechos 17:22-23',
+            'Pablo… dijo: Varones atenienses, en todo observo que sois muy religiosos; porque pasando y mirando vuestros santuarios, hallé también un altar en el cual estaba esta inscripción: AL DIOS NO CONOCIDO. Al que vosotros adoráis, pues, sin conocerle, es a quien yo os anuncio.',
+          ),
+        ],
+        source: 'Hechos 17 — modelo de Pablo en Atenas',
+      ),
+      EvangelizateSection(
+        title: 'Cristo es suficiente',
+        explanation:
+            'Muchas religiones añaden obras, mediadores o méritos. El evangelio '
+            'anuncia que la obra de Jesús en la cruz es completa. Invita a '
+            'descansar en Él, no a «sumar» a Jesús a un sistema anterior.',
+        verses: [
+          const BibleVerse(
+            'Juan 19:30',
+            'Cuando Jesús hubo tomado el vinagre, dijo: Consumado es. Y habiendo inclinado la cabeza, entregó el espíritu.',
+          ),
+          const BibleVerse(
+            'Hebreos 10:14',
+            'Porque con una sola ofrenda hizo perfectos para siempre a los santificados.',
+          ),
+        ],
+        source: 'Hebreos; énfasis evangélico en la suficiencia de Cristo',
+      ),
     ],
   ),
   EvangelizateCategory(
     title: 'Métodos claros',
     shortTitle: 'Métodos',
     icon: Icons.account_tree_outlined,
-    description: 'Puente y Romanos',
+    description: 'Puente, Romanos y 4 leyes',
     sections: [
       EvangelizateSection(
         title: 'Ilustración del puente',
@@ -371,6 +628,34 @@ final List<EvangelizateCategory> evangelizateCategories = [
         ],
         source: 'Camino de Romanos — tradición evangélica',
       ),
+      EvangelizateSection(
+        title: 'Cuatro leyes espirituales (Cru)',
+        explanation:
+            'Un resumen breve y memorizable usado por Cru (antes Campus Crusade): '
+            '(1) Dios te ama y tiene un plan; (2) el hombre está separado por el '
+            'pecado; (3) Jesucristo es la única provisión de Dios; (4) debemos '
+            'recibir a Jesús por fe. Úsalo como guía, no como guion rígido.',
+        tips: [
+          'Puedes dibujar las dos orillas como en el puente.',
+          'Termina ofreciendo orar para recibir a Cristo.',
+          'Deja un folleto o un versículo escrito para que lo relea.',
+        ],
+        verses: [
+          const BibleVerse(
+            'Juan 3:16',
+            'Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna.',
+          ),
+          const BibleVerse(
+            'Juan 1:12',
+            'Mas a todos los que le recibieron, a los que creen en su nombre, les dio potestad de ser hechos hijos de Dios.',
+          ),
+          const BibleVerse(
+            'Apocalipsis 3:20',
+            'He aquí, yo estoy a la puerta y llamo; si alguno oye mi voz y abre la puerta, entraré a él, y cenaré con él, y él conmigo.',
+          ),
+        ],
+        source: 'Cru — Four Spiritual Laws',
+      ),
     ],
   ),
   EvangelizateCategory(
@@ -410,6 +695,41 @@ final List<EvangelizateCategory> evangelizateCategories = [
           ),
         ],
         source: 'Mateo 28; énfasis de Greg Laurie sobre 2 Timoteo 4:5',
+      ),
+      EvangelizateSection(
+        title: 'Después de que alguien cree',
+        explanation:
+            'La conversión es el comienzo. Ayuda al nuevo creyente a orar, leer '
+            'la Biblia, unirse a una iglesia fiel y bautizarse. No lo dejes solo '
+            'con un «oración de salvación» y adiós.',
+        tips: [
+          'Conéctalo con una congregación sana esta misma semana.',
+          'Lee juntos el evangelio de Juan o un plan de 7 días.',
+          'Enséñale a orar con sencillez (adoración, confesión, petición).',
+          'Celebra el bautismo cuando esté listo (Mt 28:19).',
+        ],
+        verses: [
+          const BibleVerse(
+            'Hechos 2:41-42',
+            'Así que, los que recibieron su palabra fueron bautizados… Y perseveraban en la doctrina de los apóstoles, en la comunión unos con otros, en el partimiento del pan y en las oraciones.',
+          ),
+          const BibleVerse(
+            'Mateo 28:19-20',
+            'Por tanto, id, y haced discípulos a todas las naciones, bautizándolos… enseñándoles que guarden todas las cosas que os he mandado.',
+          ),
+        ],
+        source: 'Hechos 2; discipulado inicial',
+      ),
+      EvangelizateSection(
+        title: 'Errores comunes a evitar',
+        tips: [
+          'No pelear por ganar: si ganas el debate y pierdes a la persona, perdiste.',
+          'No inventar versículos ni sacar frases de contexto.',
+          'No prometer riquezas o una vida sin problemas.',
+          'No avergonzar en redes ni exponer conversaciones privadas.',
+          'No depender solo de argumentos: ora y ama.',
+        ],
+        source: 'Buenas prácticas de evangelismo personal',
       ),
     ],
   ),

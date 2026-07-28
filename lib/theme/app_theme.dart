@@ -181,7 +181,7 @@ class AppTheme {
     );
 
     final onSurface = scheme.onSurface;
-    final primary = scheme.primary!;
+    final primary = scheme.primary;
     final scaffold = scheme.surface;
     final cardColor = isDark ? base.surfaceContainerHigh : Colors.white;
     final sheetColor = isDark ? base.surfaceContainerHigh : Colors.white;

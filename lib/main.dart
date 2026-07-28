@@ -94,11 +94,13 @@ class _VidaAppState extends State<VidaApp> {
   void _openFavoritoFromWidget() {
     final nav = vidaNavigatorKey.currentState;
     if (nav == null) return;
-    nav.push(
+    // Evita apilar varias FavoritoScreen al tocar el widget repetidas veces.
+    nav.pushAndRemoveUntil(
       MaterialPageRoute<void>(
         settings: const RouteSettings(name: 'favorito'),
         builder: (_) => const FavoritoScreen(),
       ),
+      (route) => route.settings.name != 'favorito',
     );
   }
 
@@ -221,12 +223,49 @@ class _VidaAppState extends State<VidaApp> {
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
+  static final ValueNotifier<int?> tabRequests = ValueNotifier<int?>(null);
+
+  /// Cambia la pestaña inferior (0 Inicio · 1 Biblia · 2 VIDA · 3 Perfil).
+  /// Si Perfil se abrió como ruta encima, primero vuelve al shell.
+  static void goToTab(BuildContext context, int index) {
+    final state = context.findAncestorStateOfType<_AppShellState>();
+    if (state != null) {
+      state.selectTab(index);
+      return;
+    }
+    tabRequests.value = index;
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   @override
   State<AppShell> createState() => _AppShellState();
 }
 
 class _AppShellState extends State<AppShell> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    AppShell.tabRequests.addListener(_onTabRequest);
+  }
+
+  @override
+  void dispose() {
+    AppShell.tabRequests.removeListener(_onTabRequest);
+    super.dispose();
+  }
+
+  void _onTabRequest() {
+    final i = AppShell.tabRequests.value;
+    if (i == null) return;
+    AppShell.tabRequests.value = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) selectTab(i);
+    });
+  }
+
+  void selectTab(int i) => _onTabSelected(i);
 
   Future<void> _onTabSelected(int i) async {
     if (i == 2) {

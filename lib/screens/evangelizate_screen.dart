@@ -60,8 +60,9 @@ class EvangelizateScreen extends StatelessWidget {
                     Text(
                       'Métodos y consejos basados en pastores y ministerios '
                       'verificables: Ray Comfort (Living Waters), Billy Graham, '
-                      'Greg Laurie (Harvest) y el Camino de Romanos. Usa esto '
-                      'como ayuda; la autoridad final es la Biblia.',
+                      'Greg Laurie (Harvest), el Camino de Romanos y Cru. '
+                      'Incluye sufrimiento, objeciones, familia y seguimiento. '
+                      'Usa esto como ayuda; la autoridad final es la Biblia.',
                       style: TextStyle(fontFamily: 'DM Sans',
                         fontSize: 13,
                         height: 1.5,

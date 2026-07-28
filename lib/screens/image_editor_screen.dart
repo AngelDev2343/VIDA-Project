@@ -11,7 +11,12 @@ enum _TextAlign { top, center, bottom }
 
 class ImageEditorScreen extends StatefulWidget {
   final String imageAsset;
-  const ImageEditorScreen({super.key, required this.imageAsset});
+  final String? initialText;
+  const ImageEditorScreen({
+    super.key,
+    required this.imageAsset,
+    this.initialText,
+  });
 
   @override
   State<ImageEditorScreen> createState() => _ImageEditorScreenState();
@@ -35,6 +40,16 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
     AppColors.emerald700,
     AppColors.amber400,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    final t = widget.initialText?.trim();
+    if (t != null && t.isNotEmpty) {
+      _text = t;
+      _textController.text = t;
+    }
+  }
 
   @override
   void dispose() {

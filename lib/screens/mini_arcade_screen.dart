@@ -45,6 +45,11 @@ class MiniArcadeScreen extends StatelessWidget {
       title: 'Camino del discípulo',
       subtitle: 'Elige con sabiduría',
     ),
+    _GameData(
+      icon: Icons.record_voice_over_rounded,
+      title: '¿Quién lo dijo?',
+      subtitle: 'Citas y personajes',
+    ),
   ];
 
   void _open(BuildContext context, int i) {
@@ -56,7 +61,8 @@ class MiniArcadeScreen extends StatelessWidget {
       3 => const OrdenaVersiculoScreen(),
       4 => const VerdaderoFalsoScreen(),
       5 => const TriviaCategoriasScreen(),
-      _ => const CaminoDiscipuloScreen(),
+      6 => const CaminoDiscipuloScreen(),
+      _ => const QuienLoDijoScreen(),
     };
     Navigator.push(context, slideUpRoute(page));
   }

@@ -154,9 +154,11 @@ class _AuthViewState extends State<_AuthView>
           EmailAuthProvider.credential(email: email, password: pass);
 
       if (isRegister) {
+        var createdOrLinked = false;
         if (current != null && current.isAnonymous) {
           try {
             await current.linkWithCredential(credential);
+            createdOrLinked = true;
           } on FirebaseAuthException catch (e) {
             if (e.code == 'email-already-in-use' ||
                 e.code == 'credential-already-in-use') {
@@ -169,9 +171,16 @@ class _AuthViewState extends State<_AuthView>
         } else {
           await auth.createUserWithEmailAndPassword(
               email: email, password: pass);
+          createdOrLinked = true;
         }
         final user = auth.currentUser;
-        if (user != null) {
+        // Solo renombrar en cuenta nueva/vinculada; no pisar perfil existente.
+        if (createdOrLinked && user != null && name.isNotEmpty) {
+          await user.updateDisplayName(name);
+          await user.reload();
+        } else if (user != null &&
+            (user.displayName == null || user.displayName!.trim().isEmpty) &&
+            name.isNotEmpty) {
           await user.updateDisplayName(name);
           await user.reload();
         }
@@ -435,6 +444,7 @@ class _FeedViewState extends State<_FeedView> {
   final _postCtrl = TextEditingController();
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool _posting = false;
 
   @override
   void dispose() {
@@ -444,20 +454,25 @@ class _FeedViewState extends State<_FeedView> {
 
   Future<void> _createPost() async {
     final content = _postCtrl.text.trim();
-    if (content.isEmpty) return;
+    if (content.isEmpty || _posting) return;
     final user = _auth.currentUser;
     if (user == null || user.isAnonymous) return;
 
-    await _db.collection('community_posts').add({
-      'userId': user.uid,
-      'authorName': _resolveAuthorName(user, context),
-      'authorEmail': _resolveAuthorEmail(user),
-      'content': content,
-      'createdAt': FieldValue.serverTimestamp(),
-      'likeCount': 0,
-      'likedBy': [],
-    });
-    _postCtrl.clear();
+    setState(() => _posting = true);
+    try {
+      await _db.collection('community_posts').add({
+        'userId': user.uid,
+        'authorName': _resolveAuthorName(user, context),
+        'authorEmail': _resolveAuthorEmail(user),
+        'content': content,
+        'createdAt': FieldValue.serverTimestamp(),
+        'likeCount': 0,
+        'likedBy': [],
+      });
+      if (mounted) _postCtrl.clear();
+    } finally {
+      if (mounted) setState(() => _posting = false);
+    }
   }
 
   @override
@@ -490,7 +505,7 @@ class _FeedViewState extends State<_FeedView> {
               suffixIcon: Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: IconButton(
-                  onPressed: _createPost,
+                  onPressed: _posting ? null : _createPost,
                   icon: Icon(Icons.send_rounded, size: 20, color: AppColors.emerald600),
                 ),
               ),
@@ -537,7 +552,7 @@ class _FeedViewState extends State<_FeedView> {
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                 itemCount: posts.length,
                 itemBuilder: (context, i) =>
-                    _PostCard(postDoc: posts[i]),
+                    _PostCard(key: ValueKey(posts[i].id), postDoc: posts[i]),
               );
             },
           ),
@@ -551,7 +566,7 @@ class _FeedViewState extends State<_FeedView> {
 
 class _PostCard extends StatefulWidget {
   final QueryDocumentSnapshot postDoc;
-  const _PostCard({required this.postDoc});
+  const _PostCard({super.key, required this.postDoc});
 
   @override
   State<_PostCard> createState() => _PostCardState();
@@ -559,6 +574,8 @@ class _PostCard extends StatefulWidget {
 
 class _PostCardState extends State<_PostCard> {
   bool _showComments = false;
+  bool _liking = false;
+  bool _commenting = false;
   final _commentCtrl = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -591,45 +608,63 @@ class _PostCardState extends State<_PostCard> {
 
   Future<void> _toggleLike() async {
     final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
-    final ref =
-        _db.collection('community_posts').doc(widget.postDoc.id);
-    if (_isLiked) {
-      await ref.update({
-        'likedBy': FieldValue.arrayRemove([uid]),
-        'likeCount': FieldValue.increment(-1),
+    if (uid == null || _liking) return;
+    setState(() => _liking = true);
+    final ref = _db.collection('community_posts').doc(widget.postDoc.id);
+    try {
+      await _db.runTransaction((tx) async {
+        final snap = await tx.get(ref);
+        final data = snap.data() ?? {};
+        final likedBy = List<String>.from(data['likedBy'] ?? []);
+        final liked = likedBy.contains(uid);
+        if (liked) {
+          likedBy.remove(uid);
+        } else {
+          likedBy.add(uid);
+        }
+        tx.update(ref, {
+          'likedBy': likedBy,
+          'likeCount': likedBy.length,
+        });
       });
-    } else {
-      await ref.update({
-        'likedBy': FieldValue.arrayUnion([uid]),
-        'likeCount': FieldValue.increment(1),
-      });
+    } catch (_) {
+      // Stream refresca el estado real; ignoramos fallos de red.
+    } finally {
+      if (mounted) setState(() => _liking = false);
     }
   }
 
   Future<void> _addComment() async {
     final content = _commentCtrl.text.trim();
-    if (content.isEmpty) return;
+    if (content.isEmpty || _commenting) return;
     final user = _auth.currentUser;
     if (user == null || user.isAnonymous) return;
 
-    await _db
-        .collection('community_posts')
-        .doc(widget.postDoc.id)
-        .collection('comments')
-        .add({
-      'userId': user.uid,
-      'authorName': _resolveAuthorName(user, context),
-      'authorEmail': _resolveAuthorEmail(user),
-      'content': content,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
-    _commentCtrl.clear();
+    setState(() => _commenting = true);
+    try {
+      await _db
+          .collection('community_posts')
+          .doc(widget.postDoc.id)
+          .collection('comments')
+          .add({
+        'userId': user.uid,
+        'authorName': _resolveAuthorName(user, context),
+        'authorEmail': _resolveAuthorEmail(user),
+        'content': content,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      if (mounted) _commentCtrl.clear();
+    } finally {
+      if (mounted) setState(() => _commenting = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final likeCount = _data['likeCount'] as int? ?? 0;
+    final likedBy = List<String>.from(_data['likedBy'] ?? []);
+    final likeCount = likedBy.isNotEmpty
+        ? likedBy.length
+        : (_data['likeCount'] as int? ?? 0);
     final authorName = (_data['authorName'] as String?)?.trim() ?? '';
     final handle = _displayHandle(
       _data['authorEmail'] as String?,
@@ -709,7 +744,7 @@ class _PostCardState extends State<_PostCard> {
             Row(
               children: [
                 IconButton(
-                  onPressed: _toggleLike,
+                  onPressed: _liking ? null : _toggleLike,
                   icon: Icon(
                     _isLiked
                         ? Icons.favorite_rounded
@@ -770,7 +805,7 @@ class _PostCardState extends State<_PostCard> {
                   ),
                   const SizedBox(width: 6),
                   IconButton(
-                    onPressed: _addComment,
+                    onPressed: _commenting ? null : _addComment,
                     icon: Icon(Icons.send_rounded,
                         size: 18, color: AppColors.emerald600),
                     visualDensity: VisualDensity.compact,

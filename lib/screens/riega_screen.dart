@@ -33,13 +33,16 @@ class _RiegaScreenState extends State<RiegaScreen> {
           },
         ),
       );
-    _loadLocalHtml();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadLocalHtml();
+    });
   }
 
   Future<void> _loadLocalHtml() async {
     try {
       final html = await DefaultAssetBundle.of(context)
           .loadString('games/riega/index.html');
+      if (!mounted) return;
       await _controller.loadHtmlString(html,
           baseUrl: 'https://riega-game.local/');
     } catch (_) {
@@ -54,6 +57,7 @@ class _RiegaScreenState extends State<RiegaScreen> {
 
   Future<void> _restoreState() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final saved = prefs.getString('riega_game_state');
     if (saved != null) {
       final escaped = saved.replaceAll('\\', '\\\\').replaceAll("'", "\\'");

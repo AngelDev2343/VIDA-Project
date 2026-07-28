@@ -125,6 +125,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
   }
 
   void _ensureFocusVerseVisible({int retries = 0}) {
+    if (!mounted) return;
     final ctx = _focusVerseKey.currentContext;
     if (ctx != null) {
       Scrollable.ensureVisible(
@@ -137,6 +138,7 @@ class _BibliaScreenState extends State<BibliaScreen> {
     }
     if (retries > 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         _ensureFocusVerseVisible(retries: retries - 1);
       });
     }

@@ -6,7 +6,7 @@ import '../data/vida_algorithm.dart';
 import '../data/vida_signals.dart';
 import '../main.dart';
 import '../theme/app_theme.dart';
-import '../widgets/vida_verse_card.dart';
+import '../widgets/home_smart_stack.dart';
 import '../widgets/tool_card.dart';
 import '../widgets/fade_in.dart';
 import 'contra_pecado_screen.dart';
@@ -22,6 +22,8 @@ import 'mapa_iglesias_screen.dart';
 import 'testimonios_screen.dart';
 import 'community_screen.dart';
 import 'guardados_screen.dart';
+import 'oracion_guiada_screen.dart';
+import '../data/oracion_guiada.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -47,6 +49,40 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadVida();
     VidaAlgorithm.assignmentChanges.addListener(_loadVida);
     VidaSavedStore.changes.addListener(_loadVida);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeInvitePrayer());
+  }
+
+  Future<void> _maybeInvitePrayer() async {
+    await OracionGuiadaService.ensureFirstOpenTracked();
+    if (!mounted) return;
+    if (!await OracionGuiadaService.shouldShowInvite()) return;
+    if (!mounted) return;
+    final goPray = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('¿Quieres orar un momento?'),
+        content: const Text(
+          'Notamos que llevas un tiempo en VIDA. '
+          'La oración guiada te ayuda a empezar sin presión: '
+          'paso a paso, a tu ritmo.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Ahora no'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Orar'),
+          ),
+        ],
+      ),
+    );
+    // Solo marcar después de que el usuario vio el diálogo.
+    await OracionGuiadaService.markInviteShown();
+    if (!mounted) return;
+    if (goPray == true) await openOracionGuiada(context);
   }
 
   @override
@@ -69,6 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadContraPecado() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(
       () => _contraPecadoEnabled = prefs.getBool('contra_pecado') ?? false,
     );
@@ -76,16 +113,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadFavorito() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(
       () => _favoritoEnabled = prefs.getBool('favorito') ?? false,
     );
   }
 
-
-
   Future<void> _loadStreak() async {
     final count = await StreakService.getCount();
     final best = await StreakService.getBest();
+    if (!mounted) return;
     setState(() {
       _streak = count;
       _bestStreak = best;
@@ -216,20 +253,20 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
 
             FadeIn(
-              child: VidaVerseCard(
-                verseText: _vida?.text ??
+              child: HomeSmartStack(
+                vidaText: _vida?.text ??
                     'Toca VIDA para descubrir tu versículo del mes',
-                reference: _vida?.reference ?? 'Tu versículo VIDA',
-                saved: _vidaSaved,
-                onShare: _shareVida,
-                onSave: _toggleSaveVida,
+                vidaReference: _vida?.reference ?? 'Tu versículo VIDA',
+                vidaSaved: _vidaSaved,
+                onShareVida: _shareVida,
+                onSaveVida: _toggleSaveVida,
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
 
             FadeIn(
               index: 1,
@@ -510,7 +547,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                '7 juegos disponibles',
+                                '8 juegos disponibles',
                                 style: TextStyle(fontFamily: 'DM Sans', 
                                   fontSize: 12,
                                   color: AppColors.emerald600,

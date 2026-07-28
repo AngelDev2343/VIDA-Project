@@ -44,6 +44,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
   Future<void> _toggle(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('contra_pecado', value);
+    if (!mounted) return;
     setState(() {
       _enabled = value;
       _widgetMissing = false;
@@ -59,8 +60,18 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
         androidName: 'ContraPecadoWidgetProvider',
         iOSName: 'ContraPecadoWidget',
       );
-      final alreadyPinned = prefs.getBool('first_launch_pin') ?? false;
-      if (!alreadyPinned) {
+      // Pedir pin si el widget no está instalado (no solo por first_launch_pin).
+      var needPin = !(prefs.getBool('first_launch_pin') ?? false);
+      try {
+        final widgets = await HomeWidget.getInstalledWidgets();
+        final found = widgets.any(
+          (w) =>
+              (w.androidClassName?.contains('ContraPecadoWidgetProvider') ??
+                  false),
+        );
+        needPin = !found;
+      } catch (_) {}
+      if (needPin) {
         final supported =
             await HomeWidget.isRequestPinWidgetSupported() ?? false;
         if (supported) {
@@ -70,6 +81,7 @@ class _ContraPecadoScreenState extends State<ContraPecadoScreen> {
         }
         if (mounted && !supported) _showManualPinDialog();
       }
+      await prefs.setBool('first_launch_pin', true);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

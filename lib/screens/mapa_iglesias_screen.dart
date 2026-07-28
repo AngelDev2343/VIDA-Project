@@ -47,6 +47,7 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
     _positionSub?.cancel();
     _searchTimer?.cancel();
     _searchCtrl.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -82,14 +83,22 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
   }
 
   Future<void> _loadIglesias() async {
-    final snap = await _db.collection('iglesias').get();
-    _churches = snap.docs.map((d) {
-      final data = d.data();
-      data['_id'] = d.id;
-      return data;
-    }).toList();
-    _filtered = List.from(_churches);
-    setState(() => _loading = false);
+    try {
+      final snap = await _db.collection('iglesias').get();
+      if (!mounted) return;
+      _churches = snap.docs.map((d) {
+        final data = d.data();
+        data['_id'] = d.id;
+        return data;
+      }).toList();
+      _filtered = List.from(_churches);
+    } catch (_) {
+      if (!mounted) return;
+      _churches = [];
+      _filtered = [];
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   void _onSearch() {
@@ -134,6 +143,21 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
         },
       ),
     );
+  }
+
+  /// Devuelve null si faltan o son inválidas lat/lng (evita tumbar el mapa).
+  static LatLng? _coordsOf(Map<String, dynamic> c) {
+    final latRaw = c['latitud'];
+    final lngRaw = c['longitud'];
+    final lat = latRaw is num
+        ? latRaw.toDouble()
+        : double.tryParse('$latRaw');
+    final lng = lngRaw is num
+        ? lngRaw.toDouble()
+        : double.tryParse('$lngRaw');
+    if (lat == null || lng == null) return null;
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+    return LatLng(lat, lng);
   }
 
   Future<void> _addChurch({
@@ -189,10 +213,10 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
               Map<String, dynamic>? nearest;
               var bestDist = 0.002; // ~200 m
               for (final c in _filtered) {
-                final clat = (c['latitud'] as num).toDouble();
-                final clng = (c['longitud'] as num).toDouble();
-                final dist = (latlng.latitude - clat).abs() +
-                    (latlng.longitude - clng).abs();
+                final point = _coordsOf(c);
+                if (point == null) continue;
+                final dist = (latlng.latitude - point.latitude).abs() +
+                    (latlng.longitude - point.longitude).abs();
                 if (dist < bestDist) {
                   bestDist = dist;
                   nearest = c;
@@ -235,11 +259,10 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
                     ),
                   ),
                 ..._filtered.map((c) {
+                  final point = _coordsOf(c);
+                  if (point == null) return null;
                   return Marker(
-                    point: LatLng(
-                      (c['latitud'] as num).toDouble(),
-                      (c['longitud'] as num).toDouble(),
-                    ),
+                    point: point,
                     width: 40,
                     height: 40,
                     child: GestureDetector(
@@ -252,7 +275,7 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
                       ),
                     ),
                   );
-                }),
+                }).whereType<Marker>(),
               ],
             ),
           ],
@@ -311,9 +334,10 @@ class _MapaIglesiasScreenState extends State<MapaIglesiasScreen> {
             onTap: () {
               _searchCtrl.clear();
               setState(() => _searched = false);
-              final lat = (c['latitud'] as num).toDouble();
-              final lng = (c['longitud'] as num).toDouble();
-              _mapController.move(LatLng(lat, lng), 15);
+              final point = _coordsOf(c);
+              if (point != null) {
+                _mapController.move(point, 15);
+              }
               _showChurchSheet(c, c['_id'] as String);
             },
           );
@@ -463,11 +487,16 @@ class _ChurchDetailSheetState extends State<_ChurchDetailSheet> {
       ),
     );
     if (go == true && mounted) {
-      Navigator.pop(context); // close church sheet
-      Navigator.push(
+      // Mantener el sheet abierto debajo; al volver, unir si ya hay cuenta.
+      await Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const CommunityScreen()),
       );
+      if (!mounted) return;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.isAnonymous) {
+        await _joinChurch(user.uid);
+      }
     }
   }
 
@@ -710,7 +739,7 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
   }
 
   Future<void> _searchLocation(String query) async {
-    if (query.trim().isEmpty) return;
+    if (!mounted || query.trim().isEmpty) return;
 
     final coordPattern = RegExp(
         r'^\s*([+-]?\d+\.?\d*)\s*[, ]\s*([+-]?\d+\.?\d*)\s*$');
@@ -729,6 +758,9 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
     }
 
     setState(() => _searchingLocation = true);
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 10)
+      ..idleTimeout = const Duration(seconds: 10);
     try {
       var urlStr = 'https://nominatim.openstreetmap.org/search'
           '?q=${Uri.encodeComponent(query)}&format=json&limit=5&countrycodes=mx';
@@ -745,12 +777,15 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
         urlStr += '&viewbox=$minLng,$minLat,$maxLng,$maxLat&bounded=1';
       }
       final url = Uri.parse(urlStr);
-      final client = HttpClient();
       final request = await client.getUrl(url);
       request.headers.set('User-Agent', 'VIDA/1.0');
-      final response = await request.close();
-      final body = await response.transform(utf8.decoder).join();
+      final response = await request.close().timeout(const Duration(seconds: 12));
+      final body = await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(const Duration(seconds: 12));
       final data = jsonDecode(body) as List;
+      if (!mounted) return;
       if (data.isNotEmpty) {
         final lat = double.parse(data[0]['lat'] as String);
         final lng = double.parse(data[0]['lon'] as String);
@@ -758,8 +793,11 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
         setState(() => _selectedLocation = loc);
         _miniMapController.move(loc, 15);
       }
-    } catch (_) {}
-    setState(() => _searchingLocation = false);
+    } catch (_) {
+    } finally {
+      client.close(force: true);
+      if (mounted) setState(() => _searchingLocation = false);
+    }
   }
 
   Future<void> _initMiniMapLocation() async {
@@ -806,14 +844,27 @@ class _AddChurchSheetState extends State<_AddChurchSheet> {
       return;
     }
     setState(() => _submitting = true);
-    await widget.onSubmit(
-      nombre: _nombreCtrl.text.trim(),
-      ciudad: _ciudadCtrl.text.trim(),
-      descripcion: _descripCtrl.text.trim(),
-      latitud: _selectedLocation!.latitude,
-      longitud: _selectedLocation!.longitude,
-    );
-    if (mounted) Navigator.pop(context);
+    try {
+      await widget.onSubmit(
+        nombre: _nombreCtrl.text.trim(),
+        ciudad: _ciudadCtrl.text.trim(),
+        descripcion: _descripCtrl.text.trim(),
+        latitud: _selectedLocation!.latitude,
+        longitud: _selectedLocation!.longitude,
+      );
+      if (mounted) Navigator.pop(context);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No se pudo guardar la iglesia'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override

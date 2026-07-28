@@ -4,6 +4,8 @@ class VidaVerseCard extends StatelessWidget {
   final String verseText;
   final String reference;
   final bool saved;
+  final String eyebrow;
+  final EdgeInsetsGeometry margin;
   final VoidCallback? onShare;
   final VoidCallback? onSave;
 
@@ -12,6 +14,8 @@ class VidaVerseCard extends StatelessWidget {
     required this.verseText,
     required this.reference,
     this.saved = false,
+    this.eyebrow = 'TU VERSÍCULO · VIDA',
+    this.margin = const EdgeInsets.symmetric(horizontal: 16),
     this.onShare,
     this.onSave,
   });
@@ -21,7 +25,7 @@ class VidaVerseCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: margin,
       decoration: BoxDecoration(
         color: cs.primary,
         borderRadius: BorderRadius.circular(24),
@@ -29,7 +33,6 @@ class VidaVerseCard extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
-          // Decorative circle background
           Positioned(
             right: -35,
             top: -35,
@@ -54,15 +57,15 @@ class VidaVerseCard extends StatelessWidget {
               ),
             ),
           ),
-          // Content
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'TU VERSÍCULO · VIDA',
-                  style: TextStyle(fontFamily: 'DM Sans', 
+                  eyebrow,
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
                     fontSize: 10,
                     letterSpacing: 2,
                     fontWeight: FontWeight.w500,
@@ -70,19 +73,25 @@ class VidaVerseCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  '"$verseText"',
-                  style: TextStyle(fontFamily: 'Cormorant Garamond', 
-                    fontSize: 17,
-                    color: Colors.white,
-                    height: 1.55,
-                    fontStyle: FontStyle.italic,
+                Expanded(
+                  child: Text(
+                    '"$verseText"',
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: 'Cormorant Garamond',
+                      fontSize: 17,
+                      color: Colors.white,
+                      height: 1.55,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   '— $reference',
-                  style: TextStyle(fontFamily: 'DM Sans', 
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.9),
                   ),
@@ -127,24 +136,32 @@ class _ActionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.18),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: Colors.white),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: TextStyle(fontFamily: 'DM Sans', fontSize: 12, color: Colors.white),
-            ),
-          ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: Colors.white),
+              const SizedBox(width: 5),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'DM Sans',
+                  fontSize: 12,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
